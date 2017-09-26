@@ -19,7 +19,8 @@
     "body-parser": "^1.17.2",
     "compression": "^1.6.2",
     "express": "^4.15.3",
-    "hogan-express": "^0.5.2"
+    "hogan-express": "^0.5.2",
+    "jsonwebtoken": "^8.0.1"
   },
   "devDependencies": {
     "gulp": "^3.9.1",
