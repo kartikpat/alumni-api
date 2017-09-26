@@ -1,0 +1,36 @@
+{
+  "name": "crystal",
+  "version": "1.0.0",
+  "description": "Build tool on gulp",
+  "main": "Gulpfile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "gulp",
+    "build",
+    "sass",
+    "concatenate",
+    "minify"
+  ],
+  "author": "5aurabh",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.17.2",
+    "compression": "^1.6.2",
+    "express": "^4.15.3",
+    "hogan-express": "^0.5.2"
+  },
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "del": "^3.0.0",
+    "gulp-concat": "^2.6.1",
+    "gulp-debug": "^3.1.0",
+    "gulp-mocha": "^4.3.1",
+    "gulp-notify": "^3.0.0",
+    "gulp-sass": "^3.1.0",
+    "gulp-uglify": "^3.0.0",
+    "gulp-uglifycss": "^1.0.8",
+    "moment": "^2.18.1"
+  }
+}

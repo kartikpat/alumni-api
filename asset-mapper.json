@@ -1,0 +1,20 @@
+{
+	"index": {
+		"styles": {
+			"debug" : [
+            	"static/css/index.css"
+			],
+			"prod": [
+				"static/build/css/index.min.css"
+			]
+		},
+		"scripts": {
+			"debug": [
+				"static/js/index.js"
+			],
+			"prod" : [
+				"static/build/js/index.min.js"
+			]
+		}
+	}
+}
