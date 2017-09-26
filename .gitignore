@@ -1,0 +1,11 @@
+#excluding node_modules
+node_modules
+
+#excluding deployment script
+deploy.sh
+
+#excluding build
+static/build/*
+
+#excluding editor preferences
+*.sublime-workspace
