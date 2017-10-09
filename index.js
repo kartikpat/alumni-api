@@ -1,76 +1,108 @@
-	/*
-	Entry point for the project. All the configurations and settings take place here.
-	*/
-	var express = require ("express");
-	var fs = require("fs");
-	var bodyParser = require("body-parser");
-	var program = require("commander");
-	var compression = require("compression");
-	var mode = "prod";
-	var env = "cloud";
-	var staticMiddlewareOptions = {
-		dotfiles: 'deny',
-		etag: true,
-		extensions: ['html']
-	};
+/*
+Entry point for the project. All the configurations and settings take place here.
+*/
+var express = require ("express");
+var mysql = require("mysql");
 
-	program
-		.version(require('./package.json')['version'])
-		.option('-d, --debug', 'run in debug mode')
-		.option('-l, --local', 'run in local environment')
-		.option('-p, --port [value]', 'specify the port number')
-		.option('-c, --config [src]', 'specify config options')
-		.option('-v, --vault [src]', 'specify credentials location')
-		.parse(process.argv);
+var bodyParser = require("body-parser");
+var program = require("commander");
+var compression = require("compression");
+var mode = "prod";
+var env = "cloud";
+/**
+ * node.js fs module for accessing system file storage
+ * @type {module}	
+ */
+var fs = require("fs");
 
-	if((!program.port) || program.port==""){
-		console.log("Please provide the port number")
-		console.log("Syntax: node --port <port number>")
-		return
-	}
+/**
+ * node.js mysql module for connecting to mysql databases
+ * @type {module}
+ */
+var mysql = require("mysql");
 
-	if(program.debug)
-		mode = "debug";
-	if(program.local)
-		env = "local";
+/**
+ * node.js request module for making HTTP requests
+ * @type {module}
+ */
+var request = require("request");
 
-	var port = program.port;
-	var config = require(program.config);
-	var vault = program.vault;
+program
+	.version(require('./package.json')['version'])
+	.option('-d, --debug', 'run in debug mode')
+	.option('-l, --local', 'run in local environment')
+	.option('-p, --port [value]', 'specify the port number')
+	.option('-c, --config [src]', 'specify config options')
+	.option('-v, --vault [src]', 'specify credentials location')
+	.parse(process.argv);
 
+if((!program.port) || program.port==""){
+	console.log("Please provide the port number")
+	console.log("Syntax: node --port <port number>")
+	return
+}
+if((!program.vault) || program.vault=="" || (!program.config)  ||  program.config==""){
+	console.log("Please provide the vault/config location");
+	console.log("Syntax: node --vault/config <location>");
+	return
+}
+if(program.debug)
+	mode = "debug";
+if(program.local)
+	env = "local";
 
-	var app = express();
-	// app.use(session({
-	//   secret: 'some secret',
-	//   resave: false,
-	//   saveUninitialized: true,
-	// }));
-	app.use(bodyParser.urlencoded({ extended: true }))
-	app.use(compression()); //compressing payload on every request
+var port = program.port;
+var config = require(program.config);
+var vault = program.vault;
 
-	app.engine('html', require('hogan-express'));
-	app.set('partials',{
-		header: 'header',
-		footer: 'footer'
-	});
-	app.set('view engine', 'html');
-	app.set('views', __dirname + '/views');
-	app.use("/static",express.static(__dirname+"/static"))
+var globalConstants = require("./global/global.js");
 
-	function cprint(text, level){
-		if(mode=="debug")
-			return console.log(text);
-		if(level && level === 1)
-			return console.log(text);
-	}
+var app = express();
 
-	var settings= {
-		config: config,
-		app: app,
-		mode: mode,
-		env: env,
-		cprint: cprint
-	}
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, appID, empID, version, token");
+  next();
+});
 
-	require(__dirname+"/routes/home.js")(settings);
-	app.listen(port);
+app.use(bodyParser.urlencoded({ extended: true }))
+app.use(compression()); //compressing payload on every request
+app.use("/static",express.static(__dirname+"/static"))
+
+/**
+ * configuration options for mysql pooling
+ * @type {Object}
+ */
+var writePoolConfig = {
+	connectionLimit: 20,
+	user: config["db"]["write"]["user"],
+	password: config["db"]["write"]["password"],
+	database: config["db"]["write"]["name"],
+	host: config["db"]["write"]["host"],
+	debug: false,
+	connectTimeout: 120000 ,
+	timeout: 120000
+};
+
+var connectionPool = mysql.createPool(poolConfig);
+
+function cprint(text, level){
+	if(mode=="debug")
+		return console.log(text);
+	if(level && level === 1)
+		return console.log(text);
+}
+
+var settings= {
+	config: config,
+	app: app,
+	vault: vault,
+	mode: mode,
+	env: env,
+	globalConstants: globalConstants,
+	cprint: cprint,
+	connectionPool: connectionPool,
+	request: request
+}
+
+app.listen(port);

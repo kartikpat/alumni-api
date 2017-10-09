@@ -20,7 +20,8 @@
     "compression": "^1.6.2",
     "express": "^4.15.3",
     "hogan-express": "^0.5.2",
-    "jsonwebtoken": "^8.0.1"
+    "jsonwebtoken": "^8.0.1",
+    "mysql": "^2.15.0"
   },
   "devDependencies": {
     "gulp": "^3.9.1",
