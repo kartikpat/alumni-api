@@ -2,7 +2,6 @@
 Entry point for the project. All the configurations and settings take place here.
 */
 var express = require ("express");
-var mysql = require("mysql");
 
 var bodyParser = require("body-parser");
 var program = require("commander");
@@ -55,8 +54,6 @@ var port = program.port;
 var config = require(program.config);
 var vault = program.vault;
 
-var globalConstants = require("./global/global.js");
-
 var app = express();
 
 app.use(function(req, res, next) {
@@ -69,22 +66,6 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.use(compression()); //compressing payload on every request
 app.use("/static",express.static(__dirname+"/static"))
 
-/**
- * configuration options for mysql pooling
- * @type {Object}
- */
-var writePoolConfig = {
-	connectionLimit: 20,
-	user: config["db"]["write"]["user"],
-	password: config["db"]["write"]["password"],
-	database: config["db"]["write"]["name"],
-	host: config["db"]["write"]["host"],
-	debug: false,
-	connectTimeout: 120000 ,
-	timeout: 120000
-};
-
-var connectionPool = mysql.createPool(poolConfig);
 
 function cprint(text, level){
 	if(mode=="debug")
@@ -99,10 +80,13 @@ var settings= {
 	vault: vault,
 	mode: mode,
 	env: env,
-	globalConstants: globalConstants,
 	cprint: cprint,
-	connectionPool: connectionPool,
 	request: request
 }
+
+require(__dirname+"/db/connect.js")(settings)
+require(__dirname+"/db/query.js")(settings)
+require(__dirname+"/routes/common/error.js")(settings);
+require(__dirname+"/routes/ingest.js")(settings);
 
 app.listen(port);
