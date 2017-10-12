@@ -10,6 +10,7 @@ for(var i=0; i<10; i++){
 		dob: Date.now()- (i*100 + 100000),
 		doj: Date.now() - (i*20000),
 		dol: Date.now() - (i*10000),
+		email: "user-"+i+"@gmail.com",
 		designation: designation[(Math.random() *designation.length)],
 		education: [],
 		profession: []

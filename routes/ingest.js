@@ -54,8 +54,6 @@ module.exports = function(settings){
 		
 		if(payload.length<1)
 			errorMessage = invalidFormat
-
-		cprint(checkUser(payload))
 	
 		return checkUser(payload);
 	}
@@ -72,7 +70,6 @@ module.exports = function(settings){
 			professionArray: []
 		};
 		userArray.forEach(function(aUser){
-			cprint(aUser)
 			if(!(aUser["firstName"] && aUser["email"] && aUser["phone"])){
 				aUser.valid = "invalid";
 				return
@@ -111,7 +108,7 @@ module.exports = function(settings){
 			if(aUser["profession"] && aUser["profession"].length >0 )
 				aUser["profession"].forEach(function(aRow){
 					if(!checkProfession(aRow))
-						aUser.valid = partial
+						aUser.valid = "partial"
 					if( aRow['valid'] == "invalid" )
 						return
 					var professionDetailArray = [
@@ -160,7 +157,7 @@ module.exports = function(settings){
 		if( !(alumniArray && alumniArray.length>1) )
 			return Promise.reject(new myError("noRecords", generateErrorResponse(props.userArray) ))
 
-		var addingUsers = addUser(userArray);
+		var addingUsers = addUser(alumniArray);
 		var addingEducation = addEducationDetails(educationArray);
 		var addingProfession = addProfessionalDetails(professionArray);
 		var ingestionPromiseArray = [ addingUsers, addingEducation, addingProfession ];
@@ -179,7 +176,6 @@ module.exports = function(settings){
 				errorArray.push("success")
 		})
 		var distinctErrors = Array.from(new Set(errorArray));
-		cprint(message)
 		if(distinctErrors.length==1){
 			status = distinctErrors[0];
 			if(status == "invalid")
