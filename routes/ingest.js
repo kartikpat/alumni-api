@@ -1,7 +1,19 @@
+var uuidV4 = require("uuid/v4");
 function myError(err, data){
 	var i = new Error(err);
 	i.data = data;
 	return i;
+}
+function checkDate(aString){
+	try{
+		var d = new Date(aString);
+			if(d=="Invalid Date")
+				return null;
+		return d.getTime();
+	}catch(err){
+		return null
+	}
+
 }
 module.exports = function(settings){
 	var app = settings.app;
@@ -12,16 +24,24 @@ module.exports = function(settings){
 
 	app.post("/company/:companyID/ingest", function(req, res){
 		var companyID = req.params.companyID;
-		var checkRequest = Promise.all([validate(req, res), authenticate(req, res)])
+		var taskID = uuidV4().replace(/\-/g,"");
+		var props = {
+			taskID : taskID,
+			companyID: companyID
+		};
+		var checkRequest = Promise.all([validate(req, res, props), authenticate(req, res, props)])
 		checkRequest.then(function(dataArray){
-			var props = dataArray[0];
+			props.data = dataArray[0];
 			return Promise.resolve(props);
 		})
 		.then(ingest)
-		.then(function(){
+		.then(function(dataArray){
+			var userArray = dataArray[3]['userArray']
+			var errorResponse = generateErrorResponse(userArray);
 			return res.json({
-				status: "success",
-				message: "rows inserted"
+				status: errorResponse.status,
+				data: errorResponse.errorArray,
+				message: errorResponse.message
 			});
 		})
 		.catch(function(err){
@@ -39,7 +59,7 @@ module.exports = function(settings){
 		})
 	})
 
-	function validate(req, res){
+	function validate(req, res, props){
 		var payload = req.body.payload || null;
 		var errorMessage= null;
 		var errorArray = [];
@@ -55,7 +75,7 @@ module.exports = function(settings){
 		if(payload.length<1)
 			errorMessage = invalidFormat
 	
-		return checkUser(payload);
+		return checkUser(payload, props);
 	}
 
 	function authenticate(req, res){
@@ -63,26 +83,35 @@ module.exports = function(settings){
 		return true
 	}
 
-	function checkUser(userArray){
-		var props = {
-			alumni : [],
-			educationArray: [],
-			professionArray: []
-		};
+	function checkUser(userArray, props){
+		props['alumni'] = [];
+		props['educationArray'] = [];
+		props['professionArray'] = [];
 		userArray.forEach(function(aUser){
-			if(!(aUser["firstName"] && aUser["email"] && aUser["phone"])){
+			if(!(aUser["firstName"] && aUser["email"] && aUser["phone"] && aUser['companyEmail'] && aUser['department'] && aUser['designation'])){
 				aUser.valid = "invalid";
 				return
 			}
 
 			// TODO add other user fields as well
 			var userDetailArray = [
+				props.taskID,
 				aUser['firstName'],
+				aUser['middleName'] ? aUser['middleName'] : null,
+				aUser['lastName'] ? aUser['lastName'] : null,
 				aUser['email'],
 				aUser['phone'],
-				aUser['lastName'] ? aUser['lastName'] : null,
-				aUser['middleName'] ? aUser['middleName'] : null,
-				aUser['dob'] ? aUser['dob'] : null
+				aUser['companyEmail'],
+				aUser['dob'] ? checkDate(aUser['dob']): null,
+				aUser['doj'] ? checkDate(aUser['doj']) : null,
+				aUser['dol'] ? checkDate(aUser['doj']) : null,
+				aUser['department'],
+				aUser['designation'],
+				aUser['lUrl'] ? aUser['lUrl']: null,
+				aUser['code'] ? aUser['code'] : null,
+				aUser['salary'] ? aUser['salary'] : null,
+				props.companyID,
+				aUser['sex'] ? aUser['sex'] : null
 			]
 
 			props.alumni.push(userDetailArray);
@@ -91,16 +120,18 @@ module.exports = function(settings){
 				aUser["education"].forEach(function(aRow){
 					var educationDetailArray = checkQualification(aRow);
 					if(!educationDetailArray)
-						aUser.valid = partial
+						aUser.valid = "partial"
 					if(aRow["valid"] == "invalid")
 						return
 					var educationDetailArray = [
+						props.taskID,
 						aUser['email'],
-						aRow['name'],
+						aRow['course'],
 						aRow['institute'],
 						aRow['from'] ? aRow['from'] : null,
 						aRow['to'] ? aRow['to'] : null,
-						aRow['type'] ? aRow['type'] : null
+						aRow['type'] ? aRow['type'] : null,
+						props.companyID
 					];
 					props.educationArray.push(educationDetailArray);
 				})
@@ -112,12 +143,13 @@ module.exports = function(settings){
 					if( aRow['valid'] == "invalid" )
 						return
 					var professionDetailArray = [
+						props.taskID,
 						aUser['email'],
-						aRow['name'],
+						aUser['designation'],
 						aRow['company'],
-						aUser['from'],
-						aUser['to'],
-						aUser['designation']
+						checkDate(aUser['from']),
+						checkDate(aUser['to']),
+						props.companyID
 					]
 					props.professionArray.push(professionDetailArray);
 				})
@@ -127,24 +159,28 @@ module.exports = function(settings){
 	}
 
 	function checkProfession(aProfession){
-		if( !(aProfession["name"] && aProfession["company"] ) ){
+		if( !(aProfession["designation"] && aProfession["company"] ) ){
 			aProfession.valid = "invalid"
+			cprint('.......1')
 			return false
 		}
 		if(!(aProfession["from"] && aProfession["to"] && aProfession["designation"] )){
 			aProfession.valid = "partial"
+			cprint('.......2')
 			return false
 		}
 		return true
 	}
 
 	function checkQualification(aQualifictaion){
-		if( !(aQualifictaion["name"] && aQualifictaion["institute"] ) ){
+		if( !(aQualifictaion["course"] && aQualifictaion["institute"] ) ){
 			aQualifictaion.valid = "invalid"
+			cprint('.......3')
 			return false
 		}
 		if(!(aQualifictaion["from"] && aQualifictaion["to"] &&  aQualifictaion["type"])){
 			aQualifictaion.valid = "partial"
+			cprint('.......4')
 			return false
 		}
 		return true
@@ -158,10 +194,15 @@ module.exports = function(settings){
 			return Promise.reject(new myError("noRecords", generateErrorResponse(props.userArray) ))
 
 		var addingUsers = addUser(alumniArray);
-		var addingEducation = addEducationDetails(educationArray);
-		var addingProfession = addProfessionalDetails(professionArray);
-		var ingestionPromiseArray = [ addingUsers, addingEducation, addingProfession ];
-		var ingestionPromise = Promise.all(ingestionPromiseArray);
+		var addingEducation = Promise.resolve(1);
+		var addingProfession = Promise.resolve(1);
+		if(educationArray.length > 0)
+			addingEducation = addEducationDetails(educationArray)
+		if(professionArray.length > 0)
+			addingProfession = addProfessionalDetails(professionArray);
+		var statusPromise = Promise.resolve(props)
+		var ingestionPromiseArray = [ addingUsers, addingEducation, addingProfession, statusPromise	 ];
+		var ingestionPromise = Promise.all(ingestionPromiseArray.map(p => p.catch(e => e)));
 		return ingestionPromise;
 	}
 
@@ -191,22 +232,22 @@ module.exports = function(settings){
 	}
 
 	function addUser(userArray){
-		var query = "Insert into AlumniMaster (name) values ?";
+		var query = "Insert into StagingAlumnusMaster (TaskId, FirstName, MiddleName, LastName, Email, Phone, CompanyEmail, Dob, DateOfJoining, DateOfLeaving, Department, Designation, LinkedinURL, Code, SalaryLPA, CompanyId, Sex ) values ?";
 		var queryArray = [ userArray ];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
 		})
 	}
 
-	function addEducationDetails(educationArray, connection){
-		var query = "Insert into EducationDetails (name) values ?";
+	function addEducationDetails(educationArray){
+		var query = "Insert into StagingEducationDetails (TaskId, Email, Course, Institute, BatchFrom, BatchTo, CourseType, CompanyId) values ?";
 		var queryArray = [ educationArray ];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
 		})
 	}
-	function addProfessionalDetails(professionalArray, connection){
-		var query = "Insert into ProfessionDetails (name) values ?";
+	function addProfessionalDetails(professionalArray){
+		var query = "Insert into StagingProfessionalDetails (TaskId, Email, Designation, Organisation, FromTimestamp,ToTimestamp, CompanyId) values ?";
 		var queryArray = [ professionalArray ];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
