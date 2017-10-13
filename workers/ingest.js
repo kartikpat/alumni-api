@@ -1,18 +1,20 @@
 
-
-
 module.exports = function(settings){
 	var cprint = settings.cprint;
 
-	var taskID ="93895f4d6ea840c0a9f3e28af00da8a3";// "0d7a9818291e40508493198070348788";	
+	var taskID ="6e07b5c59c4849469b153f18482fede6";
 	var companyID = 123;
 	function sanitize(taskID, companyID){
 		fetchRecords(taskID, companyID)
 		.then( sanitizeEachRecord )
+		.catch(function(err){
+			cprint(err,1);
+			return
+		})
 	}
 
 	function fetchRecords(taskID, companyID){
-		var query = "Select EntryId, Email, CompanyId from StagingAlumnusMaster where TaskId = ? and CompanyId = ? and Status = ? limit 0,1";
+		var query = "Select EntryId, Email, CompanyId from StagingAlumnusMaster where TaskId = ? and CompanyId = ? and Status = ? ";
 		var queryArray = [taskID, companyID, 'pending'];
 		return settings.dbConnection().then(function(connecting){
 			return settings.dbCall(connecting, query, queryArray);
@@ -43,11 +45,19 @@ module.exports = function(settings){
 		})	
 	}
 
-	function sanitizeEachRecord(rows){
+	async function sanitizeEachRecord(rows){
+		var len = rows.length;
+		for(var i=0; i < len; i++){
+			await sanitizeSingleRecord(rows[i])
+		}
+		return Promise.resolve(1)
+	}
+
+	function sanitizeSingleRecord(aRow){
 		var props = {};
-		var companyID = rows[0]["CompanyId"];
-		var email = rows[0]["Email"]
-		var entryID = rows[0]["EntryId"]
+		var companyID = aRow["CompanyId"];
+		var email = aRow["Email"]
+		var entryID = aRow["EntryId"]
 
 		var alumniDetails = Promise.all([fetchAlumnus(entryID, email), fetchEducation(email, companyID), fetchProfession(email, companyID)] )
 		alumniDetails
@@ -144,6 +154,7 @@ module.exports = function(settings){
 						return
 					})
 				}
+				connection.release();
 				return;
 			})
 		})
@@ -268,6 +279,8 @@ module.exports = function(settings){
 			return settings.dbCall(connecting, query, queryArray);
 		})	
 	}
-	sanitize(taskID, companyID)
+	//sanitize(taskID, companyID)
+	settings.sanitize = sanitize;
+	
 
 }

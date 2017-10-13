@@ -17,24 +17,28 @@ Create table DesignationMaster(
 Create table CourseMaster (
 	CourseId Bigint unsigned Primary key auto_increment,
 	Name varchar(255),
-	Status enum ('active', 'inactive')
+	Status enum ('active', 'inactive'),
+	Unique key (Name, Status)
 )
 
 Create table InstituteMaster (
 	InstituteId Bigint unsigned Primary key auto_increment,
 	Name varchar(255),
-	Status enum ('active', 'inactive')
+	Status enum ('active', 'inactive'),
+	Unique key (Name, Status)
 )
 Create table OrganisationMaster (
 	OrganisationId Bigint unsigned Primary key auto_increment,
 	Name varchar(255),
-	Status enum ('active', 'inactive')
+	Status enum ('active', 'inactive'),
+	Unique key (Name, Status)
 )
 
 Create table RoleMaster(
 	RoleId Bigint unsigned Primary key auto_increment,
 	Name varchar(255),
-	Status enum ('active', 'inactive')
+	Status enum ('active', 'inactive'),
+	Unique key (Name, Status)
 )
 
 Create table EducationDetails(

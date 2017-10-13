@@ -1,3 +1,4 @@
+
 var payload = [];
 var fs = require ('fs');
 var department = ["Tech", "Sales", "Operations", "HR"];
@@ -5,17 +6,17 @@ var designation = ["developer", "engineer", "scientist", "associates", "consulta
 var sex = ['male','female','other','not-specified'];
 var type = ['full-time','part-time','distance','executive','certification'];
 for(var i=0; i<10; i++){
-	var dep = department[(Math.floor(Math.random())* department.length)];
-	var des = designation[(Math.floor(Math.random()) *designation.length)];
-	var s = sex[(Math.floor(Math.random())*sex.length)];
-	var t = type[ (Math.floor(Math.random())*type.length) ];
+	var dep = department[(Math.floor(Math.random()* department.length))];
+	var des = designation[(Math.floor(Math.random() *designation.length))];
+	var s = sex[(Math.floor(Math.random()*sex.length))];
+	var t = type[ (Math.floor(Math.random()*type.length)) ];
 	var user = {
 		firstName : "user-"+i,
 		middleName: "middleName-"+i,
 		lastName: "lastName-"+i,
 		phone: "99887766"+i,
-		dob: Date.now()- (i*100 + 100000),
-		doj: Date.now() - (i*20000),
+		dob: Date.now()- (i*100 + 1000000),
+		doj: Date.now() - (i*200000),
 		dol: Date.now() - (i*10000),
 		email: "user-"+i+"@gmail.com",
 		companyEmail: "user-"+i+"@gmail.com",
@@ -27,19 +28,19 @@ for(var i=0; i<10; i++){
 	}
 	for(var j=0; j<3; j++){
 		user.education.push({
-			course: "Course - "+i,
-			institute: "Institute - "+i,
-			from: Date.now() - (i*20000),
-			to: Date.now() - (i*10000),
+			course: "Course - "+i+'-'+j,
+			institute: "Institute - "+i+'-'+j,
+			from: Date.now() - (j*20000),
+			to: Date.now() - (j*10000),
 			type: t
 		})
 	}
 	for(var j=0; j<3; j++){
 		user.profession.push({
-			designation: "Role - "+i,
-			company: "Company - "+i,
-			from: Date.now() - (i*20000),
-			to: Date.now() - (i*10000)
+			designation: "Role - "+i+'-'+j,
+			company: "Company - "+i+'-'+j,
+			from: Date.now() - (j*20000),
+			to: Date.now() - (j*10000)
 		})
 	}
 	payload.push(user);

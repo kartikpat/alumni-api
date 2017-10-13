@@ -38,11 +38,13 @@ module.exports = function(settings){
 		.then(function(dataArray){
 			var userArray = dataArray[3]['userArray']
 			var errorResponse = generateErrorResponse(userArray);
-			return res.json({
+			res.json({
 				status: errorResponse.status,
 				data: errorResponse.errorArray,
 				message: errorResponse.message
 			});
+			settings.sanitize(props.taskID, props.companyID);
+			return
 		})
 		.catch(function(err){
 			switch(err.message){
@@ -55,7 +57,8 @@ module.exports = function(settings){
 					break;
 			}
 			cprint(err,1);
-			return settings.serviceError(res);
+			settings.serviceError(res);
+			return
 		})
 	})
 
