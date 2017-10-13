@@ -4,9 +4,7 @@
 module.exports = function(settings){
 	var cprint = settings.cprint;
 
-	return
-
-	var taskID = "0d7a9818291e40508493198070348788";	
+	var taskID ="93895f4d6ea840c0a9f3e28af00da8a3";// "0d7a9818291e40508493198070348788";	
 	var companyID = 123;
 	function sanitize(taskID, companyID){
 		fetchRecords(taskID, companyID)
@@ -14,7 +12,7 @@ module.exports = function(settings){
 	}
 
 	function fetchRecords(taskID, companyID){
-		var query = "Select EntryId, email from StagingAlumnusMaster where TaskId = ? and CompanyId = ? and Status = ? limit 0,1";
+		var query = "Select EntryId, Email, CompanyId from StagingAlumnusMaster where TaskId = ? and CompanyId = ? and Status = ? limit 0,1";
 		var queryArray = [taskID, companyID, 'pending'];
 		return settings.dbConnection().then(function(connecting){
 			return settings.dbCall(connecting, query, queryArray);
@@ -45,13 +43,16 @@ module.exports = function(settings){
 		})	
 	}
 
-	function sanitizeEachRecord(entryID, email){
+	function sanitizeEachRecord(rows){
 		var props = {};
-		var alumniDetails = Promise.all([fetchAlumnus(entryID, email), fetchEducation(email), fetchProfession(email)] )
+		var companyID = rows[0]["CompanyId"];
+		var email = rows[0]["Email"]
+		var entryID = rows[0]["EntryId"]
+
+		var alumniDetails = Promise.all([fetchAlumnus(entryID, email), fetchEducation(email, companyID), fetchProfession(email, companyID)] )
 		alumniDetails
 		.then(function(dataArray){
 			var rows = dataArray[0];
-			cprint(dataArray)
 			props.firstName = rows[0]["FirstName"];
 			props.middleName = rows[0]["MiddleName"];
 			props.lastName = rows[0]["LastName"];
@@ -75,7 +76,7 @@ module.exports = function(settings){
 			var professionRows = dataArray[2];
 			props.profession = professionRows || [];
 
-			var prepareAlumni = Promise.all(addDepartment, addDesignation, prepareMultipleItems[educationRows, 'Course'], prepareMultipleItems[educationRows, 'Institute'], prepareMultipleItems[professionRows, 'Organisation'], prepareMultipleItems[professionRows, 'Designation'] );
+			var prepareAlumni = Promise.all([addDepartment(props.department, props.companyID), addDesignation(props.designation, props.companyID), prepareMultipleItems(educationRows, 'Course'), prepareMultipleItems(educationRows, 'Institute'), prepareMultipleItems(professionRows, 'Organisation'), prepareMultipleItems(professionRows, 'Designation') ]);
 			return prepareAlumni;
 		})
 		.then(function(dataArray){
@@ -88,16 +89,17 @@ module.exports = function(settings){
 			props.designationRows = dataArray[5];
 
 
-			var departmentID = departmentRows.insertId;
-			var designationID = designationRows.insertId;
+			props.departmentID = departmentRows.insertId;
+			props.designationID = designationRows.insertId;
 
-			var initiateTransaction = dbTransaction().then(function(connection){
-				return addUser([props.firstName , props.middleName , props.lastName , props.email , props.phone, props.companyEmail , props.dob , props.doj , props.dol , props.departmentID , props.designationID , props.linkedInUrl , props.code , props.salaryLPA , props.companyID , props.sex], connection ).catch(rollbackTransaction);
+			return settings.dbConnection()
+			.then(settings.dbTransaction)
+			.then(function(connection){
+				return addUser([props.firstName , props.middleName , props.lastName , props.email , props.phone, props.companyEmail , props.dob , props.doj , props.dol , props.departmentID , props.designationID , props.linkedInUrl , props.code , props.salaryLPA , props.companyID , props.sex], connection )
 				})
-			return initiateTransaction;
-
 		})
 		.then(function(qOb){
+			
 			props.alumnusID = qOb.rows.insertId;
 			var connection =qOb.connection;
 			var educationRowsArray = [];
@@ -112,7 +114,7 @@ module.exports = function(settings){
 						aRow["CompanyId"]
 					]);
 			})
-			return addEducationDetails(educationRowsArray , connection).catch(rollbackTransaction);;
+			return addEducationDetails(educationRowsArray , connection);
 		}).then(function(qOb){
 			var connection = qOb.connection;
 			var professionRowsArray = [];
@@ -126,10 +128,11 @@ module.exports = function(settings){
 						aRow['CompanyId']
 					]);
 			});
-			return addProfessionalDetails(professionRowsArray, connection).catch(rollbackTransaction);
+			return addProfessionalDetails(professionRowsArray, connection);
 		})
 		.then(function(qOb){
-			updateStaging(entryID, connection)
+			var connection = qOb.connection;
+			return	updateStaging(entryID, connection)
 		})
 		.then(function(qOb){
 			var connection = qOb.connection;
@@ -145,9 +148,47 @@ module.exports = function(settings){
 			})
 		})
 		.catch(function(err){
-			cprint(err,1);
+			if(err.connection){
+				return	rollbackTransaction(err)
+			}
+			cprint(err,1)
+			return
 		})
 	}
+
+	function prepareMultipleItems(rows, key){
+		var itemIDArray = [];
+		var itemPromiseArray = [];
+		rows.forEach(function(anItem){
+			switch(key){
+				case 'Course':
+					itemPromiseArray.push(addCourse(anItem[key]))
+					break;
+				case 'Institute':
+					itemPromiseArray.push(addInstitute(anItem[key]))
+					break;
+				case 'Organisation':
+					itemPromiseArray.push(addOrganisation(anItem[key]))
+					break;
+				case 'Designation':
+					itemPromiseArray.push(addPastRole(anItem[key]))
+					break;
+				default:
+					break;
+			}
+		})
+		return Promise.all(itemPromiseArray)
+		.then(function(dataArray){
+			dataArray.forEach(function(aRow){
+				itemIDArray.push(aRow.insertId);
+			})
+			return itemIDArray;
+		})
+		.catch(function(err){
+			cprint(err,1);
+			Promise.reject(-1);
+		})
+	};
 
 	function rollbackTransaction(props){
 		var connection = props.connection;
@@ -161,59 +202,71 @@ module.exports = function(settings){
 
 	function updateStaging(entryID, connection){
 		var query = "Update StagingAlumnusMaster set Status = ? where EntryId = ?";
-		var queryArray = [entryID];
+		var queryArray = ['done',entryID];
 		return settings.dbTransactionQuery(connection, query, queryArray);
 	}
 
 	function addProfessionalDetails(professionalArray, connection){
-			var query = "Insert into ProfessionDetails (AlumnusId, DesignationID, OrganisationId, FromTimestamp,ToTimestamp, CompanyId) values ?";
+			var query = "Insert ignore into ProfessionDetails (AlumnusId, DesignationID, OrganisationId, FromTimestamp,ToTimestamp, CompanyId) values ?";
 			var queryArray = [ professionalArray ];
 			return settings.dbTransactionQuery(connection, query, queryArray);
 		}
 
 	function addEducationDetails(educationArray, connection){
-			var query = "Insert into EducationDetails (AlumnusId, CourseID, InstituteID, BatchFrom, BatchTo, CourseType, CompanyId) values ?";
+			var query = "Insert ignore into  EducationDetails (AlumnusId, CourseID, InstituteID, BatchFrom, BatchTo, CourseType, CompanyId) values ?";
 			var queryArray = [ educationArray ];
 			return settings.dbTransactionQuery(connection, query, queryArray);
 		}
 
+	function addUser(queryArray, connection){
+			var query = "Insert ignore into AlumnusMaster (FirstName, MiddleName, LastName, Email, Phone, CompanyEmail, Dob, DateOfJoining, DateOfLeaving, DepartmentId, DesignationId, LinkedinURL, Code, SalaryLPA, CompanyId, Sex ) values ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )";
+				return settings.dbTransactionQuery(connection, query, queryArray);
+		}
 
-	function prepareMultipleItems(rows, key){
-		var itemIDArray = [];
-		var itemPromiseArray = [];
-		rows.forEach(function(anItem){
-			var addingItem = addCourse(anItem[key]);
-			coursePromiseArray.push(addingItem);
+	function addCourse(course){
+		var query= "Insert into CourseMaster(Name) values (?)";
+		var queryArray = [course]
+		return settings.dbConnection().then(function(connecting){
+			return settings.dbCall(connecting, query, queryArray);
 		})
-		Promise.all(itemPromiseArray)
-		.then(function(dataArray){
-			dataArray.forEach(function(aRow){
-				itemIDArray.push(aRow.insertId);
-			})
-			return itemIDArray;
-		})
-		.catch(function(err){
-			cprint(err,1);
-			Promise.reject(-1);
+	}
+	function addInstitute(institute){
+		var query = "Insert into InstituteMaster (Name) values (?)";
+		var queryArray = [institute]
+		return settings.dbConnection().then(function(connecting){
+			return settings.dbCall(connecting, query, queryArray);
+		})	
+	};
+	function addOrganisation(organisation){
+		var query = "Insert into OrganisationMaster (Name) values(?)"
+		var queryArray = [organisation]
+		return settings.dbConnection().then(function(connecting){
+			return settings.dbCall(connecting, query, queryArray);
+		})		
+	};
+
+	function addPastRole(role){
+		var query = "Insert into RoleMaster (Name) values(?)"
+		var queryArray = [ role ]
+		return settings.dbConnection().then(function(connecting){
+			return settings.dbCall(connecting, query, queryArray);
 		})
 	};
 
-	function addPastRole(){};
-	function addUser(queryArray, connection){
-			var query = "Insert into AlumnusMaster (FirstName, MiddleName, LastName, Email, Phone, CompanyEmail, Dob, DateOfJoining, DateOfLeaving, Department, Designation, LinkedinURL, Code, SalaryLPA, CompanyId, Sex ) values ?";
-				return settings.dbTransactionQuery(connection, query, queryArray);
-		}
-	function addCourse(){}
-	function addInstitute(){};
-	function addCompany(){};
-
 
 	function addDepartment(departmentName, companyID){
-		var query = 'Insert into DepartmentMaster (Department, CompanyId) values (? , ?) On Duplicate key Update id=LAST_INSERT_ID(id), Department = ?, CompanyId = ?';
+		var query = 'Insert into DepartmentMaster (Name, CompanyId) values (? , ?) On Duplicate key Update DepartmentId=LAST_INSERT_ID(DepartmentId), Name = ?, CompanyId = ?';
 		var queryArray = [departmentName, companyID, departmentName, companyID];
 		return settings.dbConnection().then(function(connecting){
 			return settings.dbCall(connecting, query, queryArray);
 		})
+	}
+	function addDesignation(designationName, companyID){
+		var query = 'Insert into DesignationMaster (Name, CompanyId) values (? , ?) On Duplicate key Update DesignationID=LAST_INSERT_ID(DesignationID), Name = ?, CompanyId = ?';
+		var queryArray = [designationName, companyID, designationName, companyID];
+		return settings.dbConnection().then(function(connecting){
+			return settings.dbCall(connecting, query, queryArray);
+		})	
 	}
 	sanitize(taskID, companyID)
 
