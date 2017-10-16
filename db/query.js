@@ -4,7 +4,7 @@ module.exports = function(settings){
 	function dbCall(connection, query, queryArray){
 		return new Promise(function (resolve, reject){
 				connection.query(query, queryArray, function(err, rows, fields){
-					// cprint(this.sql,1)
+					cprint(this.sql)
 					connection.release();
 					if(err){
 						return reject(err);
@@ -17,7 +17,7 @@ module.exports = function(settings){
 	function dbTransactionQuery(connection, query, queryArray){
 		return new Promise(function(resolve, reject){
 			connection.query(query, queryArray, function(err, rows, fields){
-				// cprint(this.sql);
+				cprint(this.sql);
 				if(err){
 					return reject({connection: connection, err:err});
 				}

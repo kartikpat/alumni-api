@@ -4,6 +4,7 @@ module.exports = function(settings){
 	var config = settings.config;
 	var env = settings.env;
 	var cprint = settings.cprint;
+	var moment = require('moment');
 
 	function getQuarter(timestamp) {
 		var d = (timestamp)? new Date(timestamp) : new Date();
@@ -86,4 +87,33 @@ module.exports = function(settings){
 	})
 
 
+	function fetchTenure(companyID){
+		var query = "Select AVG(DateOfLeaving - DateOfJoining) as Tenure, dm.Name from AlumnusMaster am inner join DesignationMaster dm on am.DesignationId=dm.DesignationId where am.CompanyId = ? and dm.CompanyId = ? and dm.Status='active' group by am.DesignationId, dm.Name";
+		var queryArray = [companyID, companyID];
+		return settings.dbConnection().then(function(connection){
+			return settings.dbCall(connection, query, queryArray);
+		});	
+	}
+	app.get("/company/:companyID/tenure", function(req, res){
+		var companyID = req.params.companyID;
+		var props = {}
+		var fetchingTenure = fetchTenure(companyID);
+		fetchingTenure.then(function(rows){
+			var data = [];
+			rows.forEach(function(aRow){
+				data.push({
+					name:	aRow['Name'],
+					tenure:	(aRow['Tenure']) ? moment.duration(aRow['Tenure']).asYears() : null
+				});
+			});
+			res.json({
+				status: "success",
+				data: data
+			})
+		})
+		.catch(function(err){
+			cprint(err,1);
+			return settings.serviceError(res);
+		})
+	})
 }
