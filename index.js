@@ -89,5 +89,6 @@ require(__dirname+"/db/query.js")(settings)
 require(__dirname+"/workers/ingest.js")(settings)
 require(__dirname+"/routes/common/error.js")(settings);
 require(__dirname+"/routes/ingest.js")(settings);
+require(__dirname+"/routes/stats.js")(settings)
 
 app.listen(port);
