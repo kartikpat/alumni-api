@@ -1,2 +1,3 @@
-## crystal
-Sample web server setup. To be used by web developers.
+
+# alumni-api
+API server for Alumni
