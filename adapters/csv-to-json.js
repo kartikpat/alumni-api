@@ -1,6 +1,6 @@
 var fs = require("fs");
+var readline = require("readline");
 var Papa = require('papaparse');
-
 
 
 var fileStream = fs.createReadStream(__dirname+'/test-data.csv', 'utf8')
@@ -19,6 +19,12 @@ fileStream.on('end',function(){
 fileStream.on('data', function(data){
 	// console.log(data)
 })
+
+// var rl = readline.createInterface({
+// 	input: fileStream,
+//   	output: process.stdout	
+// })
+
 
 var mapper = {
 	"Employee Name": 	 "FirstName",
@@ -39,6 +45,11 @@ var mapper = {
 	"": 	 "CompanyId"
 }
 
+
+// rl.on('line', function(line){
+
+// })
+
 Papa.parse(fileStream ,{
 	header: true,
 	delimiter: ",",
@@ -50,24 +61,23 @@ Papa.parse(fileStream ,{
         var headings = rows[0]
         for(var key in mapper){
         	if(key){
-        		console.log(key)
         		headings =headings.replace(RegExp(key, "g"), mapper[key])
         	}
         }
         rows[0] = headings;
         return rows.join("\r\n");
     },
-	step: function(row)	{
-		data.push(row.data[0])
-		return
+	step: function(row, parser)	{
+		parser.pause();
+		 setTimeout(function() {
+			data.push(row.data[0]);
+			console.log(data.length)
+			parser.resume();
+			return
+		}, 100);
 	},
 	complete: function(){
-		fs.writeFile(__dirname+"/data.json", JSON.stringify(data), function(err){
-			if(err){
-				console.log(err);
-			}
-			console.log("Done");
-		})
+		console.log("done");
 	}
 
 })
