@@ -1,4 +1,5 @@
 var mysql = require('mysql');
+
 module.exports = function(settings){
 	var config = settings.config;
 	var cprint = settings.cprint;
@@ -40,6 +41,9 @@ module.exports = function(settings){
 			});
 		})
 	}
+	//TODO to be experimented
+	// exports.dbTransaction = dbTransaction;
+	// exports.dbConnection = dbConnection;
 
 	settings.dbConnection = dbConnection;
 	settings.dbTransaction = dbTransaction;

@@ -87,6 +87,7 @@ var settings= {
 require(__dirname+"/db/connect.js")(settings)
 require(__dirname+"/db/query.js")(settings)
 require(__dirname+"/workers/ingest.js")(settings)
+require(__dirname+"/workers/ingest-staging.js")(settings)
 require(__dirname+"/workers/ingest-file.js")(settings);
 require(__dirname+"/routes/common/error.js")(settings);
 require(__dirname+"/routes/ingest.js")(settings);

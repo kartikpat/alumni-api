@@ -1,9 +1,45 @@
+function checkDate(aString){
+	try{
+		var d = new Date(aString);
+			if(d=="Invalid Date")
+				return null;
+		return d.getTime();
+	}catch(err){
+		return null
+	}
 
+}
 module.exports = function(settings){
 	var cprint = settings.cprint;
 
-	var taskID ="6e07b5c59c4849469b153f18482fede6";
-	var companyID = 123;
+	var taskID ="232abd7f28c64a1bb0547d336c7f5069";
+	var companyID = 1;
+
+	function validateUserFields(anObject){
+		var requiredFields = ['name', 'email', 'companyEmail', 'dob', 'doj', 'dol', 'department', 'designation', 'salaryLPA'];
+		var dateFields = ['dob', 'doj', 'dol']
+		var emailFields = ['email', 'companyEmail']
+		var missing = [];
+		var invalid = [];
+		requiredFields.forEach(function(aField){
+			if(!anObject[aField])
+				missing.push(aField)
+		})
+		dateFields.forEach(function(aField){
+			if(!checkDate(anObject[aField]))
+				invalid.push(aField)
+		})
+		//TODO add a email validate function here
+		var errMessage = '';
+		if(missing.length>0)
+			errMessage+=('Missing values: '+ missing.join(', ')+'.' );
+		if(invalid.length>0)
+			errMessage+=('Invalid format: '+invalid.join(', ')+'.');
+		if(errMessage && errMessage!='')
+			return new Error(errMessage);
+		return
+	}
+
 	function sanitize(taskID, companyID){
 		fetchRecords(taskID, companyID)
 		.then( sanitizeEachRecord )
@@ -63,22 +99,24 @@ module.exports = function(settings){
 		alumniDetails
 		.then(function(dataArray){
 			var rows = dataArray[0];
-			props.firstName = rows[0]["FirstName"];
+			props.firstName = rows[0]["FirstName"] || null;
 			props.middleName = rows[0]["MiddleName"];
 			props.lastName = rows[0]["LastName"];
-			props.email = rows[0]['Email'];
-			props.phone = rows[0]['Phone'];
-			props.companyEmail = rows[0]['CompanyEmail'];
-			props.dob = rows[0]['Dob'];
-			props.doj = rows[0]['DateOfJoining'];
-			props.dol = rows[0]['DateOfLeaving'];
-			props.department = rows[0]['Department'];
-			props.designation = rows[0]['Designation'];
-			props.linkedInUrl = rows[0]['LinkedinURL'];
-			props.code = rows[0]['Code'];
-			props.salaryLPA = rows[0]['SalaryLPA'];
-			props.sex = rows[0]['Sex'];
+			props.email = rows[0]['Email'] || null;
+			props.phone = rows[0]['Phone'] || null;
+			props.companyEmail = rows[0]['CompanyEmail'] || null;
+			props.dob = checkDate(rows[0]['Dob']);
+			props.doj = checkDate(rows[0]['DateOfJoining']);
+			props.dol = checkDate(rows[0]['DateOfLeaving']);
+			props.department = rows[0]['Department'] || null;
+			props.designation = rows[0]['Designation'] || null;
+			props.linkedInUrl = rows[0]['LinkedinURL'] || null;
+			props.code = rows[0]['Code'] || null;
+			props.salaryLPA = rows[0]['SalaryLPA'] || null;
+			props.sex = rows[0]['Sex'] || null;
 			props.companyID = rows[0]['CompanyId'];
+
+			validateUserFields(props);
 
 			var educationRows = dataArray[1];
 			props.education = educationRows || [];
@@ -124,6 +162,8 @@ module.exports = function(settings){
 						aRow["CompanyId"]
 					]);
 			})
+			if(educationRowsArray.length<1)
+				return {connection: connection}
 			return addEducationDetails(educationRowsArray , connection);
 		}).then(function(qOb){
 			var connection = qOb.connection;
@@ -138,6 +178,8 @@ module.exports = function(settings){
 						aRow['CompanyId']
 					]);
 			});
+			if(professionRowsArray.length<1)
+				return {connection: connection}
 			return addProfessionalDetails(professionRowsArray, connection);
 		})
 		.then(function(qOb){
@@ -163,6 +205,7 @@ module.exports = function(settings){
 				return	rollbackTransaction(err)
 			}
 			cprint(err,1)
+			updateError(entryID, err.message);
 			return
 		})
 	}
@@ -279,8 +322,13 @@ module.exports = function(settings){
 			return settings.dbCall(connecting, query, queryArray);
 		})	
 	}
-	//sanitize(taskID, companyID)
-	settings.sanitize = sanitize;
-	
 
+	function updateError(entryID, message){
+		var query = "Update StagingAlumnusMaster set Message = ? where EntryId = ?";
+		var queryArray = [message, entryID];
+		return settings.dbConnection().then(function(connecting){
+			return settings.dbCall(connecting, query, queryArray);
+		})
+	}
+	settings.sanitize = sanitize;
 }

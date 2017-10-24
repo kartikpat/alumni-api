@@ -256,4 +256,6 @@ module.exports = function(settings){
 			return settings.dbCall(connection, query, queryArray);
 		})
 	}
+
+	settings.checkDate = checkDate;
 }
