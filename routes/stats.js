@@ -14,6 +14,27 @@ module.exports = function(settings){
 			year: d.getFullYear()
 		};
 	}
+	function fetchTotalEmployees(companyID, timestamp){
+		var query = "Select count(*) as total from AlumnusMaster where companyID = ? and (DateOfLeaving is null or DateOfLeaving >?) ";
+		var queryArray = [ companyID, timestamp ];
+		return settings.dbConnection().then(function(connection){
+			return settings.dbCall(connection, query, queryArray);
+		})
+	}
+	function fetchEmployeesJoining(companyID, timestamp, nextTimestamp, metric){
+		var query = "select QUARTER(FROM_UNIXTIME(DateOfJoining/1000)) as quarter, YEAR(FROM_UNIXTIME(DateOfJoining/1000)) as year, count(*) as cnt, dm.Name from AlumnusMaster am inner join DesignationMaster dm on am.DesignationId=dm.DesignationId where am.CompanyId =? and DateOfJoining>? and DateOfJoining < ? group by QUARTER(FROM_UNIXTIME(DateOfJoining/1000)), YEAR(FROM_UNIXTIME(DateOfJoining/1000)), dm.DesignationId, dm.Name";
+		var queryArray = [companyID, timestamp, nextTimestamp ];
+		return settings.dbConnection().then(function(connection){
+			return settings.dbCall(connection, query, queryArray);
+		})	
+	}
+	function fetchEmployeesLeaving(companyID, timestamp, nextTimestamp, metric){
+		var query = "select QUARTER(FROM_UNIXTIME(DateOfLeaving/1000)) as quarter, YEAR(FROM_UNIXTIME(DateOfLeaving/1000)) as year, count(*) as cnt, dm.Name from AlumnusMaster am inner join DesignationMaster dm on am.DesignationId=dm.DesignationId where am.CompanyId =? and DateOfLeaving>? and DateOfLeaving <? group by QUARTER(FROM_UNIXTIME(DateOfLeaving/1000)), YEAR(FROM_UNIXTIME(DateOfLeaving/1000)), am.DesignationId, dm.Name";
+		var queryArray = [ companyID, timestamp, nextTimestamp ];
+		return settings.dbConnection().then(function(connection){
+			return settings.dbCall(connection, query, queryArray);
+		})	
+	}
 	function fetchEmployees(companyID){
 		var query = "Select * from AlumnusMaster where companyID = ?";
 		var queryArray = [companyID];
@@ -24,61 +45,64 @@ module.exports = function(settings){
 
 	app.get("/company/:companyID/states", function(req, res){
 		var companyID = req.params.companyID;
-		var fetchingEmployees = fetchEmployees(companyID);
+		var year = req.query.year || null;
+		if(!year)
+			return settings.unprocessableEntity(res);
+		if(year > new Date().getFullYear())
+			return settings.unprocessableEntity(res, "invalid year");
+
+		var timestamp = new Date(year, 0, 1).getTime();
+		var nextTimestamp = new Date(parseInt(year)+1, 0, 1).getTime();
 		var props ={};
-		fetchingEmployees.then(function(rows){
-			rows.forEach(function(anAlumnus){
-				if(anAlumnus["DateOfJoining"]){
-					var joiningState = getQuarter(anAlumnus["DateOfJoining"]);
-					if(props[joiningState['year']]){
-						if (props[joiningState['year']][joiningState['quarter']]){
-							props[joiningState['year']][joiningState['quarter']]['hired']++;
-						}
-						else
-							props[joiningState['year']][joiningState['quarter']]={
-								hired: 1,
-								relieved:0
-							}
-					}
-					else {
-						props[joiningState['year']] = {};
-						props[joiningState['year']][joiningState['quarter']]={
-								hired: 1,
-								relieved:0
-							};
-					}
-				}
-				if(anAlumnus["DateOfLeaving"]){
-					var relievingState = getQuarter(anAlumnus["DateOfLeaving"]);
-					if(props[relievingState['year']]){
-						if (props[relievingState['year']][relievingState['quarter']]){
-							props[relievingState['year']][relievingState['quarter']]['relieved']++;
-						}
-						else
-							props[relievingState['year']][relievingState['quarter']]={
-								relieved: 1
-							}
-					}
-					else {
-						props[relievingState['year']] = {};
-						props[relievingState['year']][relievingState['quarter']]={
-								relieved: 1
-							};
-					}
-				}
 
+		var promiseArray = [fetchTotalEmployees(companyID, timestamp), fetchEmployeesJoining(companyID, timestamp, nextTimestamp, "`DesignationId`"), fetchEmployeesLeaving(companyID, timestamp, nextTimestamp, "`DesignationId`")]
+		var allPromise = Promise.all(promiseArray)
+		allPromise.then(function(dataArray){
+			var totalEmployeesRows = dataArray[0]; 
+			var joiningEmployeesRows = dataArray[1];
+			var leavingEmployeesRows = dataArray[2];
+
+			var total = totalEmployeesRows[0]["total"];
+			var data = {};
+			joiningEmployeesRows.forEach(function(aRow){
+				if(!data[aRow["quarter"]])
+					data[aRow["quarter"]] = {};
+				if(!data[aRow["quarter"]][aRow["Name"]])
+					data[aRow["quarter"]][aRow["Name"]] = {};
+				data[aRow["quarter"]][aRow["Name"]]["hired"] = aRow["cnt"];
 			});
-
-			var data = [];
-			for(var key in props){
-				var ob ={};
-				ob[key] = props[key];
-				data.push(ob);
-			}
-			return res.json({
-				status: "success",
-				data: data
+			leavingEmployeesRows.forEach(function(aRow){
+				if(!data[aRow["quarter"]])
+					data[aRow["quarter"]] = {};
+				if(!data[aRow["quarter"]][aRow["Name"]])
+					data[aRow["quarter"]][aRow["Name"]] = {};
+				data[aRow["quarter"]][aRow["Name"]]["relieved"] = aRow["cnt"];
+			});
+			var resData = [];
+			Object.keys(data)
+				.sort()
+				.forEach(function(v, i){
+					var stats= [];
+					for(var key in data[v]){
+						stats.push({
+							group: key,
+							hired: data[v][key]["hired"],
+							relieved: data[v][key]["relieved"],
+							rate: (data[v][key]["relieved"]||0) *100/(total+(data[v][key]["hired"] ||0) )
+						})
+						total+=(data[v][key]["hired"] ||0)
+						total-=(data[v][key]["relieved"] ||0)
+					}
+					resData.push({
+						q: v,
+						stats: stats
+					})
+				});
+			res.json({
+				status: 'success',
+				data: resData
 			})
+			return
 		})
 		.catch(function(err){
 			cprint(err,1);

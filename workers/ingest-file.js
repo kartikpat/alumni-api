@@ -2,7 +2,7 @@ var data = require("../adapters/data.json");
 module.exports = function(settings){
 	var cprint = settings.cprint;
 
-	sanitizeEachRecord(data)
+	// sanitizeEachRecord(data)
 
 	var taskID ="6e07b5c59c4849469b153f18482fede6";
 	var companyID = 123;
