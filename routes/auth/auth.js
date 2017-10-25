@@ -1,5 +1,5 @@
 var jwt = require("jsonwebtoken");
-
+var sampleToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3QiLCJpZCI6MSwiY29tcGFueUlEIjoxLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE1MDg5MTI0NDl9.TG0hBYQiEGJl1hnrblCKiLJs-kgkZ5e_c-RgCjJFnGs";
 module.exports = function(settings){
 	var app = settings.app;
 	var mode = settings.mode;
@@ -25,7 +25,7 @@ module.exports = function(settings){
 				companyID: companyID,
 				role: role
 			}
-			jwt.sign(payload, "somesupersecret", { algorithm:  "HS256" }, function(err, token){
+			jwt.sign(payload, "somesupersecret", function(err, token){
 				if(err)
 					cprint(err)
 				res.json({
