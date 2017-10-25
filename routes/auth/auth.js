@@ -15,16 +15,35 @@ module.exports = function(settings){
 		validate(username, password)
 		.then(function(rows){
 			if(rows.length<1)
-				return new Error("")
+				return settings.unAuthorised(res);
+			var id = rows[0]["Id"],
+				companyID = rows[0]["CompanyId"],
+				role = rows[0]["Role"];
+			var payload = {
+				username: username,
+				id: id,
+				companyID: companyID,
+				role: role
+			}
+			jwt.sign(payload, "somesupersecret", function(err, token){
+				if(err)
+					cprint(err)
+				res.json({
+					status: success,
+					token: token
+				});
+				return
+			})
+
 		})
 		.catch(function(err){
 			cprint(err,1);
-			
+
 		})
 	});
 
 	function validate(username, password){
-		var query = "Select id, companyID, role from AccessMaster where Username = ? and Password = ? and Status = 'active'";
+		var query = "Select id, CompanyId, Role from AccessMaster where Username = ? and Password = ? and Status = 'active'";
 		var queryArray = [username, password];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
