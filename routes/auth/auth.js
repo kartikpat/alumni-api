@@ -1,11 +1,17 @@
 var jwt = require("jsonwebtoken");
-var sampleToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3QiLCJpZCI6MSwiY29tcGFueUlEIjoxLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE1MDg5MTI0NDl9.TG0hBYQiEGJl1hnrblCKiLJs-kgkZ5e_c-RgCjJFnGs";
+var sampleToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3QiLCJpZCI6MSwiY29tcGFueUlEIjoxLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE1MDg5MTI5MTAsImV4cCI6MTUwODkxMjkxNX0.lTo0LFJs9TAod_mtMqaJ4Vd41K77sGgqCl6ZsZql4fI";
 module.exports = function(settings){
 	var app = settings.app;
 	var mode = settings.mode;
 	var config = settings.config;
 	var env = settings.env;
 	var cprint = settings.cprint;
+
+	jwt.verify(sampleToken, "somesupersecret", function(err, decoded){
+		if(err)
+			cprint(err);
+		cprint(decoded)
+	})
 
 	app.post("/company/:companyID/authenticate", function(req, res){
 		var username = req.body.username || null,
@@ -25,7 +31,7 @@ module.exports = function(settings){
 				companyID: companyID,
 				role: role
 			}
-			jwt.sign(payload, "somesupersecret", function(err, token){
+			jwt.sign(payload, "somesupersecret",{ expiresIn: 5 }, function(err, token){
 				if(err)
 					cprint(err)
 				res.json({
