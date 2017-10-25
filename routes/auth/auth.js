@@ -31,7 +31,7 @@ module.exports = function(settings){
 				companyID: companyID,
 				role: role
 			}
-			jwt.sign(payload, "somesupersecret",{ expiresIn: 5 }, function(err, token){
+			jwt.sign(payload, "somesupersecret",{ expiresIn: 60*60 }, function(err, token){
 				if(err)
 					cprint(err)
 				res.json({
