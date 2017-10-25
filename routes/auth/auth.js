@@ -1,4 +1,4 @@
-var jwt = require("jwt");
+var jwt = require("jsonwebtoken");
 
 module.exports = function(settings){
 	var app = settings.app;
@@ -25,11 +25,11 @@ module.exports = function(settings){
 				companyID: companyID,
 				role: role
 			}
-			jwt.sign(payload, "somesupersecret", function(err, token){
+			jwt.sign(payload, "somesupersecret", { algorithm:  "HS256" }, function(err, token){
 				if(err)
 					cprint(err)
 				res.json({
-					status: success,
+					status: "success",
 					token: token
 				});
 				return
@@ -38,12 +38,12 @@ module.exports = function(settings){
 		})
 		.catch(function(err){
 			cprint(err,1);
-
+			return settings.serviceError(res);
 		})
 	});
 
 	function validate(username, password){
-		var query = "Select id, CompanyId, Role from AccessMaster where Username = ? and Password = ? and Status = 'active'";
+		var query = "Select Id, CompanyId, Role from AccessMaster where Username = ? and Password = ? and Status = 'active'";
 		var queryArray = [username, password];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);

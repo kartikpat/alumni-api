@@ -26,8 +26,8 @@ module.exports = function(settings){
 	})
 
 	function registerAccess(companyID, username, role, password){
-		var query = "Insert into AccessMaster (CompanyId, Username, Role, Password) values (?, ?, ?, ?)";
-		var queryArray = [companyID, username, role, companyID];
+		var query = "Insert into AccessMaster (CompanyId, Username, Role, Password, Status) values (?, ?, ?, ?, ?)";
+		var queryArray = [companyID, username, role, password, 'active'];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
 		})

@@ -91,6 +91,7 @@ require(__dirname+"/workers/ingest-staging.js")(settings)
 require(__dirname+"/workers/ingest-file.js")(settings);
 require(__dirname+"/routes/common/error.js")(settings);
 require(__dirname+"/routes/ingest.js")(settings);
+require(__dirname+"/routes/auth/auth.js")(settings);
 require(__dirname+"/routes/register/register.js")(settings);
 require(__dirname+"/routes/stats.js")(settings)
 
