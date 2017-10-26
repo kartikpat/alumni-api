@@ -16,22 +16,11 @@ var params = {
   QueueName: 'test', /* required */
   QueueOwnerAWSAccountId: accountNumber
 };
+//
 
-function sendMessage(){
+function sendMessage(message){
 	var params = {
-        MessageBody: JSON.stringify({
-        	event: 'subscribe',
-        	id: 12334,
-        	email: 'testingabc@gmail.com',
-        	payload: {
-        		name: 'testing',
-        		company: 'Abc private limited'
-        	},
-        	templateId: 2,
-        	groupId: 1,
-        	dob: 'sometimestamp',
-        	timestamp: Date.now()
-        }),
+        MessageBody: JSON.stringify(),
         QueueUrl: qURL,
         DelaySeconds: 0
     };
@@ -54,5 +43,6 @@ function receiveMessage(){
 	})
 }
 
-receiveMessage();
+module.exports = sendMessage;
+//receiveMessage();
 
