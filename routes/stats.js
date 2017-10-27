@@ -71,6 +71,44 @@ module.exports = function(settings){
 		})
 	}
 
+	function fetchEmployeesSalary(companyID){
+		var query = "Select SalaryLPA, count(*) as cnt from AlumnusMaster where companyID = ? and DateOfLeaving is not null group by SalaryLPA ";
+		var queryArray =  [ companyID ];
+		return settings.dbConnection().then(function(connection){
+			return settings.dbCall(connection, query, queryArray);
+		})
+	}
+
+	app.get("/company/:companyID/salary", function(req, res){
+		var companyID = req.params.companyID;
+
+		fetchEmployeesSalary(companyID)
+		.then(function(rows){
+			var data = [];
+			rows.forEach(function(aRow){
+				data.push({
+					sal: aRow["SalaryLPA"],
+					count: aRow["cnt"]
+				});
+			})
+			return res.json({
+				data: {
+					ranges: {
+						start: 0,
+						step: 3,
+						end: 21
+					},
+					stats: data
+				},
+				status: "success"
+			})
+		})
+		.catch(function(err){
+			cprint(err,1);
+			return settings.serviceError(res);
+		})
+	})
+
 	app.get("/company/:companyID/states", function(req, res){
 		var companyID = req.params.companyID;
 		var year = req.query.year || null,
@@ -83,6 +121,7 @@ module.exports = function(settings){
 		var timestamp = new Date(year, 0, 1).getTime();
 		var nextTimestamp = new Date(parseInt(year)+1, 0, 1).getTime();
 		var props ={};
+
 
 		var promiseArray = [fetchTotalEmployees(companyID, timestamp), fetchEmployeesJoining(companyID, timestamp, nextTimestamp, metric), fetchEmployeesLeaving(companyID, timestamp, nextTimestamp, metric)]
 		var allPromise = Promise.all(promiseArray)
