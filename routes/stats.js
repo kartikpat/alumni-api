@@ -1,10 +1,33 @@
+var moment = require('moment');
+function formatDate_yyyymmdd(date, isTime) {
+	var localDateString = new Date(date).toLocaleString('en-IN', {timeZone:  'Asia/Kolkata'});
+    var d = new Date(localDateString),
+        month = '' + (d.getMonth() + 1),
+        day = '' + d.getDate(),
+        year = '' + d.getFullYear(),
+        hour = '' + d.getHours(),
+        minute = '' + d.getMinutes(),
+        second = '' + d.getSeconds();
+
+
+    if (month.length < 2) month = '0' + month;
+    if (day.length < 2) day = '0' + day;
+    if (hour.length<2) hour = '0'+ hour;
+    if (minute.length <2) minute = '0' + minute;
+    if (second.length <2 ) second = '0' + second;
+
+    if(isTime){
+    	return [year, month, day].join('-') + " " + [hour, minute, second].join(":");
+    }
+    return [year, month, day].join('-');
+}
+
 module.exports = function(settings){
 	var app = settings.app;
 	var mode = settings.mode;
 	var config = settings.config;
 	var env = settings.env;
 	var cprint = settings.cprint;
-	var moment = require('moment');
 
 	function getQuarter(timestamp) {
 		var d = (timestamp)? new Date(timestamp) : new Date();
@@ -191,5 +214,42 @@ module.exports = function(settings){
 			cprint(err,1);
 			return settings.serviceError(res);
 		})
+	});
+
+	app.get("/company/:companyID/birthday", function(req, res){
+		var companyID = req.params.companyID;
+		var fromDay = moment().date();
+		var fromMonth = 1+moment().month();
+		var toDay = moment().add(2, 'd').date();
+		var toMonth = 1+moment().add(2, 'd').month();
+		getComingBirthday(companyID, fromMonth, toMonth, fromDay, toDay)
+		.then(function(rows){
+			var data = [];
+			rows.forEach(function(aRow){
+				data.push({
+					firstName: aRow["FirstName"],
+					lastName: aRow["LastName"],
+					middleName: aRow["MiddleName"],
+					department: aRow["Department"],
+					designation: aRow["Designation"],
+					dob: aRow["DateOfBirth"]
+				});
+			})
+			return res.json({
+				status: "success",
+				data: data
+			});
+		})
+		.catch(function(err){
+			cprint(err);
+			return settings.serviceError(res);
+		})
 	})
+	function getComingBirthday(companyID, fromMonth, toMonth, fromDay, toDay){
+		var query = "Select FirstName, MiddleName, LastName, DateOfBirth, dm.Name as Department, dsg.Name as Designation  from AlumnusMaster am inner join DepartmentMaster dm on am.DepartmentId=dm.DepartmentId inner join DesignationMaster dsg on am.DesignationId=dsg.DesignationId  where am.companyId = ? and ( Month(DateOfBirth) = ? or Month(DateOfBirth) = ?) and (Day(DateOfBirth) between ? and ?  )";
+		var queryArray = [companyID, fromMonth, toMonth, fromDay, toDay];
+		return settings.dbConnection().then(function(connection){
+			return settings.dbCall(connection, query, queryArray);
+		});				
+	}
 }
