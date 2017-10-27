@@ -1,4 +1,5 @@
 var moment = require('moment');
+
 function formatDate_yyyymmdd(date, isTime) {
 	var localDateString = new Date(date).toLocaleString('en-IN', {timeZone:  'Asia/Kolkata'});
     var d = new Date(localDateString),
@@ -46,6 +47,8 @@ module.exports = function(settings){
 	}
 	function fetchEmployeesJoining(companyID, timestamp, nextTimestamp, metric){
 		var query = "select QUARTER(FROM_UNIXTIME(DateOfJoining/1000)) as quarter, YEAR(FROM_UNIXTIME(DateOfJoining/1000)) as year, count(*) as cnt, dm.Name from AlumnusMaster am inner join DesignationMaster dm on am.DesignationId=dm.DesignationId where am.CompanyId =? and DateOfJoining>? and DateOfJoining < ? group by QUARTER(FROM_UNIXTIME(DateOfJoining/1000)), YEAR(FROM_UNIXTIME(DateOfJoining/1000)), dm.DesignationId, dm.Name";
+		if(metric =="department")
+			query = "select QUARTER(FROM_UNIXTIME(DateOfJoining/1000)) as quarter, YEAR(FROM_UNIXTIME(DateOfJoining/1000)) as year, count(*) as cnt, dm.Name from AlumnusMaster am inner join DepartmentMaster dm on am.DepartmentId=dm.DepartmentId where am.CompanyId =? and DateOfJoining>? and DateOfJoining < ? group by QUARTER(FROM_UNIXTIME(DateOfJoining/1000)), YEAR(FROM_UNIXTIME(DateOfJoining/1000)), dm.DepartmentId, dm.Name";
 		var queryArray = [companyID, timestamp, nextTimestamp ];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
@@ -53,6 +56,8 @@ module.exports = function(settings){
 	}
 	function fetchEmployeesLeaving(companyID, timestamp, nextTimestamp, metric){
 		var query = "select QUARTER(FROM_UNIXTIME(DateOfLeaving/1000)) as quarter, YEAR(FROM_UNIXTIME(DateOfLeaving/1000)) as year, count(*) as cnt, dm.Name from AlumnusMaster am inner join DesignationMaster dm on am.DesignationId=dm.DesignationId where am.CompanyId =? and DateOfLeaving>? and DateOfLeaving <? group by QUARTER(FROM_UNIXTIME(DateOfLeaving/1000)), YEAR(FROM_UNIXTIME(DateOfLeaving/1000)), am.DesignationId, dm.Name";
+		if(metric =="department")
+			query = "select QUARTER(FROM_UNIXTIME(DateOfLeaving/1000)) as quarter, YEAR(FROM_UNIXTIME(DateOfLeaving/1000)) as year, count(*) as cnt, dm.Name from AlumnusMaster am inner join DepartmentMaster dm on am.DepartmentId=dm.DepartmentId where am.CompanyId =? and DateOfLeaving>? and DateOfLeaving <? group by QUARTER(FROM_UNIXTIME(DateOfLeaving/1000)), YEAR(FROM_UNIXTIME(DateOfLeaving/1000)), am.DepartmentId, dm.Name";
 		var queryArray = [ companyID, timestamp, nextTimestamp ];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
@@ -68,7 +73,8 @@ module.exports = function(settings){
 
 	app.get("/company/:companyID/states", function(req, res){
 		var companyID = req.params.companyID;
-		var year = req.query.year || null;
+		var year = req.query.year || null,
+			metric = req.query.metric || null;
 		if(!year)
 			return settings.unprocessableEntity(res);
 		if(year > new Date().getFullYear())
@@ -78,7 +84,7 @@ module.exports = function(settings){
 		var nextTimestamp = new Date(parseInt(year)+1, 0, 1).getTime();
 		var props ={};
 
-		var promiseArray = [fetchTotalEmployees(companyID, timestamp), fetchEmployeesJoining(companyID, timestamp, nextTimestamp, "`DesignationId`"), fetchEmployeesLeaving(companyID, timestamp, nextTimestamp, "`DesignationId`")]
+		var promiseArray = [fetchTotalEmployees(companyID, timestamp), fetchEmployeesJoining(companyID, timestamp, nextTimestamp, metric), fetchEmployeesLeaving(companyID, timestamp, nextTimestamp, metric)]
 		var allPromise = Promise.all(promiseArray)
 		allPromise.then(function(dataArray){
 			var totalEmployeesRows = dataArray[0]; 
