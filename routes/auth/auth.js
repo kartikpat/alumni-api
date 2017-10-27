@@ -7,11 +7,11 @@ module.exports = function(settings){
 	var env = settings.env;
 	var cprint = settings.cprint;
 
-	jwt.verify(sampleToken, "somesupersecret", function(err, decoded){
-		if(err)
-			cprint(err);
-		cprint(decoded)
-	})
+	// jwt.verify(sampleToken, "somesupersecret", function(err, decoded){
+	// 	if(err)
+	// 		cprint(err);
+	// 	cprint(decoded)
+	// })
 
 	app.post("/company/:companyID/authenticate", function(req, res){
 		var username = req.body.username || null,
