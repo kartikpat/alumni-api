@@ -113,4 +113,5 @@ module.exports = function(settings){
 			return settings.dbCall(connection, query, queryArray);
 		})
 	}
+	settings.formatDate_yyyymmdd = formatDate_yyyymmdd;
 }
