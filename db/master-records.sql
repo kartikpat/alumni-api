@@ -62,3 +62,12 @@ Create table ProfessionDetails(
 		FromTimestamp bigint unsigned not null,
 		ToTimestamp bigint unsigned not null
 	)
+
+Create table AccessMaster (
+	Id Bigint unsigned Primary Key auto_increment,
+	CompanyId Bigint unsigned,
+	Username char(254),
+	Password char(100),
+	Role enum('admin', 'read', 'write'),
+	Status enum('active', 'inactive')
+)

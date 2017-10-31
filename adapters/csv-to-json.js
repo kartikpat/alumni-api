@@ -61,21 +61,6 @@ function csvToJSON(inputStream, stepCallback, doneCallback){
 	        return rows.join("\r\n");
 	    },
 		step: stepCallback,
-		// TODO: waiting for support from papaparse
-		// chunk: function(row, parser){
-		// 	parser.pause();
-		// 	if(row.data.length <1){
-		// 		parser.abort();
-		// 	}
-		// 	 setTimeout(function() {
-		// 		data.push(row.data[0]);
-		// 		console.log(".............................")
-		// 		console.log(row.data.length)
-		// 		console.log(".............................")
-		// 		parser.resume();
-		// 		return
-		// 	}, 100);
-		// },
 		complete: doneCallback
 	})
 }
