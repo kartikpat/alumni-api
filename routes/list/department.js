@@ -23,7 +23,7 @@ module.exports = function(settings){
 			value = req.query.value || null;
 
 		var fetchProperty = fetchDepartment(companyID);
-		if(req,params.property =='designation')
+		if(req.params.property =='designation')
 			fetchProperty = fetchDesignation(companyID);
 
 		fetchProperty.then(function(rows){
