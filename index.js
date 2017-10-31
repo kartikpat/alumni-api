@@ -96,5 +96,6 @@ require(__dirname+"/routes/services/birthday.js")(settings);
 require(__dirname+"/routes/register/register.js")(settings);
 require(__dirname+"/routes/stats.js")(settings)
 require(__dirname+"/routes/list/alumni.js")(settings);
+require(__dirname+"/routes/list/department.js")(settings);
 
 app.listen(port);
