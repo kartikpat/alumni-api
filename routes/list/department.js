@@ -14,7 +14,7 @@ module.exports = function(settings){
 		return next();
 	}
 
-	app.get("/company/:companyID/list/:property", validate, function(req, res){
+	app.get("/company/:companyID/:property", validate, function(req, res){
 		var companyID = req.params.companyID;
 
 		var pageNumber = req.query.pageNumber || 1,
