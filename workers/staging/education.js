@@ -4,7 +4,6 @@ var fs = require('fs');
 var companyID = 1;
 var taskID = uuidV4().replace(/\-/g,"");
 var fileStream = fs.createReadStream('./test/generate/education.csv', 'utf8');
-console.log(fileStream)
 module.exports = function(settings){
 	var cprint = settings.cprint;
 	
