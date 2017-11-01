@@ -1,4 +1,4 @@
-email,institute,course,type,batchTo,batchFrom 
+email,institute,course,type,to,from 
 aayush.jain@gep.com,IIT-D,B.Tech,full-time,2000,2002
 vrindasinhal2002@gmail.com,IIT-B,B.Comm,part-time,2001,2003
 aasthaverma66@gmail.com,IIT-K,Diploma,distance,2002,2004

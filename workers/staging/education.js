@@ -43,6 +43,6 @@ module.exports = function(settings){
 		})
 	}
 
-	csvToJSON(fileStream, stepExecute)
+	//csvToJSON(fileStream, stepExecute)
 
 }
