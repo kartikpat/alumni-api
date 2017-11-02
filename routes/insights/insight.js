@@ -5,6 +5,35 @@ module.exports = function(settings){
 	var env = settings.env;
 	var cprint = settings.cprint;
 
+	app.get('/company/:companyID/insights/salary/max', function(req, res){
+		var companyID = req.params.companyID;
+		var ranges = ["1-3","4-6","7-9","10-12","13-15","16-18","19-21","22-above"];
+		var data = [ 0,0,0,0,0,0,0,0 ]
+		fetchSalaryMax()
+		.then(function(rows){
+			rows.forEach(function(aRow){
+				var index = parseInt(aRow["range"].split('-')[1])/3;
+
+				if(index > 7 ){
+					data[7] += aRow['cnt'];
+				}
+				else
+					data[index] += aRow['cnt'];
+			});
+			var index = data.indexOf(Math.max(...data));
+			return res.json({
+				"status": "success",
+				data: {
+					range: ranges[index],
+					count: data[index]
+				}
+			})
+		})
+		.catch(function(err){
+			cprint(err,1);
+			return settings.serviceError(res);
+		})
+	})
 	app.get("/company/:companyID/insights/:group/max", function(req, res){
 		var companyID = req.params.companyID;
 		var year = req.query.year ||null;
@@ -71,6 +100,7 @@ module.exports = function(settings){
 		})
 	})
 
+
 	function fetchSeniorityChange(companyID, timestamp, nextTimestamp, metric, group){
 		var query = 'select YEAR(FROM_UNIXTIME(DateOfLeaving/1000)) as year, count(*) as cnt, dm.Name from AlumnusMaster am inner join DesignationMaster dm on am.DesignationId=dm.DesignationId where am.CompanyId =? and DateOfLeaving>? and DateOfLeaving <? and dm.Name = ? group by YEAR(FROM_UNIXTIME(DateOfLeaving/1000)), am.DesignationId, dm.Name';
 		if(group =="department")
@@ -78,6 +108,15 @@ module.exports = function(settings){
 		var queryArray = [companyID, timestamp, nextTimestamp, metric];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
+		})
+	}
+
+
+	function fetchSalaryMax(){
+		var query = "select concat(3*floor(SalaryLPA/3)+1, '-', 3*floor(SalaryLPA/3) + 3) as `range`,     count(*) as `cnt` from AlumnusMaster group by 1 order by SalaryLPA";
+
+		return settings.dbConnection().then(function(connection){
+			return settings.dbCall(connection, query);
 		})
 	}
 }
