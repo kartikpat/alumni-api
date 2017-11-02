@@ -12,7 +12,7 @@ function checkDate(aString){
 module.exports = function(settings){
 	var cprint = settings.cprint;
 
-	var taskID ="96f7bf4627d94bd4a49c13be26d9eb66";
+	var taskID ="6094ed2e9cd644e1a33b1fe4984fdb49";
 	var companyID = 1;
 
 	function sanitize(taskID, companyID){
@@ -102,14 +102,14 @@ module.exports = function(settings){
 		}
 
 	function addCourse(course){
-		var query= "Insert into CourseMaster(Name) values (?)";
+		var query= "Insert into CourseMaster(Name) values (?) on duplicate key update CourseID = LAST_INSERT_ID(CourseID)";
 		var queryArray = [course]
 		return settings.dbConnection().then(function(connecting){
 			return settings.dbCall(connecting, query, queryArray);
 		})
 	}
 	function addInstitute(institute){
-		var query = "Insert into InstituteMaster (Name) values (?)";
+		var query = "Insert into InstituteMaster (Name) values (?) on duplicate key update InstituteID = LAST_INSERT_ID(InstituteID)";
 		var queryArray = [institute]
 		return settings.dbConnection().then(function(connecting){
 			return settings.dbCall(connecting, query, queryArray);
