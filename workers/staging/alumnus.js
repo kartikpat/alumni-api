@@ -1,5 +1,5 @@
 var uuidV4 = require("uuid/v4");
-var csvToJSON = require("../adapters/csv-to-json").csvToJSON;
+var csvToJSON = require("../../adapters/csv-to-json").csvToJSON;
 var companyID = 1;
 var taskID = uuidV4().replace(/\-/g,"");
 module.exports = function(settings){
@@ -47,7 +47,6 @@ module.exports = function(settings){
 			return settings.dbCall(connection, query, queryArray);
 		})
 	}
-
 
 	//csvToJSON(null, stepExecute)
 

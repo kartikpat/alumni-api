@@ -87,7 +87,11 @@ var settings= {
 require(__dirname+"/db/connect.js")(settings)
 require(__dirname+"/db/query.js")(settings)
 require(__dirname+"/workers/ingest.js")(settings)
-require(__dirname+"/workers/ingest-staging.js")(settings)
+require(__dirname+"/workers/staging/alumnus.js")(settings)
+require(__dirname+"/workers/staging/education.js")(settings)
+require(__dirname+"/workers/staging/profession.js")(settings)
+require(__dirname+"/workers/ingest/education.js")(settings)
+require(__dirname+"/workers/ingest/profession.js")(settings)
 require(__dirname+"/workers/ingest-file.js")(settings);
 require(__dirname+"/routes/common/error.js")(settings);
 require(__dirname+"/routes/ingest.js")(settings);
@@ -97,5 +101,7 @@ require(__dirname+"/routes/register/register.js")(settings);
 require(__dirname+"/routes/stats.js")(settings)
 require(__dirname+"/routes/list/alumni.js")(settings);
 require(__dirname+"/routes/list/department.js")(settings);
+require(__dirname+"/routes/insights/insight.js")(settings);
+
 
 app.listen(port);

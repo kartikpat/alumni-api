@@ -13,7 +13,7 @@ module.exports = function(settings){
 	// 	cprint(decoded)
 	// })
 
-	app.post("/company/:companyID/authenticate", function(req, res){
+	app.post("/company/login", function(req, res){
 		var username = req.body.username || null,
 			password = req.body.password || null;
 		if(!( username && password ))
@@ -36,6 +36,7 @@ module.exports = function(settings){
 					cprint(err)
 				res.json({
 					status: "success",
+					data: payload,
 					token: token
 				});
 				return

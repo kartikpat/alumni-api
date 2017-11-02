@@ -39,11 +39,11 @@ var mapper = {
 
 function csvToJSON(inputStream, stepCallback, doneCallback){
 	inputStream = inputStream || fileStream;
-	if(typeof(callback)!=="function"){
+	if(typeof(stepCallback)!=="function"){
 		console.log("Please pass a callback")
 		return 
 	}
-	Papa.parse(fileStream ,{
+	Papa.parse(inputStream ,{
 		header: true,
 		delimiter: ",",
 		error: function(err){
