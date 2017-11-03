@@ -14,11 +14,11 @@ module.exports = function(settings){
 	// })
 
 	app.post("/company/login", function(req, res){
-		var username = req.body.username || null,
+		var email = req.body.email || null,
 			password = req.body.password || null;
-		if(!( username && password ))
+		if(!( email && password ))
 			return settings.unprocessableEntity(res);
-		validate(username, password)
+		validate(email, password)
 		.then(function(rows){
 			if(rows.length<1)
 				return settings.unAuthorised(res);
@@ -26,7 +26,7 @@ module.exports = function(settings){
 				companyID = rows[0]["CompanyId"],
 				role = rows[0]["Role"];
 			var payload = {
-				username: username,
+				emai: email,
 				id: id,
 				companyID: companyID,
 				role: role
@@ -49,9 +49,9 @@ module.exports = function(settings){
 		})
 	});
 
-	function validate(username, password){
-		var query = "Select Id, CompanyId, Role from AccessMaster where Username = ? and Password = ? and Status = 'active'";
-		var queryArray = [username, password];
+	function validate(email, password){
+		var query = "Select Id, CompanyId, AccessLevel from CompanyAccess where Email = ? and Password = ? and Status = 'active'";
+		var queryArray = [email, password];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
 		})
