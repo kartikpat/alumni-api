@@ -237,7 +237,7 @@ module.exports = function(settings){
 	app.get("/company/:companyID/demography", function(req, res){
 		var companyID = req.params.companyID;
 		var by = req.query.by || null;
-		if(!(by && ( by =='designation' || by=='institute' || by=='gender' || by=='education')))
+		if(!(by && ( by =='designation' || by=='institute' || by=='gender' || by=='education' || by=='location')))
 			return settings.unprocessableEntity(res);
 
 		var fetchingDemo = fetchEmployeesGroup(companyID, by);	

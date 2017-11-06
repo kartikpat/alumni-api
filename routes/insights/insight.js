@@ -119,4 +119,83 @@ module.exports = function(settings){
 			return settings.dbCall(connection, query);
 		})
 	}
+	/************************************/
+
+	app.get("/company/:companyID/insights/:group/demography/:groupValue", function(req, res){
+		var companyID = req.params.companyID;
+		var group = req.params.group,
+			groupValue = req.params.groupValue;
+		var value = req.query.value || null,
+			metric = req.query.metric || null; // institute
+		if(!(value && metric && ["institute", "education", "gender", "location", "designation"].indexOf(group)>-1))
+			return settings.unprocessableEntity(res);
+		if(metric=='gender')
+			fetchDesignationGender(groupValue, metric)
+			.then(function(rows){
+				return res.json({
+					status: 'success',
+					data: rows
+				})
+			})
+			.catch(function(err){
+				cprint(err,1);
+				return settings.serviceError(res);
+			})
+		else
+			fetchDesignationInstitue(groupValue, metric)
+			.then(function(rows){
+				var total = 0;
+				var desiredInstitute = '';
+				var desiredValue = 0;
+				rows.forEach(function(aRow){
+					total+=aRow['cnt'];
+					if(aRow['Name']==value){
+						desiredInstitute = aRow['Name'];
+						desiredValue = aRow['cnt'];
+					}
+				})
+
+				var percent= (total!==0)? (desiredValue / total)*100 : 0;
+				return res.json({
+					status: "success",
+					data: {
+						percent: percent,
+						metric: metric,
+						value: desiredValue
+					}
+				})
+			})
+			.catch(function(err){
+				cprint(err,1);
+				return settings.serviceError(res);
+			})
+	})
+
+	function fetchDesignationInstitue(designation, metric){
+		var query = "Select count(*) as cnt, im.Name from AlumnusMaster am inner join DesignationMaster dm on am.DesignationId = dm.DesignationId inner join EducationDetails ed on am.AlumnusId=ed.AlumnusId inner join InstituteMaster im on ed.InstituteId = im.InstituteId where dm.Name = ? group by im.InstituteId, im.Name";
+		if(metric == 'education')
+			query = "Select count(*) as cnt, cm.Name from AlumnusMaster am inner join DesignationMaster dm on am.DesignationId = dm.DesignationId inner join EducationDetails ed on am.AlumnusId=ed.AlumnusId inner join CourseMaster cm on ed.CourseId = cm.CourseId where dm.Name = ? group by cm.CourseId, cm.Name";
+		if(metric == 'gender')
+			query = "Select count(*) as `cnt`, Sex as `Name`	 from AlumnusMaster am inner join DesignationMaster dm on am.DesignationId=dm.DesignationId where dm.Name = ? group by Sex"
+		var queryArray = [designation];
+		return settings.dbConnection().then(function(connection){
+			return settings.dbCall(connection, query, queryArray);
+		})
+	}
+
+	function fetchDesignationGender(designation){
+		var query = "Select count(*) as `cnt`, Sex as `Name`	 from AlumnusMaster am inner join DesignationMaster dm on am.DesignationId=dm.DesignationId where dm.Name = ? group by Sex";
+		var queryArray = [ designation ];
+		return settings.dbConnection().then(function(connection){
+			return settings.dbCall(connection, query, queryArray);
+		})
+	}
+
+	function fetchDesignationEducation(designation){
+		
+		var queryArray = [designation];
+		return settings.dbConnection().then(function(connection){
+			return settings.dbCall(connection, query, queryArray);
+		})
+	}
 }
