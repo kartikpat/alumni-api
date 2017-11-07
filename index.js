@@ -99,6 +99,7 @@ require(__dirname+"/routes/auth/auth.js")(settings);
 require(__dirname+"/routes/profile/profile.js")(settings);
 require(__dirname+"/routes/services/birthday.js")(settings);
 require(__dirname+"/routes/register/register.js")(settings);
+require(__dirname+"/routes/dashboard/init.js")(settings);
 require(__dirname+"/routes/stats.js")(settings)
 require(__dirname+"/routes/list/alumni.js")(settings);
 require(__dirname+"/routes/list/department.js")(settings);
