@@ -3,17 +3,17 @@ function checkDate(aString){
 	var d = moment(aString, 'DD-MM-YYYY');
 	if(!d.isValid())
 		return null;
-	return d.unix();
+	return d.valueOf();
 
 }
 module.exports = function(settings){
 	var cprint = settings.cprint;
 
-	var taskID ="082eeec8c6e942218bbc1b7dac4f5dc0";
-	var companyID = 2;
+	var taskID ="cbbdf29c34cc4ae2ac64d083d8f1df2a";
+	var companyID = 3;
 
 	function validateUserFields(anObject){
-		var requiredFields = ['name', 'email', 'companyEmail', 'dob', 'doj', 'dol', 'department', 'designation', 'salaryLPA'];
+		var requiredFields = ['name', 'email', 'companyEmail', 'doj', 'dol', 'department', 'designation', 'salaryLPA'];
 		var dateFields = ['dob', 'doj', 'dol']
 		var emailFields = ['email', 'companyEmail']
 		var missing = [];
