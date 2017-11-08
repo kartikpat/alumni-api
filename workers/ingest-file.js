@@ -1,11 +1,13 @@
+// Not to be used
+
 var data = require("../adapters/data.json");
 module.exports = function(settings){
 	var cprint = settings.cprint;
 
 	// sanitizeEachRecord(data)
 
-	var taskID ="6e07b5c59c4849469b153f18482fede6";
-	var companyID = 123;
+	var taskID ="78bb765d8a454dd093ffcd1be522cb5f";
+	var companyID = 2;
 	function sanitize(taskID, companyID){
 		fetchRecords(taskID, companyID)
 		.then( sanitizeEachRecord )
@@ -56,6 +58,7 @@ module.exports = function(settings){
 	}
 
 	function sanitizeSingleRecord(aRow){
+		cprint(aRow)
 		var props = {};
 		var dataArray = [];
 		var companyID = aRow["CompanyId"];
@@ -69,6 +72,7 @@ module.exports = function(settings){
 			props.phone = aRow['Phone'];
 			props.companyEmail = aRow['CompanyEmail'];
 			props.dob = aRow['Dob'] ? new Date(aRow['Dob']).getTime():  new Date(aRow['DateOfJoining']).getTime() -1000000;
+			props.dateOfBirth = aRow['Dob'] ? settings.formatDate_yyyymmdd(new Date(aRow['Dob'])) : null;
 			props.doj = new Date(aRow['DateOfJoining']).getTime();
 			props.dol = new Date(aRow['DateOfLeaving']).getTime();
 			props.department = aRow['Department'];
@@ -77,7 +81,7 @@ module.exports = function(settings){
 			props.code = aRow['Code'];
 			props.salaryLPA = aRow['SalaryLPA'];
 			props.sex = aRow['Sex'];
-			props.companyID = 1;
+			props.companyID = companyID;
 
 			 
 			props.education = dataArray[1] || null;
@@ -112,7 +116,7 @@ module.exports = function(settings){
 			return settings.dbConnection()
 			.then(settings.dbTransaction)
 			.then(function(connection){
-				return addUser([props.firstName , props.middleName , props.lastName , props.email , props.phone, props.companyEmail , props.dob , props.doj , props.dol , props.departmentID , props.designationID , props.linkedInUrl , props.code , props.salaryLPA , props.companyID , props.sex], connection )
+				return addUser([props.firstName , props.middleName , props.lastName , props.email , props.phone, props.companyEmail , props.dob, props.dateOfBirth , props.doj , props.dol , props.departmentID , props.designationID , props.linkedInUrl , props.code , props.salaryLPA , props.companyID , props.sex], connection )
 				}).catch(function(err){
 					cprint(err,1)
 				})
@@ -242,7 +246,7 @@ module.exports = function(settings){
 		}
 
 	function addUser(queryArray, connection){
-			var query = "Insert ignore into AlumnusMaster (FirstName, MiddleName, LastName, Email, Phone, CompanyEmail, Dob, DateOfJoining, DateOfLeaving, DepartmentId, DesignationId, LinkedinURL, Code, SalaryLPA, CompanyId, Sex ) values ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )";
+			var query = "Insert ignore into AlumnusMaster (FirstName, MiddleName, LastName, Email, Phone, CompanyEmail, Dob, DateOfBirth, DateOfJoining, DateOfLeaving, DepartmentId, DesignationId, LinkedinURL, Code, SalaryLPA, CompanyId, Sex ) values ( ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )";
 				return settings.dbTransactionQuery(connection, query, queryArray);
 		}
 
