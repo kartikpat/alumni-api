@@ -226,6 +226,9 @@ module.exports = function(settings){
 			case 'education':
 				query = "Select count(*) as num, cm.Name from AlumnusMaster am inner join EducationDetails ed on am.AlumnusId=ed.AlumnusId inner join CourseMaster cm on cm.CourseId=ed.CourseId where am.CompanyId= ? group by ed.CourseId, cm.Name";
 				break;
+			case 'location':
+				query = "Select count(*) as num, cm.Name from AlumnusMaster am inner join EducationDetails ed on am.AlumnusId=ed.AlumnusId inner join CourseMaster cm on cm.CourseId=ed.CourseId where am.CompanyId= ? and am.companyId= 10 group by ed.CourseId, cm.Name" // TODO : remove the hardcoded 10
+				break;
 			default:
 				break;
 		}
