@@ -1,6 +1,8 @@
+var fs = require("fs")
 var uuidV4 = require("uuid/v4");
+var fileStream = fs.createReadStream('./test/generate/employee.csv', 'utf8');
 var csvToJSON = require("../../adapters/csv-to-json").csvToJSON;
-var companyID = 1;
+var companyID = 2;
 var taskID = uuidV4().replace(/\-/g,"");
 module.exports = function(settings){
 	var cprint = settings.cprint;
@@ -24,7 +26,7 @@ module.exports = function(settings){
 				aRow['designation'],
 				aRow['lUrl'] ? aRow['lUrl']: null,
 				aRow['code'] ? aRow['code'] : null,
-				aRow['salary'] ? aRow['salary'] : null,
+				aRow['salaryLPA'] ? aRow['salaryLPA'] : null,
 				companyID,
 				aRow['sex'] ? aRow['sex'] : null
 			];
@@ -48,6 +50,6 @@ module.exports = function(settings){
 		})
 	}
 
-	//csvToJSON(null, stepExecute)
+	//csvToJSON(fileStream, stepExecute)
 
 }

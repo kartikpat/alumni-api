@@ -1,19 +1,16 @@
+var moment = require('moment');
 function checkDate(aString){
-	try{
-		var d = new Date(aString);
-			if(d=="Invalid Date")
-				return null;
-		return d.getTime();
-	}catch(err){
-		return null
-	}
+	var d = moment(aString, 'DD-MM-YYYY');
+	if(!d.isValid())
+		return null;
+	return d.unix();
 
 }
 module.exports = function(settings){
 	var cprint = settings.cprint;
 
-	var taskID ="232abd7f28c64a1bb0547d336c7f5069";
-	var companyID = 1;
+	var taskID ="082eeec8c6e942218bbc1b7dac4f5dc0";
+	var companyID = 2;
 
 	function validateUserFields(anObject){
 		var requiredFields = ['name', 'email', 'companyEmail', 'dob', 'doj', 'dol', 'department', 'designation', 'salaryLPA'];
@@ -74,7 +71,7 @@ module.exports = function(settings){
 	}
 
 	function fetchProfession(email, companyID){
-		var query = "Select  Email, Designation, Organisation, FromTimestamp,ToTimestamp, CompanyId from StagingProfessionalDetails where Email = ? and CompanyId = ?";
+		var query = "Select  Email, Designation, Organisation, DateOfJoining,DateOfLeaving, CompanyId from StagingProfessionalDetails where Email = ? and CompanyId = ?";
 		var queryArray = [email, companyID];
 		return settings.dbConnection().then(function(connecting){
 			return settings.dbCall(connecting, query, queryArray);
@@ -95,7 +92,7 @@ module.exports = function(settings){
 		var email = aRow["Email"]
 		var entryID = aRow["EntryId"]
 
-		var alumniDetails = Promise.all([fetchAlumnus(entryID, email), fetchEducation(email, companyID), fetchProfession(email, companyID)] )
+		var alumniDetails = Promise.all([fetchAlumnus(entryID, email)])
 		alumniDetails
 		.then(function(dataArray){
 			var rows = dataArray[0];
@@ -104,8 +101,9 @@ module.exports = function(settings){
 			props.lastName = rows[0]["LastName"];
 			props.email = rows[0]['Email'] || null;
 			props.phone = rows[0]['Phone'] || null;
-			props.companyEmail = rows[0]['CompanyEmail'] || null;
+			props.companyEmail = rows[0]['CompanyEmail'] || Date.now(); // TODO make this null default
 			props.dob = checkDate(rows[0]['Dob']);
+			props.dateOfBirth = checkDate(rows[0]['Dob']) ? moment(rows[0]['Dob'], 'YYYY-MM-DD').format('YYYY-MM-DD') : null;
 			props.doj = checkDate(rows[0]['DateOfJoining']);
 			props.dol = checkDate(rows[0]['DateOfLeaving']);
 			props.department = rows[0]['Department'] || null;
@@ -115,7 +113,12 @@ module.exports = function(settings){
 			props.salaryLPA = rows[0]['SalaryLPA'] || null;
 			props.sex = rows[0]['Sex'] || null;
 			props.companyID = rows[0]['CompanyId'];
-
+			console.log('...........Staging values.................')
+			console.log(rows[0]['Dob'])
+			console.log('.........DateOfBirth...............')
+			console.log(props.dateOfBirth)
+			console.log('............Dob.....................')
+			console.log(props.dob)
 			validateUserFields(props);
 
 			var educationRows = dataArray[1];
@@ -124,7 +127,7 @@ module.exports = function(settings){
 			var professionRows = dataArray[2];
 			props.profession = professionRows || [];
 
-			var prepareAlumni = Promise.all([addDepartment(props.department, props.companyID), addDesignation(props.designation, props.companyID), prepareMultipleItems(educationRows, 'Course'), prepareMultipleItems(educationRows, 'Institute'), prepareMultipleItems(professionRows, 'Organisation'), prepareMultipleItems(professionRows, 'Designation') ]);
+			var prepareAlumni = Promise.all([addDepartment(props.department, props.companyID), addDesignation(props.designation, props.companyID)]);
 			return prepareAlumni;
 		})
 		.then(function(dataArray){
@@ -139,74 +142,16 @@ module.exports = function(settings){
 
 			props.departmentID = departmentRows.insertId;
 			props.designationID = designationRows.insertId;
-
-			return settings.dbConnection()
-			.then(settings.dbTransaction)
-			.then(function(connection){
-				return addUser([props.firstName , props.middleName , props.lastName , props.email , props.phone, props.companyEmail , props.dob , props.doj , props.dol , props.departmentID , props.designationID , props.linkedInUrl , props.code , props.salaryLPA , props.companyID , props.sex], connection )
-				})
-		})
-		.then(function(qOb){
 			
-			props.alumnusID = qOb.rows.insertId;
-			var connection =qOb.connection;
-			var educationRowsArray = [];
-			props.education.forEach(function(aRow, index){
-				educationRowsArray.push([
-						props.alumnusID,
-						props.courseRows[index],
-						props.instituteRows[index],
-						aRow["BatchFrom"],
-						aRow["BatchTo"],
-						aRow["CourseType"],
-						aRow["CompanyId"]
-					]);
-			})
-			if(educationRowsArray.length<1)
-				return {connection: connection}
-			return addEducationDetails(educationRowsArray , connection);
-		}).then(function(qOb){
-			var connection = qOb.connection;
-			var professionRowsArray = [];
-			props.profession.forEach(function(aRow, index){
-				professionRowsArray.push([
-						props.alumnusID,
-						props.designationRows[index],
-						props.organisationRows[index],
-						aRow['FromTimestamp'],
-						aRow['ToTimestamp'],
-						aRow['CompanyId']
-					]);
-			});
-			if(professionRowsArray.length<1)
-				return {connection: connection}
-			return addProfessionalDetails(professionRowsArray, connection);
+			return addUser([props.firstName , props.middleName , props.lastName , props.email , props.phone, props.companyEmail , props.dob , props.dateOfBirth, props.doj , props.dol , props.departmentID , props.designationID , props.linkedInUrl , props.code , props.salaryLPA , props.companyID , props.sex])
 		})
 		.then(function(qOb){
-			var connection = qOb.connection;
-			return	updateStaging(entryID, connection)
-		})
-		.then(function(qOb){
-			var connection = qOb.connection;
-			connection.commit(function(err){
-				if(err){
-					return connection.rollback(function(){
-						cprint(err,1);
-						connection.release();
-						return
-					})
-				}
-				connection.release();
-				return;
-			})
+			return	updateStaging(entryID)
 		})
 		.catch(function(err){
-			if(err.connection){
-				return	rollbackTransaction(err)
-			}
 			cprint(err,1)
-			updateError(entryID, err.message);
-			return
+			return updateError(entryID, err.message);
+			
 		})
 	}
 
@@ -254,10 +199,12 @@ module.exports = function(settings){
 		
 	}
 
-	function updateStaging(entryID, connection){
+	function updateStaging(entryID){
 		var query = "Update StagingAlumnusMaster set Status = ? where EntryId = ?";
 		var queryArray = ['done',entryID];
-		return settings.dbTransactionQuery(connection, query, queryArray);
+		return settings.dbConnection().then(function(connection){
+			return settings.dbCall(connection, query, queryArray)
+		})
 	}
 
 	function addProfessionalDetails(professionalArray, connection){
@@ -272,9 +219,11 @@ module.exports = function(settings){
 			return settings.dbTransactionQuery(connection, query, queryArray);
 		}
 
-	function addUser(queryArray, connection){
-			var query = "Insert ignore into AlumnusMaster (FirstName, MiddleName, LastName, Email, Phone, CompanyEmail, Dob, DateOfJoining, DateOfLeaving, DepartmentId, DesignationId, LinkedinURL, Code, SalaryLPA, CompanyId, Sex ) values ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )";
-				return settings.dbTransactionQuery(connection, query, queryArray);
+	function addUser(queryArray){
+			var query = "Insert into AlumnusMaster (FirstName, MiddleName, LastName, Email, Phone, CompanyEmail, Dob, DateOfBirth, DateOfJoining, DateOfLeaving, DepartmentId, DesignationId, LinkedinURL, Code, SalaryLPA, CompanyId, Sex ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )";
+			return settings.dbConnection().then(function(connection){
+				return settings.dbCall(connection, query, queryArray);
+			})
 		}
 
 	function addCourse(course){
@@ -331,4 +280,5 @@ module.exports = function(settings){
 		})
 	}
 	settings.sanitize = sanitize;
+	sanitize(taskID, companyID)
 }

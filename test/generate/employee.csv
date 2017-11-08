@@ -1,1 +1,119 @@
-First name,Middle name,Last name,Email,Company Email,Date of birth ( DD/MM/YYYY ),Date of joining,Date of relieving,Phone,Designation,Department,Employee Code,linkedIn URL,Salary,Gender
+First name,Middle name,Last name,Email,Company Email,Date of birth,Date of joining,Date of relieving,Phone,Department,Designation,Employee Code,linkedIn URL,Salary,Gender
+Aayush,,Jain,aayush.jain@gep.com,aayush@iimjobs.com,24/01/1991,08/01/2015,01/08/2015,9810734332,Client Engagement,Manager-Client Engagement,NA,,10.00 LPA,Male
+Vrinda,,Sinhal,vrindasinhal2002@gmail.com,vrinda@iimjobs.com,29/07/1989,04/07/2015,01/12/2015,9873956155,Sales-Recruitment Solutions,Team Lead-Corporate Sales,NA,,10.00 LPA,Female
+Aastha,,Verma,aasthaverma66@gmail.com,aastha@iimjobs.com,18/12/1991,04/06/2015,02/01/2016,9643743604,Technical,Data Analyst,NA,,10.00 LPA,Female
+Geeta ,,Sharma,geetspisces@gmail.com,geeta@iimjobs.com,06/03/1986,06/03/2015,12/02/2016,9650540313,Sales-Recruitment Solutions,Manager-Corporate Connect,NA,,10.00 LPA,Female
+Megha ,,Madan,megha.madan28@gmail.com,megha@iimjobs.com,28/08/1989,07/01/2015,19/02/2016,8527032333,Sales-Recruitment Solutions,Manager-Corporate Connect,NA,,10.00 LPA,Female
+Shyamantika,,Chatterjee,raniachatterjee@gmail.com,shyamantika@iimjobs.com,02/09/1987,08/03/2015,20/02/2016,9830494472,Sales-Recruitment Solutions,Manager-Corporate Connect,NA,,10.00 LPA,Female
+Uddipta,,Ghosh,uddiptag@gmail.com,uddipta@iimjobs.com,16/03/1986,06/11/2014,03/04/2016,8373973169,Sales-Recruitment Solutions,Manager-Corporate Connect,NA,,10.00 LPA,Male
+Ambar ,,Singh,ambarsingh10@yahoo.com,ambar@iimjobs.com,27/07/1988,20/05/2015,03/09/2016,9815296694,Operations,Operations Executive,NA,,10.00 LPA,Male
+Upasana,,Gautam,upasana.gautam3054@gmail.com,upasana@iimjobs.com,30/01/1988,08/03/2015,04/05/2016,9900427324,Sales-Recruitment Solutions,Manager-Corporate Connect,NA,,10.00 LPA,Female
+Manoj,,Pillai,manojpillai89@gmail.com,manoj@iimjobs.com,17/06/1989,05/01/2016,04/09/2016,9967075180,Sales-Recruitment Solutions,Manager-Corporate Connect,NA,,10.00 LPA,Male
+Supreet,,Bhattacharjee,supreet47@gmail.com,supreet@iimjobs.com,27/12/1987,27/03/2015,26/04/2016,9599248246,Sales-Recruitment Solutions,Manager-Corporate Connect,NA,,10.00 LPA,Male
+Rishab,,Jolly,rishabjolly24@gmail.com,rishab@iimjobs.com,,11/06/2015,11/06/2016,9654937263,Technical,Sr. Software Engineer,NA,,10.00 LPA,Male
+Himanshu,,Govil,himgovil@gmail.com,himanshu@iimjobs.com,,16/11/2015,05/07/2016,9811448653,Sales-Recruitment Solutions,Manager-Corporate Connect,NA,,10.00 LPA,Male
+Sarvagya,,Nayak,sarvagyanayak@gmail.com,Sarvagya@iimjobs.com,,22/12/2015,13/07/2016,9962097322,Sales-Recruitment Solutions,Manager-Corporate Connect,NA,,10.00 LPA,Male
+Lenin,,Anthony,leninanthony1@gmail.com,lenin@iimjobs.com,,27/06/2016,11/07/2016,7541895256,Sales-Recruitment Solutions,Manager-Corporate Connect,NA,,10.00 LPA,Male
+Lokendra,Singh,Tomar,er.lokendrasinghtomar@gmail.com,lokendra@iimjobs.com,,02/05/2016,15/07/2016,9643097696,Technical,Sr. iOS Developer,NA,,10.00 LPA,Male
+Arnav,,Varma,arnav.varma@gmail.com,arnav@iimjobs.com,,14/03/2016,11/07/2016,9096089439,Sales-Recruitment Solutions,Manager-Corporate Connect,NA,,10.00 LPA,Male
+Anmol,,Grover,anm1grover@gmail.com,anmol@iimjobs.com,,17/09/2015,31/07/2016,9990893196,Technical,Software Trainee,NA,,10.00 LPA,Male
+Harshita,,Dutta,harshitadmail@yahoo.com,harshita@iimjobs.com,,20/05/2016,31/07/2016,9534099900,Client Engagement,Consultant Recruitment Services,NA,,10.00 LPA,Female
+Shatakshi,,Dhawan,shatakshidhawan3@yahoo.in,shatakshi@iimjobs.com,,28/09/2015,12/08/2016,8144588414,Client Engagement,Consultant-Client Engagement,NA,,10.00 LPA,Female
+Aneesha ,,Warrier,aneeshawarrier@gmail.com,aneesha@iimjobs.com,,10/06/2016,11/08/2016,8892710562,Sales-Recruitment Solutions,Manager-Corporate Connect,NA,,10.00 LPA,Female
+Ankita,,Dalvi,ankitadalvi7@gmail.com,ankita@iimjobs.com,,18/07/2016,12/08/2016,9930320384,Sales-Recruitment Solutions,Manager-Corporate Connect,NA,,10.00 LPA,Female
+Neha,,Malhotra,nehastudent25@gmail.com,neha.malhotra@iimjobs.com,,01/06/2016,19/08/2016,8376995336,Sales-Recruitment Solutions,Manager-Corporate Connect,NA,,10.00 LPA,Female
+Saharsh,,Bhushan,saharsh.bhushan@gmail.com,saharsh@iimjobs.com,,17/08/2015,24/08/2016,9916684570/9431020817,Sales-Recruitment Solutions,Manager-Corporate Connect,NA,,10.00 LPA,Male
+Pooja,,Jain,pooja3190@gmail.com,pooja.jain@iimjobs.com,,27/06/2016,25/08/2016,9833246491,Sales-Recruitment Solutions,Manager-Corporate Connect,NA,,10.00 LPA,Male
+Siddharth,,Chugh,siddharth.chughs@gmail.com,siddharth.chugh@iimjobs.com,,01/07/2015,09/09/2016,9999740600,Sales-Recruitment Solutions,Manager-Corporate Connect,NA,,10.00 LPA,Male
+Nikita,,Chaturvedi,nikita.chaturvedi89@gmail.com,nikita@iimjobs.com,,04/05/2016,05/09/2016,9986907107,Sales-Recruitment Solutions,Manager-Corporate Connect,NA,,10.00 LPA,Male
+Nishant,,Gaurav,nishantgauraveie@gmail.com,nishant@iimjobs.com,,06/06/2016,14/09/2016,9049211199,Sales-Recruitment Solutions,Manager-Corporate Connect,NA,,10.00 LPA,Male
+Jebby,,Joe,jebby.joe@live.com,Jebby@iimjobs.com,,21/12/2015,13/09/2016,9884866648,Sales-Recruitment Solutions,Manager-Corporate Connect,NA,,10.00 LPA,Male
+Shaunik,,Grover,shaunikgrover27@gmail.com,shaunik@iimjobs.com,,28/06/2016,17/09/2016,9910954909,Sales-Recruitment Solutions,Manager-Corporate Connect,NA,,10.00 LPA,Male
+Vivek,,Behani,vivekbehani@mail.com,vivek@iimjobs.com,,12/09/2016,29/09/2016,8447682359,Sales-Recruitment Solutions,Manager-Corporate Connect,NA,,10.00 LPA,Male
+Kunal,,Gautam,kunal.gautam26@gmail.com,kunal@iimjobs.com,,12/10/2015,31/10/2016,8586987292,Technical,Sr. Software Engineer,NA,,10.00 LPA,Male
+Vimal,,Joshi,vimalwebcreater@gmail.com,vimal@iimjobs.com,,08/12/2014,31/10/2016,9716939953,Technical,UI/UX Designer,NA,,10.00 LPA,Male
+Priyanka,,Khandelwal,priyankakhandelwal134@gmail.com,priyanka.khandelwal@iimjobs.com,,11/04/2016,31/10/2016,8147838149,Technical,Software Engineer,NA,,10.00 LPA,Female
+Sharun,,Kanan,skanan94@gmail.com,sharun@iimjobs.com,,06/06/2016,06/10/2016,8056689238,Sales-Recruitment Solutions,Manager-Corporate Connect,NA,,10.00 LPA,Female
+Pooja,,N,pooja.1811@gmail.com,pooja@iimjobs.com,,17/08/2015,18/10/2016,7506685356,Client Engagement,Consultant-Client Engagement,NA,,10.00 LPA,Female
+Mayank,,Narula,mayank.narula22@gmail.com,mayank.narula@iimjobs.com,,01/08/2016,29/10/2016,9899602315,Sales-Recruitment Solutions,Manager-Corporate Connect,NA,,10.00 LPA,Male
+Shravani,,Bhagi,bhagi.shravani@gmail.com,shravani@iimjobs.com,,18/07/2016,03/11/2016,9866371239,Sales-Recruitment Solutions,Manager-Corporate Connect,NA,,10.00 LPA,Female
+Jaspal,,Singh,,js@iimjobs.com,,13/08/2012,07/11/2016,9891156880,Technical,VP-Technology,NA,,10.00 LPA,Male
+Siddharth,,Rangnekar,srrangnekar@gmail.com,siddharth.rangnekar@iimjobs.com,,07/09/2016,17/11/2016,8879337229,Sales-Recruitment Solutions,Manager-Corporate Connect,NA,,10.00 LPA,Male
+Nidhi,,Garg,nidhigarg158@gmail.com,nidhi@iimjobs.com,,20/07/2015,11/11/2016,9958958955,Sales-Recruitment Solutions,Manager-Corporate Connect,NA,,10.00 LPA,Female
+Sachit,,Chawla,sachitchawla0@gmail.com,sachit@iimjobs.com,,04/05/2016,19/11/2016,9711971090,Strategiv Initiatives,Manager-New Initiatives,NA,,10.00 LPA,Male
+Mayank,,Narayan,mayanknarayan93@gmail.com,mayank.narayan@iimjobs.com,,29/08/2016,26/11/2016,9999904547,Client Engagement,Consultant Recruitment,NA,,10.00 LPA,Male
+Tanurag,,Chowdhary,tanuragchowdhary@gmail.com,tanurag@iimjobs.com,,27/06/2016,30/11/2016,9920649024,Sales-Recruitment Solutions,Manager-Corporate Connect,NA,,10.00 LPA,Male
+Bibek,,Bhandary,bibek.bhandary@gmail.com,bibek@iimjobs.com,,18/07/2016,30/11/2016,9923965291,Sales-Recruitment Solutions,Manager-Corporate Connect,NA,,10.00 LPA,Male
+Abid,,Shaikh,im.abidshaikh@gmail.com,abid@iimjobs.com,,25/03/2015,12/12/2016,8377995259,Sales-Recruitment Solutions,Manager-Corporate Connect,NA,,10.00 LPA,Male
+Piyush,,Miglani,miglani.piyush@gmail.com,piyush.miglani@iimjobs.com,,01/12/2016,13/12/2016,9999004905,Learn & Grow,Account Manager-Learn & Grow,NA,,10.00 LPA,Male
+Deepshikha,,Verma,deepshikha.work26@gmail.com,deepshikha@iimjobs.com,,07/03/2016,15/12/2016,9711194147,Sales-Recruitment Solutions,Consultant-Client Engagement,NA,,10.00 LPA,Female
+Pallavi ,,Gupta,pallavi2012gupta@gmail.com,pallavi@iimjobs.com,,27/07/2015,30/12/2016,7838415983,Sales-Recruitment Solutions,Manager-Client Engagement,NA,,10.00 LPA,Female
+Kriti,,Aggarwal,kritiaggarwal2012@gmail.com,kriti@iimjobs.com,,17/02/2016,31/12/2016,8510052221,Sales-Recruitment Solutions,Manager-Corporate Connect,NA,,10.00 LPA,Female
+Kureshu,Chandra,Nayak,kureshnayak92@gmail.com,kureshu@iimjobs.com,,17/05/2016,11/01/2017,9124180189,Technical,Software Engineer,NA,,10.00 LPA,Male
+Supratim,Roy,Chowdhary,supratim.roy1993@gmail.com,supratim@iimjobs.com,,21/03/2016,25/01/2017,9522199906,Sales-Recruitment Solutions,Manager-Corporate Connect,NA,,10.00 LPA,Male
+Kiran,,Rana,iamkiran2013@gmail.com,kiran.rana@iimjobs.com,,31/03/2016,31/01/2017,8586895424,Accounts & Finance,Account Executive,NA,,10.00 LPA,Female
+Shreya,,Shukla,14shreya89@gmail.com,shreya.shukla@iimjobs.com,,06/06/2016,03/02/2017,8884441128,Client Engagement,Consultant-Client Engagement,NA,,10.00 LPA,Female
+Aishwarya,,Balasubramaneyam,baishwarya17@gmail.com,aishwarya@iimjobs.com,,27/07/2016,11/02/2017,9916022275,Sales-Recruitment Solutions,Manager-Corporate Connect,NA,,10.00 LPA,Female
+Mrugank,,Deshpande,mrugank.deshpande@gmail.com,mrugank@iimjobs.com,,03/11/2015,21/02/2017,9011035137,Sales-Recruitment Solutions,Manager-Corporate Connect,NA,,10.00 LPA,Male
+Mansi,,Bansal,mansi@iimjobs.com,mansi@iimjobs.com,,09/01/2017,28/02/2017,9560621621,Sales-Recruitment Solutions,Manager-Corporate Connect,NA,,10.00 LPA,Female
+Upasana,,Thapar,upasanathapar14@gmail.com,upasana.thapar@iimjobs.com,,16/01/2017,23/03/2017,9654391818,Sales-Recruitment Solutions,Manager-Corporate Connect,NA,,10.00 LPA,Female
+Joel,,Vincent,vincy64@gmail.com,joel@iimjobs.com,,16/01/2017,05/04/2017,9821419436,Sales-Recruitment Solutions,Manager-Corporate Connect,HOC-0158,,10.00 LPA,Male
+Vikalp,,Bhardwaj,bhardwajvikalp@gmail.com,vikalp@iimjobs.com,,15/09/2014,15/04/2017, 7503139630,Learn & Grow,Head-Learn & Grow,HOC-0012,,10.00 LPA,Male
+Sujan,,Parkash,sujan.parkash@yahoo.com,sujan@iimjobs.com,,21/07/2015,22/04/2017,9911998500,Client Engagement,Consultant-Client Engagement,HOC-0036,,10.00 LPA,Male
+Debarun,Saha,Roy,roy.debarun@gmail.com,debarun@iimjobs.com,,12/01/2015,20/04/2017,9990636623,Sales-Recruitment Solutions,Manager-Corporate Connect,HOC-0022,,10.00 LPA,Male
+Jagrati,,Kulshrestha,kulshresthJagrati@gmail.com,jagrati@iimjobs.com,,20/02/2017,24/04/2017,9953510773,Sales-Recruitment Solutions,Manager-Corporate Connect,HOC-0167,,10.00 LPA,Female
+Shubham,,Pandey,shubham.5.pandey@gmail.com,shubham@iimjobs.com,,20/03/2017,27/04/2017,8147810589,Sales-Recruitment Solutions,Manager-Corporate Connect,HOC-0186,,10.00 LPA,Male
+Vaishnavi,,Mishra,mishra.vaishnavi22@gmail.com,vaishnavi@iimjobs.com,,20/03/2017,27/04/2017,7083065770,Sales-Recruitment Solutions,Manager-Corporate Connect,HOC-0188,,10.00 LPA,Female
+Stuti,,Aggarwal,stuti.aggarwal@hotmail.com,stuti@iimjobs.com,,20/03/2017,27/04/2017,9910100877,Sales-Recruitment Solutions,Manager-Corporate Connect,HOC-0190,,10.00 LPA,Female
+Divya,A,George,divyaalwingeorge@gmail.com,divya@iimjobs.com,,20/03/2017,26/04/2017,9049264029,Sales-Recruitment Solutions,Manager-Corporate Connect,HOC-0184,,10.00 LPA,Female
+Puneet,,Nagpal,puneetnagpal.83@gmail.com,puneet.nagpal@iimjobs.com,,20/02/2017,29/04/2017,8826688080,Marketing,Head-Marketing,HOC-0168,,10.00 LPA,Male
+Shruti,,Sharma,shrus23sharma@gmail.com,shruti.sharma@iimjobs.com,,23/07/2016,01/05/2017,9873492771,Sales-Recruitment Solutions,Manager-Enterprise Business,HOC-0112,,10.00 LPA,Female
+Srujan,,Kottam,kotumsrujan@gmail.com,srujan@iimjobs.com,,26/09/2016,21/05/2017,9769088924,Sales-Recruitment Solutions,Manager-Corporate Connect,HOC-0135,,10.00 LPA,Male
+Abhishek,Prasad,Katta,katta5prasad@gmail.com,Abhishek.katta@iimjobs.com,,10/04/2017,25/05/2017,7219012221,Sales-Recruitment Solutions,Manager-Corporate Connect,HOC-0200,,10.00 LPA,Male
+Anjali,,Jain,anjalijain181991@gmail.com,anjali@iimjobs.com,,16/05/2015,20/05/2017,9999392102,Client Engagement,Consultant-Client Engagement,HOC-0028,,10.00 LPA,Female
+Advit,,Seth,sethadvit.004@gmail.com,advit@iimjobs.com,,03/04/2017,16/05/2017,9717939729,Sales-Recruitment Solutions,Manager-Corporate Connect,HOC-0196,,10.00 LPA,Male
+Saumil,,Shah,saumilshah_14@nirmauni.ac.in,soumil@iimjobs.com,,04/04/2016,06/05/2017,9904189897,Sales-Recruitment Solutions,Manager-Corporate Connect,HOC-0077,,10.00 LPA,Male
+Anupam,,Arya,anupamarya47@gmail.com,anupam@iimjobs.com,,07/03/2016,19/05/2017,7838978934,Human Resources,Talent Acquisition-Associate,HOC-0066,,10.00 LPA,Female
+Nitish,,Sharma,   nitishgemini14692@gmail.com,nitish@iimjobs.com,,06/03/2017,02/06/2017,8125242605,Sales-Recruitment Solutions,Manager-Enterprise Business,HOC-0175,,10.00 LPA,Male
+Manish,,Kumar,manish.C43al@gmail.com,manish@iimjobs.com,,12/12/2016,02/06/2017,7065192224,Sales-Recruitment Solutions,Manager-Enterprise Business,HOC-0149,,10.00 LPA,Male
+Angad,Singh,Sidhu,angad.sindhu@icloud.com,angad@iimjobs.com,,01/05/2017,13/06/2017,9971884389,Sales-Recruitment Solutions,Manager-Corporate Connect,HOC-0213,,10.00 LPA,Male
+Prarit,,Vashisht,praritvashisht@gmail.com,prarit@iimjobs.com,,29/01/2016,22/06/2017,9643831031,Client Engagement,Consultant-Client Engagement,HOC-0060,,10.00 LPA,Male
+Ayush,,Agarwal,ayush909910@gmail.com,ayush.agarwal@iimjobs.com,,20/03/2017,22/06/2017,8527512752,Client Engagement,Manager - Client Engagement,HOC-0185,,10.00 LPA,Male
+Rachel,,Paul,rachelpaul.2593@gmail.com,rachel@iimjobs.com,,06/03/2017,30/06/2017,9582311656,Sales-Recruitment Solutions,Mnager-Corporte Connect,HOC-0174,,10.00 LPA,Female
+Roumit,,Roy,roumitroy14127@gmail.com,roumit@iimjobs.com,,01/12/2016,30/06/2017,7829456460,Sales-Recruitment Solutions,Manager-Corporate Connect,HOC-0146,,10.00 LPA,Male
+Vivek,,Mishra, vivekmishra1211@gmail.com,vivek.mishra@iimjobs.com,,06/03/2017,03/07/2017,9013627637,Sales-Recruitment Solutions,Manager-Enterprise Business,HOC-0176,,10.00 LPA,Male
+Ravindra,Singh,Solanki,ravindrasinghsolanki41@gmail.com,ravindra@iimjobs.com,,16/11/2015,14/07/2017,9555222756,Technical,Sr.Android Developer,HOC-0056,,10.00 LPA,Male
+Abhishek,,Hemrom,hemrom.johny@gmail.com,abhishek.hemrom@iimjobs.com,,01/05/2017,28/07/2017,9545835113,Sales-Recruitment Solutions,Manager-Corporate Connect,HOC-0219,,10.00 LPA,Male
+Irfat,Altaf,Matto,irfatmatto@gmail.com,irfat@iimjobs.com,,16/01/2017,06/07/2017,9910029551,Sales-Recruitment Solutions,Manager-Corporate Connect,HOC-0160,,10.00 LPA,Male
+Sagar,,Mohan,sagarmohan.92@gmail.com,sagar.mohan@iimjobs.com,,10/04/2017,12/07/2017,8800300638,Sales-Recruitment Solutions,Manager-Corporate Connect,HOC-0201,,10.00 LPA,Male
+Nikita,,Thenua,Nikita.thenua@yahoo.com ,nikita@iimjobs.com,,06/03/2017,18/07/2017,7287095351,Sales-Recruitment Solutions,Manager-Enterprise Business,HOC-0177,,10.00 LPA,Female
+Lakshita,,Sapra,lakshitasapra13793@gmail.com,lakshita@iimjobs.com,,01/06/2016,22/07/2017,9953677889,Learn & Grow,Account Manager-Learn & Grow,HOC-0090,,10.00 LPA,Female
+Deepak,,Nayak,deepak.nayak@iitp.ac.in,deepak@iimjobs.com,,17/11/2014,13/07/2017,8527538390,Technical,iOS Developer,HOC-0015,,10.00 LPA,Male
+Archit,,Singh,archit.singh@hotmail.com,archit@iimjobs.com,,23/08/2016,28/07/2017,9990676935,Sales-Recruitment Solutions,Manager-Corporate Connect,HOC-0121,,10.00 LPA,Male
+Ankur,,Vashisht,ankurvashisht90@gmail.com,ankur@iimjobs.com,,19/01/2017,31/08/2017,9810541051,Sales-Recruitment Solutions,AVP-Corporate Connect,HOC-0161,,10.00 LPA,Male
+Sanjay,,Cheruvu,sanjay.cheruvu@gmail.com,sanjay@iimjobs.com,,17/03/2017,04/08/2017,9741350812,Client Engagement,Consultant-Client Engagement,HOC-0183,,10.00 LPA,Male
+Priyanka,,Dalvi,priya111990@gmail.com,priyanka.dalvi@iimjobs.com,,12/06/2017,08/08/2017,9833577721,Client Engagement,Consultant-Client Engagement,HOC-0237,,10.00 LPA,Female
+Shikhar,,Choudhary,shikhar.sc1993@gmail.com,shikhar@iimjobs.com,,10/04/2017,12/08/2017,9827174224,Sales-Recruitment Solutions,Manager-Corporate Connect,HOC-0207,,10.00 LPA,Male
+Kiran ,M,Rao,kiran.mutharaju@gmail.com,kiran@iimjobs.com,,19/05/2015,24/08/2017,7840085028,Client Engagement,Client Engagement Head-North,HOC-0029,,10.00 LPA,Female
+Rahul,,Mathur,  mathyrahul2008@hotmail.com,rahul.mathur@iimjobs.com,,01/05/2017,21/08/2017,9871022488,Sales-Recruitment Solutions,Head-Sales,HOC-0221,,10.00 LPA,Male
+Sonakshi,,Batra,batra.sonakshi93@gmail.com,sonakshi@iimjobs.com,,14/03/2016,21/08/2017,8800868707,Sales-Recruitment Solutions,Manager-Strategic Initiatives,HOC-0069,,10.00 LPA,Female
+Ariba,,Najib,aribanajib11@gmail.com,ariba@iimjobs.com,,06/06/2016,31/08/2017,8373971852,Human Resources,Talent Acquisition-Associate,HOC-0092,,10.00 LPA,Female
+Divyank,,Bansal,divyankbansallvis@gmail.com,divyank@iimjobs.com,,05/06/2017,31/08/2017,9999397208,,Assistant Manager-Content Writing,HOC-0232,,10.00 LPA,Male
+Priyanka,,Das,priyanka2065@gmail.com,priyanka@iimjobs.com,,08/02/2017,31/08/2017,9711998785,Technical,Data Science Manager,HOC-0162,,10.00 LPA,Female
+Rohit,,Padmanaban,pom817@gmail.com,p.rohit@iimjobs.com,,18/07/2016,31/08/2017,9740555995,Sales-Recruitment Solutions,Manager-Enterprise Business,HOC-0111,,10.00 LPA,Male
+Kriti,,Gulati,kritigulati15@gmail.com,kriti.gulati@iimjobs.com,,17/04/2017,31/08/2017,9650198707,Sales-Recruitment Solutions,Manager-Corporate Connect,HOC-0208,,10.00 LPA,Female
+Vipin,,Bhargav,vipinbhargav@yahoo.com,vipin@iimjobs.com,,08/05/2017,31/08/2017,9871163700,Sales-Recruitment Solutions,AVP-Corporate Connect,HOC-0222,,10.00 LPA,Male
+Mohit,,Mittal,mohitmittal188@gmail.com,mohit.mittal@iimjobs.com,,20/02/2017,31/08/2017,9555848675,Technical,Software Engineer,HOC-0169,,10.00 LPA,Male
+Parul ,,Tyagi,parultyagi135@gmail.com,  parul.tyagi@iimjobs.com   ,,04/07/2017,30/08/2017,9654491523,Operations,Executive-Operations,HOC-0241,,10.00 LPA,Female
+Prapti,Ryan,Rajput,praptiryanrajput@gmail.com,prapti@iimjobs.com,,26/09/2016,08/09/2017,8447108801,Client Engagement,Consultant-Client Engagement,HOC-0134,,10.00 LPA,Female
+Snehashish,,Chowdhary,snehashish_chowdhury@rediffmail.com,snehashish@iimjobs.com,,01/12/2016,19/09/2017,9643633028,Sales-Recruitment Solutions,Manager-Corporate Connect,HOC-0145,,10.00 LPA,Male
+Yamini,,Saini,ysaini.15@stu.ard.ac.in,yamini@iimjobs.com,,16/05/2017,13/09/2017,9958470335,Sales-Recruitment Solutions,Manager-Corporate Connect,HOC-0225,,10.00 LPA,Female
+Aayushi,,Kashyap,ayushi0902@gmail.com,aayushi.kashyap@iimjobs.com,,20/02/2017,27/09/2017,9560635661,Sales-Recruitment Solutions,Manager-Corporate Connect,HOC-0166,,10.00 LPA,Female
+Aditi,,Mishra,aditi.lfs01@gmail.com,aditi@iimjobs.com,,07/11/2016,28/09/2017,7026365059,Sales-Recruitment Solutions,Manager-Corporate Connect,HOC-0139,,10.00 LPA,Female
+Shreya,,Kohli,skshreyakohli@gmail.com,sk@iimjobs.com,,17/04/2017,28/09/2017,8447366073,Sales-Recruitment Solutions,Manager-Corporate Connect,HOC-0210,,10.00 LPA,Female
+Nishank,,Dua,nishankdua@aol.com,nishank@iimjobs.com,,19/03/2012,05/11/2017,9654458124,Operations,Sr. Manager-Community Operations,HOC-0005,,10.00 LPA,Male
+Bhanu,,Batra,bhanu.batra18@gmail.com,bhanu@iimjobs.com,,25/09/2017,26/10/2017,7011881392,Operations,Executive-Operations,HOC-0257,,10.00 LPA,Male
+Kiran,,Rana,iamkiran2013@gmail.com,kiran.rana@iimjobs.com,,01/05/2017,14/10/2017,8586895424,Accounts & Finance,Account Executive,HOC-0220,,10.00 LPA,Female
+Anirudh ,,Nayak, anirudhgnayak@gmail.com,anirudh.nayak@iimjobs.com,,06/03/2017,,9480122121,Sales-Recruitment Solutions,Manager-Enterprise Business,,,10.00 LPA,Male
+Abhijit,,Tiwari,abhijittiwari.we@gmail.com,abhijit@iimjobs.com,,02/05/2016,,9833020701,Client Engagement,Consultant - Client Engagement,HOC-0081,,10.00 LPA,Male
+Ashita,,Bhargava,ashitabhargava1@gmail.com,ashita@iimjobs.com,,05/06/2017,31/10/2017,7042125628,Sales - Recruitment Solutions,Manager - Corporate Connect, HOC-0233,,10.00 LPA,Female

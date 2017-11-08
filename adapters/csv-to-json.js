@@ -18,22 +18,23 @@ fileStream.on('data', function(data){
 	// console.log(data)
 })
 
+//TODO: mapper to be reversed
 var mapper = {
-	"Employee Name": 	 "firstName",
-	"": 	 "lastName",
-	"": 	 "middleName",
-	"Personal email id": 	 "email",
+	"First name": 	 "firstName",
+	"Last name": 	 "lastName",
+	"Middle name": 	 "middleName",
+	"Email": 	 "email",
 	"Contact Details": 	 "phone",
-	"Email id": 	 "companyEmail",
-	"": 	 "dob",
-	"DOJ": 	 "doj",
-	"Relieved Date": 	 "dol",
+	"Company Email": 	 "companyEmail",
+	"Date of birth": 	 "dob",
+	"Date of joining": 	 "doj",
+	"Date of relieving": 	 "dol",
 	"Department": 	 "department",
 	"Designation": 	 "designation",
-	"": 	 "linkedInURL",
-	"HOC Code": 	 "code",
-	"": 	 "salaryLPA",
-	"": 	 "sex",
+	"linkedIn URL": 	 "linkedInURL",
+	"Employee Code": 	 "code",
+	"Salary": 	 "salaryLPA",
+	"Gender": 	 "sex",
 	"": 	 "companyId"
 }
 
@@ -53,11 +54,14 @@ function csvToJSON(inputStream, stepCallback, doneCallback){
 	        var rows = chunk.split( /\r\n|\r|\n/ );
 	        var headings = rows[0]
 	        for(var key in mapper){
+	        	console.log(key)
+	        	console.log(mapper[key])
 	        	if(key){
 	        		headings =headings.replace(RegExp(key, "g"), mapper[key])
 	        	}
 	        }
 	        rows[0] = headings;
+	        console.log(rows[0])
 	        return rows.join("\r\n");
 	    },
 		step: stepCallback,
