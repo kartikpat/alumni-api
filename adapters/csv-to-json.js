@@ -24,7 +24,7 @@ var mapper = {
 	"Last name": 	 "lastName",
 	"Middle name": 	 "middleName",
 	"Email": 	 "email",
-	"Contact Details": 	 "phone",
+	"Phone": 	 "phone",
 	"Company Email": 	 "companyEmail",
 	"Date of birth": 	 "dob",
 	"Date of joining": 	 "doj",
