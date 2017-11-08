@@ -132,9 +132,24 @@ module.exports = function(settings){
 		if(metric=='gender')
 			fetchDesignationGender(groupValue, metric)
 			.then(function(rows){
+				var total = 0;
+				var desiredGender = '';
+				var desiredValue = 0;
+				rows.forEach(function(aRow){
+					total+=aRow['cnt'];
+					if(aRow['Name'] == value){
+						desiredGender = aRow['Name'];
+						desiredValue = aRow["cnt"]
+					}
+				})
+				var percent= (total!==0)? (desiredValue / total)*100 : 0;
 				return res.json({
 					status: 'success',
-					data: rows
+					data: {
+						percent: percent,
+						metric: metric,
+						value: desiredValue
+					}
 				})
 			})
 			.catch(function(err){

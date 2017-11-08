@@ -239,7 +239,6 @@ module.exports = function(settings){
 		var by = req.query.by || null;
 		if(!(by && ( by =='designation' || by=='institute' || by=='gender' || by=='education' || by=='location')))
 			return settings.unprocessableEntity(res);
-
 		var fetchingDemo = fetchEmployeesGroup(companyID, by);	
 		fetchingDemo.then(function(rows){
 			var data = [];

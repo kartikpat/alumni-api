@@ -280,5 +280,5 @@ module.exports = function(settings){
 		})
 	}
 	settings.sanitize = sanitize;
-	sanitize(taskID, companyID)
+	//sanitize(taskID, companyID)
 }
