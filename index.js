@@ -88,6 +88,7 @@ var settings= {
 
 require(__dirname+"/db/connect.js")(settings)
 require(__dirname+"/db/query.js")(settings)
+require(__dirname+"/send.js")(settings);
 require(__dirname+"/workers/ingest.js")(settings)
 require(__dirname+"/workers/staging/alumnus.js")(settings)
 require(__dirname+"/workers/staging/education.js")(settings)
