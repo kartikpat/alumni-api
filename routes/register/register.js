@@ -75,7 +75,7 @@ module.exports = function(settings){
 			res.json({
 				status: 'success'
 			})
-			var link = config["app"]["web"]["domain"]+"/verify-registration?e="+email+"&k="+password; 
+			var link = config["app"]["web"]["domain"]+"/verify?e="+email+"&k="+password; 
 			if(email.indexOf('@iimjobs.com') >-1){
 				var ob = {};
 				ob[email] = {
