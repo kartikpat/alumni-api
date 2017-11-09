@@ -63,6 +63,8 @@ app.use(function(req, res, next) {
 });
 
 app.use(bodyParser.urlencoded({ extended: true }))
+app.use(bodyParser.json());
+
 app.use(compression()); //compressing payload on every request
 app.use("/static",express.static(__dirname+"/static"))
 
@@ -86,6 +88,7 @@ var settings= {
 
 require(__dirname+"/db/connect.js")(settings)
 require(__dirname+"/db/query.js")(settings)
+require(__dirname+"/send.js")(settings);
 require(__dirname+"/workers/ingest.js")(settings)
 require(__dirname+"/workers/staging/alumnus.js")(settings)
 require(__dirname+"/workers/staging/education.js")(settings)

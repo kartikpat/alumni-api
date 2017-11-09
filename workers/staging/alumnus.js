@@ -21,7 +21,7 @@ module.exports = function(settings){
 				aRow['companyEmail'],
 				aRow['dob'] ? (aRow['dob']): null,
 				aRow['doj'] ? (aRow['doj']) : null,
-				aRow['dol'] ? (aRow['doj']) : null,
+				aRow['dol'] ? (aRow['dol']) : null,
 				aRow['department'],
 				aRow['designation'],
 				aRow['lUrl'] ? aRow['lUrl']: null,
