@@ -155,15 +155,15 @@ module.exports = function(settings){
 	function updatePassword(email, password){
 		password = getHash(password);
 		var query = "Update CompanyAccess set Password = ? where Email= ?";
-		var queryArray = [password, alumnusID];
+		var queryArray = [password, email];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
 		});
 	}
 
-	function validatePassword(alumnusID, password){
+	function validatePassword(email, password){
 		var query = "Select Id, Email from CompanyAccess where Email = ? and Password = ?";
-		var queryArray = [alumnusID, password]
+		var queryArray = [email, password]
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
 		})
