@@ -136,12 +136,12 @@ module.exports = function(settings){
 		if(! (key && password && email)){
 			return settings.unprocessableEntity(res);
 		};
-		password = getHash(password);
 		var validatingPassword = validatePassword(email, key);
 		validatingPassword.then(function(rows){
 			if(rows.length<1){
 				return Promise.reject(new Error("incorrect"));
 			}
+			console.log(password)
 			return updatePassword(email, password);
 		})
 		.then(function(updationRows){
