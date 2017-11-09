@@ -92,7 +92,7 @@ module.exports = function(settings){
 
 	})
 
-	app.post('/password-reset', function(req, res){
+	app.post('/reset-password', function(req, res){
 		var password = req.body.password || null,
 			id = req.body.id || null,
 			newPassword = req.body.newPassword || null;
@@ -128,11 +128,10 @@ module.exports = function(settings){
 		var queryArray = [password, alumnusID];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
-		})
+		});
 	}
 
 	function validatePassword(alumnusID, password){
-		password = getHash(password);
 		var query = "Select Id, Email from CompanyAccess where Id = ? and Password = ?";
 		var queryArray = [alumnusID, password]
 		return settings.dbConnection().then(function(connection){
