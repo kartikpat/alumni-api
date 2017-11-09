@@ -94,14 +94,14 @@ module.exports = function(settings){
 
 	app.post('/reset-password', function(req, res){
 		var password = req.body.password || null,
-			id = req.body.id || null,
+			email = req.body.email || null,
 			newPassword = req.body.newPassword || null;
 
 		if(! (password && newPassword && id)){
 			return settings.unprocessableEntity(res);
 		};
 		password = getHash(password);
-		var validatingPassword = validatePassword(id, password);
+		var validatingPassword = validatePassword(email, password);
 		validatingPassword.then(function(rows){
 			if(rows.length<1){
 				return Promise.reject(new Error("incorrect"));
@@ -122,9 +122,39 @@ module.exports = function(settings){
 		});
 	});
 
-	function updatePassword(alumnusID, password){
+	app.post('/verify', function(req, res){
+		var key = req.body.key || null,
+			email = req.body.email || null,
+			password = req.body.password || null;
+
+		if(! (key && password && email)){
+			return settings.unprocessableEntity(res);
+		};
 		password = getHash(password);
-		var query = "Update CompanyAccess set Password = ? where Id= ?";
+		var validatingPassword = validatePassword(email, key);
+		validatingPassword.then(function(rows){
+			if(rows.length<1){
+				return Promise.reject(new Error("incorrect"));
+			}
+			return updatePassword(email, password);
+		})
+		.then(function(updationRows){
+			return res.json({
+				status: "success",
+				message: 'updated successfully'
+			});
+		})
+		.catch(function(err){
+			if(err.message == 'incorrect')
+				return settings.unAuthorised(res);
+			cprint(err,1);
+			return settings.serviceError(res);
+		});
+	});
+
+	function updatePassword(email, password){
+		password = getHash(password);
+		var query = "Update CompanyAccess set Password = ? where Email= ?";
 		var queryArray = [password, alumnusID];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
@@ -132,7 +162,7 @@ module.exports = function(settings){
 	}
 
 	function validatePassword(alumnusID, password){
-		var query = "Select Id, Email from CompanyAccess where Id = ? and Password = ?";
+		var query = "Select Id, Email from CompanyAccess where Email = ? and Password = ?";
 		var queryArray = [alumnusID, password]
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
