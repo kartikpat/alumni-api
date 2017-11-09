@@ -63,6 +63,8 @@ app.use(function(req, res, next) {
 });
 
 app.use(bodyParser.urlencoded({ extended: true }))
+app.use(bodyParser.json());
+
 app.use(compression()); //compressing payload on every request
 app.use("/static",express.static(__dirname+"/static"))
 

@@ -1,3 +1,14 @@
+const Multer = require('multer');
+const multer = Multer({
+  storage: Multer.MemoryStorage,
+  // limits: {
+  //   fileSize: 5 * 1024 * 1024 // no larger than 5mb
+  // },
+  onError : function(err, next) {
+      console.log('error', err);
+      next(err);
+    }
+});
 module.exports = function(settings){
 	var app = settings.app;
 	var mode = settings.mode;
@@ -26,11 +37,16 @@ module.exports = function(settings){
 		})
 	})
 
-	app.post("/company/add", function(req, res){
-		var name = req.body.name || null;
-		if(!name)
+	app.post("/company/add",multer.fields([ { name: 'image', maxCount: 1 }]), function(req, res){
+		console.log(req.body.name)
+		var name = req.body.name || null,
+			logo = req.body.logo || null,
+			email = req.body.email || null,
+			wUrl = req.body.wUrl || null,
+			organisation = req.body.organisation || null;
+		if(!(name && logo && email && wUrl && organisation));
 			return settings.unprocessableEntity(res);
-		addCompany(name)
+		addCompany(name)	
 		.then(function(rows){
 			var insertID = rows.insertId;
 			return res.json({
