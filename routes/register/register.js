@@ -1,6 +1,9 @@
 var crypto = require('crypto');
 var fs = require('fs');
+var uploader = require('../../lib/upload.js');
 var template = fs.readFileSync("./test.html", 'utf8');
+var uuidV4 = require("uuid/v4");
+var moment = require('moment');
 
 function getHash(aString){
 	if(!aString)
@@ -9,14 +12,7 @@ function getHash(aString){
 }
 const Multer = require('multer');
 const multer = Multer({
-  storage: Multer.diskStorage({
-  	destination: function(req, file, callback){
-  		callback(null, './storage/company/logo/')
-  	},
-  	filename: function(req, file, callback){
-  		callback(null, Date.now()+'.jpg')
-  	}
-  }),
+  storage: Multer.memoryStorage(),
   // limits: {
   //   fileSize: 5 * 1024 * 1024 // no larger than 5mb
   // },
@@ -53,7 +49,7 @@ module.exports = function(settings){
 		})
 	})
 
-	app.post("/company/add",multer.single('logo'), function(req, res){
+	app.post("/company/add", multer.single('logo'), function(req, res){
 		var name = req.body.name || null,
 			logo = req.body.logo || null,
 			email = req.body.email || null,
@@ -62,40 +58,46 @@ module.exports = function(settings){
 		if(!(name && email && wUrl &&  organisation && req.file)){
 			return settings.unprocessableEntity(res);
 		}
-		// if(!(name && email ));
-		// 	return settings.unprocessableEntity(res);
-		var logoPath = req.file.path;
-		var password = getHash('1234');	
-		addCompany(organisation, logoPath, wUrl)	
-		.then(function(rows){
-			var insertID = rows.insertId;
-			return registerAccess(insertID, name, email, 'master', password)
-		})
-		.then(function(rows){
-			res.json({
-				status: 'success'
-			})
-			var link = config["app"]["web"]["domain"]+"/verify?e="+email+"&k="+password; 
-			if(email.indexOf('@iimjobs.com') >-1){
-				var ob = {};
-				ob[email] = {
-					link: link,
-					email:email
-				}
-				return settings.sendMail("Welcome", template, email, ob).then(function(rows){
-					cprint(rows)
-				})
-				.catch(function(err){
-					return cprint(err,1)
-				})
+		var fileStream = req.file.buffer //fs.createReadStream(new Buffer(req.file.buffer)) to be used when loading through disk
+		var t = moment();
+		var storagePath = config["aws"]["s3"]["bucket"] +"/"+t.format('YYYY/MM/DD')
+		var fileName = t.format('YYYY-MM-DD-HH-MM-SS-x')+'.jpg';
+		uploader.upload(fileName, fileStream, storagePath, 'public-read', function(err, data){
+			if(err){
+				cprint(err,1);
+				return settings.serviceError(res);
 			}
-			return
+			var password =uuidV4().replace(/\-/g,"");
+			addCompany(organisation, fileName, wUrl)	
+			.then(function(rows){
+				var insertID = rows.insertId;
+				return registerAccess(insertID, name, email, 'master', password)
+			})
+			.then(function(rows){
+				res.json({
+					status: 'success'
+				})
+				var link = config["app"]["web"]["domain"]+"/verify?e="+email+"&k="+password; 
+				if(email.indexOf('@iimjobs.com') >-1){
+					var ob = {};
+					ob[email] = {
+						link: link,
+						email:email
+					}
+					return settings.sendMail("Welcome", template, email, ob).then(function(rows){
+						cprint(rows)
+					})
+					.catch(function(err){
+						return cprint(err,1)
+					})
+				}
+				return
+			})
+			.catch(function(err){
+				cprint(err,1);
+				return settings.serviceError(res);
+			})
 		})
-		.catch(function(err){
-			cprint(err,1);
-			return settings.serviceError(res);
-		})
-
 	})
 
 	app.post('/reset-password', function(req, res){
