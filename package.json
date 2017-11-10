@@ -16,7 +16,7 @@
   "author": "5aurabh",
   "license": "ISC",
   "dependencies": {
-    "aws-sdk": "^2.140.0",
+    "aws-sdk": "^2.149.0",
     "body-parser": "^1.17.2",
     "compression": "^1.6.2",
     "event-stream": "^3.3.4",
