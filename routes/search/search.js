@@ -27,7 +27,7 @@ module.exports = function(settings){
 					lastName: aRow["LastName"],
 					doj: aRow["DateOfJoining"],
 					dol: aRow["DateOfLeaving"],
-					designation: aRow["designation"],
+					designation: aRow["Designation"],
 					department: aRow["Department"]
 				})
 			});

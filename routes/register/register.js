@@ -192,18 +192,18 @@ module.exports = function(settings){
 			return settings.dbCall(connection, query, queryArray);
 		})
 	}
-				
-				// return settings.sendMail("Welcome", template, "saurabh.nanda@iimjobs.com", {
-				// 	"saurabh.nanda@iimjobs.com":{
-				// 	link: "test",
-				// 	email:"saurabh.nanda@iimjobs.com"
-				// 	}
-				// }).then(function(rows){
-				// 	cprint(rows)
-				// })
-				// .catch(function(err){
-				// 	return cprint(err,1)
-				// })
+	
+	// return settings.sendMail("Welcome", template, "saurabh.nanda@iimjobs.com", {
+	// 	"saurabh.nanda@iimjobs.com":{
+	// 	link: "test",
+	// 	email:"saurabh.nanda@iimjobs.com"
+	// 	}
+	// }).then(function(rows){
+	// 	cprint(rows)
+	// })
+	// .catch(function(err){
+	// 	return cprint(err,1)
+	// })
 
 	
 }
