@@ -52,13 +52,22 @@ module.exports = function(settings){
 	app.post("/company/add", multer.single('logo'), function(req, res){
 		var name = req.body.name || null,
 			logo = req.body.logo || null,
+			logoBase64 =req.body.logoBase64 || null,
 			email = req.body.email || null,
 			wUrl = req.body.wUrl || null,
 			organisation = req.body.organisation || null;
-		if(!(name && email && wUrl &&  organisation && req.file)){
+		console.log(logoBase64)
+		if(!(name && email && wUrl &&  organisation && (req.file|| logoBase64))){
 			return settings.unprocessableEntity(res);
 		}
-		var fileStream = req.file.buffer //fs.createReadStream(new Buffer(req.file.buffer)) to be used when loading through disk
+		var fileStream = null;
+		if(logoBase64){
+			logoBase64 = logoBase64.replace(/^data:image\/png;base64,/, "");
+			fileStream = new Buffer(logoBase64, 'base64') // to be used when loading through disk
+		}
+		else
+			fileStream = req.file.buffer;
+		console.log(fileStream);
 		var t = moment();
 		var storagePath = config["aws"]["s3"]["bucket"] +"/"+t.format('YYYY/MM/DD')
 		var fileName = t.format('YYYY-MM-DD-HH-MM-SS-x')+'.jpg';
