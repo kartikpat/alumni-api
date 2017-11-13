@@ -29,6 +29,8 @@ module.exports = function(settings){
 			userID = req.body.userID,
 			fileType = req.body.type,
 			fileStream = req.file.buffer;
+		if(!userID)
+			return unprocessableEntity(res);
 		var taskID = uuidV4().replace(/\-/g,"");
 		var fileName = Date.now()+'.csv';
 		var writeStream = fs.createWriteStream(settings.diskStorage+'/'+fileName);

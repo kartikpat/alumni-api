@@ -94,7 +94,7 @@ module.exports = function(settings){
 			props.code = rows[0]['Code'] || null;
 			props.salaryLPA = rows[0]['SalaryLPA'] || null;
 			props.sex = rows[0]['Sex'] || null;
-			props.companyID = rows[0]['CompanyId'];
+			props.companyID = companyID;
 			validateUserFields(props);
 		
 			var educationRows = dataArray[1];
