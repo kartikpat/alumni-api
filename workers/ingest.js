@@ -10,7 +10,7 @@ module.exports = function(settings){
 	var cprint = settings.cprint;
 
 	function validateUserFields(anObject){
-		var requiredFields = ['name', 'email', 'companyEmail', 'doj', 'dol', 'department', 'designation', 'salaryLPA'];
+		var requiredFields = ['firstName', 'email', 'companyEmail', 'doj', 'department', 'designation', 'salaryLPA'];
 		var dateFields = ['dob', 'doj', 'dol']
 		var emailFields = ['email', 'companyEmail']
 		var missing = [];
@@ -31,7 +31,6 @@ module.exports = function(settings){
 			errMessage+=('Missing values: '+ missing.join(', ')+'.' );
 		if(invalid.length>0)
 			errMessage+=('Invalid format: '+invalid.join(', ')+'.');
-		console.log(errMessage)
 		if(errMessage && errMessage!='')
 			throw new Error(errMessage);
 	}
@@ -85,10 +84,10 @@ module.exports = function(settings){
 			props.email = rows[0]['Email'] || null;
 			props.phone = rows[0]['Phone'] || null;
 			props.companyEmail = rows[0]['CompanyEmail'] || Date.now(); // TODO make this null default
-			props.dob = checkDate(rows[0]['Dob']);
+			props.dob = rows[0]['Dob'];
 			props.dateOfBirth = checkDate(rows[0]['Dob']) ? moment(rows[0]['Dob'], 'YYYY-MM-DD').format('YYYY-MM-DD') : null;
-			props.doj = checkDate(rows[0]['DateOfJoining']);
-			props.dol = checkDate(rows[0]['DateOfLeaving']);
+			props.doj = rows[0]['DateOfJoining'];
+			props.dol = rows[0]['DateOfLeaving'];
 			props.department = rows[0]['Department'] || null;
 			props.designation = rows[0]['Designation'] || null;
 			props.linkedInUrl = rows[0]['LinkedinURL'] || null;
