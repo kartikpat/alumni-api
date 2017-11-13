@@ -1,22 +1,22 @@
 var fs = require("fs");
 var Papa = require('papaparse');
 
-var fileStream = fs.createReadStream(__dirname+'/test-data.csv', 'utf8')
-var data= [];
+//var fileStream = fs.createReadStream(__dirname+'/test-data.csv', 'utf8')
+//var data= [];
            
-fileStream.on('open', function(){
-	console.log("opened")
-})
-fileStream.on('error', function(err){
-	// this.close();
-	console.log(err)
-});
-fileStream.on('end',function(){
-	console.log('end')
-});
-fileStream.on('data', function(data){
-	// console.log(data)
-})
+// fileStream.on('open', function(){
+// 	console.log("opened")
+// })
+// fileStream.on('error', function(err){
+// 	// this.close();
+// 	console.log(err)
+// });
+// fileStream.on('end',function(){
+// 	console.log('end')
+// });
+// fileStream.on('data', function(data){
+// 	// console.log(data)
+// })
 
 //TODO: mapper to be reversed
 var mapper = {

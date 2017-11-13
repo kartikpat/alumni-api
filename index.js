@@ -6,6 +6,7 @@ var express = require ("express");
 var bodyParser = require("body-parser");
 var program = require("commander");
 var compression = require("compression");
+var path = require('path');
 var mode = "prod";
 var env = "cloud";
 /**
@@ -83,7 +84,8 @@ var settings= {
 	mode: mode,
 	env: env,
 	cprint: cprint,
-	request: request
+	request: request,
+	diskStorage: path.resolve(__dirname+config['diskStorage'])
 }
 
 require(__dirname+"/db/connect.js")(settings)
@@ -96,10 +98,19 @@ require(__dirname+"/workers/staging/profession.js")(settings)
 require(__dirname+"/workers/ingest/education.js")(settings)
 require(__dirname+"/workers/ingest/profession.js")(settings)
 require(__dirname+"/workers/ingest-file.js")(settings);
+/**
+ * Tasks Api
+ * /company/:companyID/tasks
+ * /company/:companyID/task
+ */
+require(__dirname+"/routes/tasks/list.js")(settings);
+require(__dirname+"/routes/tasks/task.js")(settings);
+
 require(__dirname+"/routes/common/error.js")(settings);
 require(__dirname+"/routes/ingest.js")(settings);
 require(__dirname+"/routes/auth/auth.js")(settings);
 require(__dirname+"/routes/profile/profile.js")(settings);
+require(__dirname+"/routes/ingest/upload-file.js")(settings);
 require(__dirname+"/routes/services/birthday.js")(settings);
 require(__dirname+"/routes/register/register.js")(settings);
 require(__dirname+"/routes/dashboard/init.js")(settings);
@@ -108,6 +119,5 @@ require(__dirname+"/routes/stats.js")(settings)
 require(__dirname+"/routes/list/alumni.js")(settings);
 require(__dirname+"/routes/list/department.js")(settings);
 require(__dirname+"/routes/insights/insight.js")(settings);
-
 
 app.listen(port);

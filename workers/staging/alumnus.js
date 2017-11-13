@@ -1,12 +1,14 @@
 var fs = require("fs")
 var uuidV4 = require("uuid/v4");
-var fileStream = fs.createReadStream('./test/generate/employee.csv', 'utf8');
+//var fileStream = fs.createReadStream('./test/generate/employee.csv', 'utf8');
 var csvToJSON = require("../../adapters/csv-to-json").csvToJSON;
-var companyID = 3;
-var taskID = uuidV4().replace(/\-/g,"");
+var taskID = null;
+var userID = null;
 module.exports = function(settings){
+	var config = settings.config;
 	var cprint = settings.cprint;
-	
+	var app = settings.app;
+
 	function stepExecute(rows, parser){
 		var userArray = [];
 		parser.pause();
@@ -27,7 +29,7 @@ module.exports = function(settings){
 				aRow['lUrl'] ? aRow['lUrl']: null,
 				aRow['code'] ? aRow['code'] : null,
 				aRow['salaryLPA'] ? aRow['salaryLPA'] : null,
-				companyID,
+				userID,
 				aRow['sex'] ? aRow['sex'] : null
 			];
 			userArray.push(tempArray);
@@ -49,6 +51,37 @@ module.exports = function(settings){
 			return settings.dbCall(connection, query, queryArray);
 		})
 	}
+	function fetchTask(taskID){
+		var query = "Select Id,TaskId, FilePath from TaskMaster where Status = ? and Id = ?";
+		var queryArray = ['pending', taskID];
+		return settings.dbConnection().then(function(connection){
+			return settings.dbCall(connection, query, queryArray);
+		})
+	}
+	app.post('/initiate/:taskID/start', function(req, res){
+		taskID = req.params.taskID || null;
+		fetchTask(taskID)
+		.then(function(rows){
+			if(rows.length<1){
+				return	res.json({
+					status: 'fail',
+					message: 'no tasks available'
+				})
+			}
+			res.json({
+				status: 'success',
+				message: 'initiated'
+			});
+			var filePath = rows[0]['FilePath'];
+			var fileStream = fs.createReadStream(settings.diskStorage+'/'+ filePath, 'utf8');
+			return csvToJSON(fileStream, stepExecute);
+		})
+		.catch(function(err){
+			cprint(err,1)
+			return settings.serviceError(res)
+		})
+
+	})
 
 	//csvToJSON(fileStream, stepExecute)
 
