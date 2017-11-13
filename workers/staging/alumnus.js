@@ -9,6 +9,24 @@ module.exports = function(settings){
 	var cprint = settings.cprint;
 	var app = settings.app;
 
+	function onCompletion(){
+		updateTask()
+		.then(function(rows){
+			settings.sanitize(taskID, userID)
+		})
+		.catch(function(err){
+			cprint(err,1);
+		})
+	}
+
+	function updateTask(){
+		var query = 'Update TaskMaster set Status = ? where Id = ?';
+		var queryArray = [ 'done', taskID ];
+		return settings.dbConnection().then(function(connection){
+			return settings.dbCall(connection, query, queryArray);
+		})
+	}
+
 	function stepExecute(rows, parser){
 		var userArray = [];
 		parser.pause();
@@ -52,7 +70,7 @@ module.exports = function(settings){
 		})
 	}
 	function fetchTask(taskID){
-		var query = "Select Id,TaskId, FilePath from TaskMaster where Status = ? and Id = ?";
+		var query = "Select Id,TaskId, FilePath, UserId from TaskMaster where Status = ? and Id = ?";
 		var queryArray = ['pending', taskID];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
@@ -72,9 +90,10 @@ module.exports = function(settings){
 				status: 'success',
 				message: 'initiated'
 			});
+			userID = rows[0]['UserId']
 			var filePath = rows[0]['FilePath'];
 			var fileStream = fs.createReadStream(settings.diskStorage+'/'+ filePath, 'utf8');
-			return csvToJSON(fileStream, stepExecute);
+			return csvToJSON(fileStream, stepExecute, onCompletion);
 		})
 		.catch(function(err){
 			cprint(err,1)

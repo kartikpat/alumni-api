@@ -9,9 +9,6 @@ function checkDate(aString){
 module.exports = function(settings){
 	var cprint = settings.cprint;
 
-	var taskID ="bd83c265d77e4cf2b1f1b8cffde50edf";
-	var companyID = 3;
-
 	function validateUserFields(anObject){
 		var requiredFields = ['name', 'email', 'companyEmail', 'doj', 'dol', 'department', 'designation', 'salaryLPA'];
 		var dateFields = ['dob', 'doj', 'dol']
@@ -23,22 +20,24 @@ module.exports = function(settings){
 				missing.push(aField)
 		})
 		dateFields.forEach(function(aField){
-			if(!checkDate(anObject[aField]))
-				invalid.push(aField)
+			if(anObject[aField])
+				if(!checkDate(anObject[aField]))
+					invalid.push(aField)
 		})
-		//TODO add a email validate function here
+		//TODO add a email validate function her
+	
 		var errMessage = '';
 		if(missing.length>0)
 			errMessage+=('Missing values: '+ missing.join(', ')+'.' );
 		if(invalid.length>0)
 			errMessage+=('Invalid format: '+invalid.join(', ')+'.');
+		console.log(errMessage)
 		if(errMessage && errMessage!='')
-			return new Error(errMessage);
-		return
+			throw new Error(errMessage);
 	}
 
-	function sanitize(taskID, companyID){
-		fetchRecords(taskID, companyID)
+	function sanitize(taskID, userID){
+		fetchRecords(taskID, userID)
 		.then( sanitizeEachRecord )
 		.catch(function(err){
 			cprint(err,1);
@@ -46,9 +45,9 @@ module.exports = function(settings){
 		})
 	}
 
-	function fetchRecords(taskID, companyID){
-		var query = "Select EntryId, Email, CompanyId from StagingAlumnusMaster where TaskId = ? and CompanyId = ? and Status = ? ";
-		var queryArray = [taskID, companyID, 'pending'];
+	function fetchRecords(taskID, userID){
+		var query = "Select sam.EntryId, sam.Email, ca.CompanyId from StagingAlumnusMaster sam inner join TaskMaster tm on sam.TaskId = tm.Id inner join CompanyAccess ca on ca.Id = tm.UserId inner join CompanyMaster cm on cm.Id = ca.CompanyId  where tm.Id = ? and tm.UserId = ? and sam.Status = ? ";
+		var queryArray = [taskID, userID, 'pending'];
 		return settings.dbConnection().then(function(connecting){
 			return settings.dbCall(connecting, query, queryArray);
 		})
@@ -60,22 +59,6 @@ module.exports = function(settings){
 		return settings.dbConnection().then(function(connecting){
 			return settings.dbCall(connecting, query, queryArray);
 		})
-	}
-
-	function fetchEducation(email, companyID){
-		var query = " Select Email, Course, Institute, BatchFrom, BatchTo, CourseType, CompanyId from StagingEducationDetails where Email = ? and CompanyId = ?"
-		var queryArray = [email, companyID];
-		return settings.dbConnection().then(function(connecting){
-			return settings.dbCall(connecting, query, queryArray);
-		})	
-	}
-
-	function fetchProfession(email, companyID){
-		var query = "Select  Email, Designation, Organisation, DateOfJoining,DateOfLeaving, CompanyId from StagingProfessionalDetails where Email = ? and CompanyId = ?";
-		var queryArray = [email, companyID];
-		return settings.dbConnection().then(function(connecting){
-			return settings.dbCall(connecting, query, queryArray);
-		})	
 	}
 
 	async function sanitizeEachRecord(rows){
@@ -113,14 +96,8 @@ module.exports = function(settings){
 			props.salaryLPA = rows[0]['SalaryLPA'] || null;
 			props.sex = rows[0]['Sex'] || null;
 			props.companyID = rows[0]['CompanyId'];
-			console.log('...........Staging values.................')
-			console.log(rows[0]['Dob'])
-			console.log('.........DateOfBirth...............')
-			console.log(props.dateOfBirth)
-			console.log('............Dob.....................')
-			console.log(props.dob)
 			validateUserFields(props);
-
+		
 			var educationRows = dataArray[1];
 			props.education = educationRows || [];
 
@@ -149,7 +126,13 @@ module.exports = function(settings){
 			return	updateStaging(entryID)
 		})
 		.catch(function(err){
-			cprint(err,1)
+			cprint(err,1);
+			var message = err.message;
+			if(err.errno ==1048 ){
+				message = err.sqlMessage.match(/[^"]+(?=(" ")|"$)/g);
+				console.log(message)
+				message = "Invalid format for "+message;
+			}
 			return updateError(entryID, err.message);
 			
 		})

@@ -296,7 +296,7 @@ module.exports = function(settings){
 		})	
 	}
 	//sanitize(taskID, companyID)
-	settings.sanitize = sanitize;
+	//settings.sanitize = sanitize;
 	
 
 }
