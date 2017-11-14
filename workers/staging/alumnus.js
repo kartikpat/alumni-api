@@ -9,8 +9,8 @@ module.exports = function(settings){
 	var cprint = settings.cprint;
 	var app = settings.app;
 
-	function onCompletion(){
-		settings.sanitize(taskID, userID)
+	async function onCompletion(){
+		await settings.sanitize(taskID, userID)
 		updateTask();
 	}
 

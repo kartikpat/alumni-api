@@ -6,6 +6,7 @@ function checkDate(aString){
 	return d.valueOf();
 
 }
+
 module.exports = function(settings){
 	var cprint = settings.cprint;
 
@@ -38,7 +39,7 @@ module.exports = function(settings){
 	}
 
 	 function sanitize(taskID, userID){
-		fetchRecords(taskID, userID)
+	 	return fetchRecords(taskID, userID)
 		.then( sanitizeEachRecord )
 		.catch(function(err){
 			cprint(err,1);
@@ -67,7 +68,7 @@ module.exports = function(settings){
 		for(var i=0; i < len; i++){
 			await sanitizeSingleRecord(rows[i])
 		}
-		//return Promise.resolve(1)
+		return Promise.resolve(1)
 	}
 
 	function sanitizeSingleRecord(aRow){
@@ -77,7 +78,7 @@ module.exports = function(settings){
 		var entryID = aRow["EntryId"]
 
 		var alumniDetails = Promise.all([fetchAlumnus(entryID, email)])
-		alumniDetails
+		return alumniDetails
 		.then(function(dataArray){
 			var rows = dataArray[0];
 			props.firstName = rows[0]["FirstName"] || null;
@@ -263,5 +264,5 @@ module.exports = function(settings){
 		})
 	}
 	settings.sanitize = sanitize;
-	//sanitize(taskID, companyID)
+	//sanitize(1, 47)
 }
