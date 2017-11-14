@@ -23,6 +23,8 @@ module.exports = function(settings){
 			if(anObject[aField])
 				if(!checkDate(anObject[aField]))
 					invalid.push(aField)
+				else
+					anObject[aField] = checkDate(anObject[aField])
 		})
 		//TODO add a email validate function her
 	
@@ -35,7 +37,7 @@ module.exports = function(settings){
 			throw new Error(errMessage);
 	}
 
-	function sanitize(taskID, userID){
+	 function sanitize(taskID, userID){
 		fetchRecords(taskID, userID)
 		.then( sanitizeEachRecord )
 		.catch(function(err){
@@ -65,7 +67,7 @@ module.exports = function(settings){
 		for(var i=0; i < len; i++){
 			await sanitizeSingleRecord(rows[i])
 		}
-		return Promise.resolve(1)
+		//return Promise.resolve(1)
 	}
 
 	function sanitizeSingleRecord(aRow){
@@ -133,7 +135,6 @@ module.exports = function(settings){
 				message = "Invalid format for "+message;
 			}
 			return updateError(entryID, err.message);
-			
 		})
 	}
 

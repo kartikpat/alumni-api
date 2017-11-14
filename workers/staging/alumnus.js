@@ -9,14 +9,9 @@ module.exports = function(settings){
 	var cprint = settings.cprint;
 	var app = settings.app;
 
-	function onCompletion(){
-		updateTask()
-		.then(function(rows){
-			settings.sanitize(taskID, userID)
-		})
-		.catch(function(err){
-			cprint(err,1);
-		})
+	async function onCompletion(){
+		await	settings.sanitize(taskID, userID)
+		updateTask();
 	}
 
 	function updateTask(){
@@ -93,7 +88,7 @@ module.exports = function(settings){
 			userID = rows[0]['UserId']
 			var filePath = rows[0]['FilePath'];
 			var fileStream = fs.createReadStream(settings.diskStorage+'/'+ filePath, 'utf8');
-			return csvToJSON(fileStream, stepExecute, onCompletion);
+			csvToJSON(fileStream, stepExecute, onCompletion);
 		})
 		.catch(function(err){
 			cprint(err,1)

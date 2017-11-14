@@ -1,0 +1,13 @@
+truncate StagingAlumnusMaster;
+truncate AlumnusMaster;
+truncate CourseMaster;
+truncate DepartmentMaster;
+truncate DesignationMaster;
+truncate EducationDetails;
+truncate InstituteMaster;
+truncate OrganisationMaster;
+truncate ProfessionDetails;
+truncate RoleMaster;
+truncate StagingEducationDetails;
+truncate StagingProfessionalDetails;
+truncate TaskMaster;
