@@ -9,14 +9,15 @@ module.exports = function(settings){
 	var cprint = settings.cprint;
 	var app = settings.app;
 
-	async function onCompletion(){
-		await	settings.sanitize(taskID, userID)
+	function onCompletion(){
+		settings.sanitize(taskID, userID)
 		updateTask();
 	}
 
 	function updateTask(){
-		var query = 'Update TaskMaster set Status = ? where Id = ?';
-		var queryArray = [ 'done', taskID ];
+		var timestamp = Date.now();
+		var query = 'Update TaskMaster set Status = ?, EndTimestamp = ? where Id = ?';
+		var queryArray = [ 'done', timestamp,taskID ];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
 		})

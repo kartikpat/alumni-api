@@ -16,7 +16,7 @@
 				data.push({
 					id: aRow["Id"],
 					type: aRow["FileType"],
-					status: aRow["pending"],
+					status: aRow["Status"],
 					timestamp: aRow["Timestamp"],
 					endTimestamp: aRow["EndTimestamp"]
 				});

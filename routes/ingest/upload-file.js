@@ -36,8 +36,8 @@ module.exports = function(settings){
 		var writeStream = fs.createWriteStream(settings.diskStorage+'/'+fileName);
 		// fileStream.pipe(writeStream);
 		writeStream.write(fileStream);
-
-		addTask(userID, fileName, fileType)
+		var timestamp = Date.now();
+		addTask(userID, fileName, fileType, timestamp)
 		.then(function(rows){
 			var id = rows.insertId;
 			res.json({
@@ -61,9 +61,9 @@ module.exports = function(settings){
 		})
 
 	})
-	function addTask(userID, fileName, fileType){
-		var query = "Insert into TaskMaster ( UserId, filePath, fileType, Status) values (?, ?, ?, ?)";
-		var queryArray = [userID, fileName, fileType, 'pending'];
+	function addTask(userID, fileName, fileType, timestamp){
+		var query = "Insert into TaskMaster ( UserId, filePath, fileType, Status, Timestamp) values (?, ?, ?, ?, ?)";
+		var queryArray = [userID, fileName, fileType, 'pending', timestamp];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
 		})
