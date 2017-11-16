@@ -180,8 +180,8 @@ module.exports = function(settings){
 
 
 	function fetchTenure(companyID){
-		var query = "Select AVG(DateOfLeaving - DateOfJoining) as Tenure, dm.Name from AlumnusMaster am inner join DesignationMaster dm on am.DesignationId=dm.DesignationId where am.CompanyId = ? and dm.CompanyId = ? and dm.Status='active' group by am.DesignationId, dm.Name";
-		var queryArray = [companyID, companyID];
+		var query = "Select SUM(DateOfLeaving - DateOfJoining) as Tenure, dsg.Name as Designation, dm.Name as Department, count(*) as cnt from AlumnusMaster am inner join DesignationMaster dsg on am.DesignationId=dsg.DesignationId inner join DepartmentMaster dm on am.DepartmentId=am.DepartmentId where am.CompanyId = ? and dm.CompanyId = ? and dsg.CompanyId = ? and dm.Status=? and dsg.Status=? group by am.DesignationId, dsg.Name, dm.Name";
+		var queryArray = [companyID, companyID, companyID, 'active', 'active'];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
 		});	
@@ -194,8 +194,10 @@ module.exports = function(settings){
 			var data = [];
 			rows.forEach(function(aRow){
 				data.push({
-					name:	aRow['Name'],
-					tenure:	(aRow['Tenure']) ? moment.duration(aRow['Tenure']).asYears() : null
+					designation: aRow['Designation'],
+					department: aRow["Department"],
+					tenure: (aRow['Tenure']) ? moment.duration(aRow['Tenure']).asYears() : null,
+					cnt: aRow["cnt"]
 				});
 			});
 			res.json({
