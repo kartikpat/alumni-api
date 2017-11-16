@@ -2,8 +2,6 @@ var uuidV4 = require("uuid/v4");
 var csvToJSON = require("../../adapters/csv-to-json").csvToJSON;
 var fs = require('fs');
 var companyID = 1;
-var taskID = uuidV4().replace(/\-/g,"");
-var fileStream = fs.createReadStream('./test/generate/education.csv', 'utf8');
 module.exports = function(settings){
 	var cprint = settings.cprint;
 	
@@ -42,6 +40,7 @@ module.exports = function(settings){
 		})
 	}
 
+	settings.educationStepExecute = stepExecute;
 	//csvToJSON(fileStream, stepExecute)
 
 }

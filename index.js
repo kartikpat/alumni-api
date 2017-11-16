@@ -106,11 +106,18 @@ require(__dirname+"/workers/ingest-file.js")(settings);
 require(__dirname+"/routes/tasks/list.js")(settings);
 require(__dirname+"/routes/tasks/task.js")(settings);
 
+/**
+ * Ingestion Api
+ * /company/:companyID/ingest
+ */
+require(__dirname+"/routes/ingest/upload-file.js")(settings);
+require(__dirname+"/routes/ingest/ingest.js")(settings);
+require(__dirname+"/routes/ingest/single.js")(settings);
+
 require(__dirname+"/routes/common/error.js")(settings);
-require(__dirname+"/routes/ingest.js")(settings);
 require(__dirname+"/routes/auth/auth.js")(settings);
 require(__dirname+"/routes/profile/profile.js")(settings);
-require(__dirname+"/routes/ingest/upload-file.js")(settings);
+
 require(__dirname+"/routes/services/birthday.js")(settings);
 require(__dirname+"/routes/register/register.js")(settings);
 require(__dirname+"/routes/dashboard/init.js")(settings);
