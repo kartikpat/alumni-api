@@ -7,12 +7,12 @@ module.exports = function(settings){
 	var cprint = settings.cprint;
 
 
-	app.get("/company/:companyID/alumni/:userID", async function(req, res){
+	app.get("/company/:companyID/alumni/:alumnusID", async function(req, res){
 		var companyID = req.params.companyID;
 		var alumnusID = req.params.alumnusID;
 		
 		try{
-			var alumniRows = await fetchAlumni(companyID, userID);
+			var alumniRows = await fetchAlumni(companyID, alumnusID);
 			if(alumniRows.length<1)
 				return settings.notFound(res);
 			var data = {};
@@ -27,7 +27,7 @@ module.exports = function(settings){
 			data.education = [];
 			data.profession = [];
 
-			var otherDetails = await  Promise.all([ fetchEducation(companyID, alumnusID), fetchProfession(companyID, alumnusID) ];
+			var otherDetails = await  Promise.all([ fetchEducation(companyID, alumnusID), fetchProfession(companyID, alumnusID) ]);
 			var educationRows = otherDetails[0];
 			var professionRows = otherDetails[1];
 
@@ -53,15 +53,15 @@ module.exports = function(settings){
 				data: data
 			})
 		}
-		catch(function(err){
+		catch(err){
 			cprint(err,1);
 			return settings.serviceError(res);
-		})
+		}
 
 	});
 
 	function fetchAlumni(companyID, userID){
-		var query = var query = "Select AlumnusId,FirstName, MiddleName, LastName, DateOfBirth, dsg.Name as Designation, dep.Name as Department, DateOfLeaving, DateOfLeaving from AlumnusMaster am inner join DepartmentMaster dep on am.DepartmentId=dep.DepartmentId inner join DesignationMaster dsg on dsg.DesignationId = am.DesignationId where am.CompanyId = ?  and AlumnusId = ? and "
+		var query = "Select AlumnusId,FirstName, MiddleName, LastName, DateOfBirth, dsg.Name as Designation, dep.Name as Department, DateOfLeaving, DateOfLeaving from AlumnusMaster am inner join DepartmentMaster dep on am.DepartmentId=dep.DepartmentId inner join DesignationMaster dsg on dsg.DesignationId = am.DesignationId where am.CompanyId = ?  and AlumnusId = ?  "
 		var queryArray = [ companyID, userID, 'active', 'active'  ];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
@@ -77,7 +77,7 @@ module.exports = function(settings){
 	}
 
 	function fetchProfession(companyID, alumnusID){
-		var query = "Select * from ProfessionDetails pd inner join OrganisationMaster om on pd.OrganisationId = om.OrganisationId inner join RoleMaster rm on pd.DesignationId = rm.DesignationId where pd.AlumnusId = ? and pd.CompanyId = ?";
+		var query = "Select * from ProfessionDetails pd inner join OrganisationMaster om on pd.OrganisationId = om.OrganisationId inner join RoleMaster rm on pd.DesignationId = rm.RoleId where pd.AlumnusId = ? and pd.CompanyId = ?";
 		var queryArray = [ alumnusID, companyID ];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);

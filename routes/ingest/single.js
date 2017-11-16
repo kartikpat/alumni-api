@@ -50,17 +50,18 @@ module.exports = function(settings){
 
 		if(!( firstName && email && phone && designation && department && doj && companyEmail ))
 			return settings.unprocessableEntity(res);
-		if(!( checkDateUTC(dob) && checkDateUTC(dol) && checkDate(doj) ))
+		if(!( checkDateUTC(doj) && checkDateUTC(dol) && checkDate(dob) ))
 			return settings.unprocessableEntity(res, 'invalid date format');
 		if(educationArray){
 			try{
 				educationArray = JSON.parse(educationArray);
 				for(var i =0; i < educationArray.length; i++){
 					if(!( educationArray[i]["institute"] && educationArray[i]["course"] ))
-						return unprocessableEntity(res, 'missing education values');
+						return settings.unprocessableEntity(res, 'missing education values');
 				}
-			}
+			}	
 			catch(err){
+				cprint(err,1)
 				return settings.unprocessableEntity(res, 'invalid format');
 			}	
 		}
@@ -69,10 +70,11 @@ module.exports = function(settings){
 				professionArray = JSON.parse(professionArray);
 				for(var i=0; i < professionArray.length; i++){
 					if(!( professionArray[i]["designation"] && professionArray[i]["company"] ))
-						return unprocessableEntity(res, 'missing profession values');
+						return settings.unprocessableEntity(res, 'missing profession values');
 				}
 			}
 			catch(err){
+				cprint(err,1)
 				return settings.unprocessableEntity(res, 'invalid format');
 			}
 		}	

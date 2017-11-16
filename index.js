@@ -116,7 +116,10 @@ require(__dirname+"/routes/ingest/single.js")(settings);
 
 require(__dirname+"/routes/common/error.js")(settings);
 require(__dirname+"/routes/auth/auth.js")(settings);
+
+
 require(__dirname+"/routes/profile/profile.js")(settings);
+require(__dirname+"/routes/profile/alumnus.js")(settings);
 
 require(__dirname+"/routes/services/birthday.js")(settings);
 require(__dirname+"/routes/register/register.js")(settings);
