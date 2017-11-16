@@ -108,8 +108,6 @@ module.exports = function(settings){
 
 		var educationArray = req.body.educationArray || null,
 			professionArray = req.body.professionArray || null;
-		console.log(educationArray)
-		console.log(professionArray);
 
 		try{
 			const prepareAlumni = await Promise.all([ addDepartment(department, companyID), addDesignation(designation, companyID) ]);
@@ -123,10 +121,10 @@ module.exports = function(settings){
 				educationArray = JSON.parse(educationArray);
 				for( var i=0; i < educationArray.length; i++ ){
 					var prepareEducation = await Promise.all([ addCourse(educationArray[i]["course"]), addInstitute(educationArray[i]["institute"]) ]);
-					var courseID = prepareEducation.insertId;
-					var instituteID = prepareEducation.insertId;
-					var batchFrom = educationArray[i]['batchFrom'];
-					var batchTo = educationArray[i]['batchTo'];
+					var courseID = prepareEducation[0].insertId;
+					var instituteID = prepareEducation[1].insertId;
+					var batchFrom = educationArray[i]['from'];
+					var batchTo = educationArray[i]['to'];
 					var type = educationArray[i]['type'];
 					await addEducationDetails(alumnusID, courseID, instituteID, batchFrom, batchTo, type, companyID);
 				}
