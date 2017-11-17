@@ -31,7 +31,8 @@ module.exports = function(settings){
 			rows.forEach(function(aRow){
 				data.push({
 					id: aRow["id"],
-					name: aRow["Name"]
+					name: aRow["Name"],
+					cnt: aRow["cnt"]
 				})
 			})
 			return res.json({
@@ -46,14 +47,15 @@ module.exports = function(settings){
 	})
 
 	function fetchDepartment(companyID){
-		var query = "Select Name, DepartmentId as id from DepartmentMaster where CompanyId = ? and Status = ?";
+		var query = "Select dm.Name, dm.DepartmentId as id, count(*) as cnt from AlumnusMaster am inner join DepartmentMaster dm on am.DepartmentId = dm.DepartmentId where am.CompanyId = ? and dm.Status = ? group by dm.DepartmentId, dm.Name"
+		//var query = "Select Name, DepartmentId as id from DepartmentMaster where CompanyId = ? and Status = ?";
 		var queryArray = [ companyID, "active" ];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
 		})
 	}
 	function fetchDesignation(companyID){
-		var query = "Select Name, DesignationId as id from DesignationMaster where CompanyId = ? and Status = ?";
+		var query = "Select dm.Name, dm.DesignationId as id, count(*) as cnt from AlumnusMaster am inner join DesignationMaster dm on am.DesignationId = dm.DesignationId where am.CompanyId = ? and dm.Status = ? group by dm.DesignationId, dm.Name";
 		var queryArray = [ companyID, "active" ];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
