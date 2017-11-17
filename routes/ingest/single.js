@@ -48,7 +48,7 @@ module.exports = function(settings){
 		var educationArray = req.body.educationArray || null,
 			professionArray = req.body.professionArray || null;
 
-		if(!( firstName && email && phone && designation && department && doj && companyEmail ))
+		if(!( firstName && email && designation && department && doj && companyEmail ))
 			return settings.unprocessableEntity(res);
 		if(!( checkDateUTC(doj) && checkDateUTC(dol) && checkDate(dob) ))
 			return settings.unprocessableEntity(res, 'invalid date format');
