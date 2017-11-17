@@ -46,18 +46,18 @@ module.exports = function(settings){
 		})
 	}
 	function fetchEmployeesJoining(companyID, timestamp, nextTimestamp, metric){
-		var query = "select QUARTER(FROM_UNIXTIME(DateOfJoining/1000)) as quarter, YEAR(FROM_UNIXTIME(DateOfJoining/1000)) as year, count(*) as cnt, dm.Name from AlumnusMaster am inner join DesignationMaster dm on am.DesignationId=dm.DesignationId where am.CompanyId =? and DateOfJoining>? and DateOfJoining < ? group by QUARTER(FROM_UNIXTIME(DateOfJoining/1000)), YEAR(FROM_UNIXTIME(DateOfJoining/1000)), dm.DesignationId, dm.Name";
+		var query = "select MONTH(FROM_UNIXTIME(DateOfJoining/1000)) as `group`, YEAR(FROM_UNIXTIME(DateOfJoining/1000)) as year, count(*) as cnt, dm.Name from AlumnusMaster am inner join DesignationMaster dm on am.DesignationId=dm.DesignationId where am.CompanyId =? and DateOfJoining>? and DateOfJoining < ? group by MONTH(FROM_UNIXTIME(DateOfJoining/1000)), YEAR(FROM_UNIXTIME(DateOfJoining/1000)), dm.DesignationId, dm.Name";
 		if(metric =="department")
-			query = "select QUARTER(FROM_UNIXTIME(DateOfJoining/1000)) as quarter, YEAR(FROM_UNIXTIME(DateOfJoining/1000)) as year, count(*) as cnt, dm.Name from AlumnusMaster am inner join DepartmentMaster dm on am.DepartmentId=dm.DepartmentId where am.CompanyId =? and DateOfJoining>? and DateOfJoining < ? group by QUARTER(FROM_UNIXTIME(DateOfJoining/1000)), YEAR(FROM_UNIXTIME(DateOfJoining/1000)), dm.DepartmentId, dm.Name";
+			query = "select MONTH(FROM_UNIXTIME(DateOfJoining/1000)) as `group`, YEAR(FROM_UNIXTIME(DateOfJoining/1000)) as year, count(*) as cnt, dm.Name from AlumnusMaster am inner join DepartmentMaster dm on am.DepartmentId=dm.DepartmentId where am.CompanyId =? and DateOfJoining>? and DateOfJoining < ? group by MONTH(FROM_UNIXTIME(DateOfJoining/1000)), YEAR(FROM_UNIXTIME(DateOfJoining/1000)), dm.DepartmentId, dm.Name";
 		var queryArray = [companyID, timestamp, nextTimestamp ];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
 		})	
 	}
 	function fetchEmployeesLeaving(companyID, timestamp, nextTimestamp, metric){
-		var query = "select QUARTER(FROM_UNIXTIME(DateOfLeaving/1000)) as quarter, YEAR(FROM_UNIXTIME(DateOfLeaving/1000)) as year, count(*) as cnt, dm.Name from AlumnusMaster am inner join DesignationMaster dm on am.DesignationId=dm.DesignationId where am.CompanyId =? and DateOfLeaving>? and DateOfLeaving <? group by QUARTER(FROM_UNIXTIME(DateOfLeaving/1000)), YEAR(FROM_UNIXTIME(DateOfLeaving/1000)), am.DesignationId, dm.Name";
+		var query = "select MONTH(FROM_UNIXTIME(DateOfLeaving/1000)) as `group`, YEAR(FROM_UNIXTIME(DateOfLeaving/1000)) as year, count(*) as cnt, dm.Name from AlumnusMaster am inner join DesignationMaster dm on am.DesignationId=dm.DesignationId where am.CompanyId =? and DateOfLeaving>? and DateOfLeaving <? group by MONTH(FROM_UNIXTIME(DateOfLeaving/1000)), YEAR(FROM_UNIXTIME(DateOfLeaving/1000)), am.DesignationId, dm.Name";
 		if(metric =="department")
-			query = "select QUARTER(FROM_UNIXTIME(DateOfLeaving/1000)) as quarter, YEAR(FROM_UNIXTIME(DateOfLeaving/1000)) as year, count(*) as cnt, dm.Name from AlumnusMaster am inner join DepartmentMaster dm on am.DepartmentId=dm.DepartmentId where am.CompanyId =? and DateOfLeaving>? and DateOfLeaving <? group by QUARTER(FROM_UNIXTIME(DateOfLeaving/1000)), YEAR(FROM_UNIXTIME(DateOfLeaving/1000)), am.DepartmentId, dm.Name";
+			query = "select MONTH(FROM_UNIXTIME(DateOfLeaving/1000)) as `group`, YEAR(FROM_UNIXTIME(DateOfLeaving/1000)) as year, count(*) as cnt, dm.Name from AlumnusMaster am inner join DepartmentMaster dm on am.DepartmentId=dm.DepartmentId where am.CompanyId =? and DateOfLeaving>? and DateOfLeaving <? group by MONTH(FROM_UNIXTIME(DateOfLeaving/1000)), YEAR(FROM_UNIXTIME(DateOfLeaving/1000)), am.DepartmentId, dm.Name";
 		var queryArray = [ companyID, timestamp, nextTimestamp ];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
@@ -133,18 +133,18 @@ module.exports = function(settings){
 			var total = totalEmployeesRows[0]["total"];
 			var data = {};
 			joiningEmployeesRows.forEach(function(aRow){
-				if(!data[aRow["quarter"]])
-					data[aRow["quarter"]] = {};
-				if(!data[aRow["quarter"]][aRow["Name"]])
-					data[aRow["quarter"]][aRow["Name"]] = {};
-				data[aRow["quarter"]][aRow["Name"]]["hired"] = aRow["cnt"];
+				if(!data[aRow["group"]])
+					data[aRow["group"]] = {};
+				if(!data[aRow["group"]][aRow["Name"]])
+					data[aRow["group"]][aRow["Name"]] = {};
+				data[aRow["group"]][aRow["Name"]]["hired"] = aRow["cnt"];
 			});
 			leavingEmployeesRows.forEach(function(aRow){
-				if(!data[aRow["quarter"]])
-					data[aRow["quarter"]] = {};
-				if(!data[aRow["quarter"]][aRow["Name"]])
-					data[aRow["quarter"]][aRow["Name"]] = {};
-				data[aRow["quarter"]][aRow["Name"]]["relieved"] = aRow["cnt"];
+				if(!data[aRow["group"]])
+					data[aRow["group"]] = {};
+				if(!data[aRow["group"]][aRow["Name"]])
+					data[aRow["group"]][aRow["Name"]] = {};
+				data[aRow["group"]][aRow["Name"]]["relieved"] = aRow["cnt"];
 			});
 			var resData = [];
 			Object.keys(data)
@@ -180,8 +180,8 @@ module.exports = function(settings){
 
 
 	function fetchTenure(companyID){
-		var query = "Select SUM(DateOfLeaving - DateOfJoining) as Tenure, dsg.Name as Designation, dm.Name as Department, count(*) as cnt from AlumnusMaster am inner join DesignationMaster dsg on am.DesignationId=dsg.DesignationId inner join DepartmentMaster dm on am.DepartmentId=am.DepartmentId where am.CompanyId = ? and dm.CompanyId = ? and dsg.CompanyId = ? and dm.Status=? and dsg.Status=? group by am.DesignationId, dsg.Name, dm.Name";
-		var queryArray = [companyID, companyID, companyID, 'active', 'active'];
+		var query = "select Sum(DateOfLeaving - DateOfJoining )as Tenure, dm.Name as Department , dsg.Name as Designation, count(*) as cnt  from AlumnusMaster am inner join DepartmentMaster dm on dm.DepartmentId=am.DepartmentId inner join DesignationMaster dsg on dsg.DesignationId = am.DesignationId where am.CompanyId =?  group by am.DesignationId, am.DepartmentId, dm.Name, dsg.Name"
+		var queryArray = [companyID]
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
 		});	
