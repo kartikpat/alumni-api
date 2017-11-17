@@ -104,6 +104,8 @@ module.exports = function(settings){
 			})
 			.catch(function(err){
 				cprint(err,1);
+				if(err.errno)
+					return settings.conflict(res);
 				return settings.serviceError(res);
 			})
 		})
