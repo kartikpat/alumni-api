@@ -223,7 +223,7 @@ module.exports = function(settings){
 				query = "Select count(*) as num, im.Name from AlumnusMaster am inner join EducationDetails ed on am.AlumnusId = ed.AlumnusId inner join InstituteMaster im on ed.InstituteId=im.InstituteId where am.CompanyId= ? group by ed.InstituteId, im.Name";
 				break;
 			case 'gender':
-				query = "Select count(*) as num, Sex as Name from AlumnusMaster group by Sex";
+				query = "Select count(*) as num, Sex as Name from AlumnusMaster where CompanyId = ? group by Sex ";
 				break;
 			case 'education':
 				query = "Select count(*) as num, cm.Name from AlumnusMaster am inner join EducationDetails ed on am.AlumnusId=ed.AlumnusId inner join CourseMaster cm on cm.CourseId=ed.CourseId where am.CompanyId= ? group by ed.CourseId, cm.Name";
@@ -248,6 +248,7 @@ module.exports = function(settings){
 		fetchingDemo.then(function(rows){
 			var data = [];
 			rows.forEach(function(aRow){
+			if(aRow["Name"])
 				data.push({
 					name: aRow["Name"],
 					value: aRow["num"]

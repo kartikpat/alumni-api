@@ -1,7 +1,8 @@
 var uuidV4 = require("uuid/v4");
 var csvToJSON = require("../../adapters/csv-to-json").csvToJSON;
 var fs = require('fs');
-var companyID = 1;
+var userID = null;
+var taskID = null;
 module.exports = function(settings){
 	var cprint = settings.cprint;
 	
@@ -18,7 +19,7 @@ module.exports = function(settings){
 						aRow['from'] ? aRow['from'] : null,
 						aRow['to'] ? aRow['to'] : null,
 						aRow['type'] ? aRow['type'] : null,
-						1
+						userID
 					];
 			educationArray.push(tempArray);
 		});
@@ -40,7 +41,17 @@ module.exports = function(settings){
 		})
 	}
 
-	settings.educationStepExecute = stepExecute;
+	function initiateEducationStaging(someUserID, someTaskID, fileStream){
+		userID = someUserID;
+		taskID = someTaskID;
+		return new Promise(function(resolve, reject){
+			csvToJSON(fileStream, stepExecute, function(data){
+				return resolve(data)
+			})
+		})
+
+	}
+	settings.initiateEducationStaging = initiateEducationStaging;
 	//csvToJSON(fileStream, stepExecute)
 
 }

@@ -12,11 +12,8 @@ function checkDate(aString){
 module.exports = function(settings){
 	var cprint = settings.cprint;
 
-	var taskID ="6094ed2e9cd644e1a33b1fe4984fdb49";
-	var companyID = 1;
-
-	function sanitize(taskID, companyID){
-		fetchRecords(taskID, companyID)
+	function sanitize(taskID, userID){
+		fetchRecords(taskID, userID)
 		.then( sanitizeEachRecord )
 		.catch(function(err){
 			cprint(err,1);
@@ -25,7 +22,7 @@ module.exports = function(settings){
 	}
 
 	function fetchRecords(taskID, companyID){
-		var query = "Select EntryId, Email, Course, Institute, BatchFrom, BatchTo, CourseType from StagingEducationDetails where TaskId = ? and CompanyId = ? and Status = ? ";
+		var query = "Select EntryId, Email, Course, Institute, BatchFrom, BatchTo, CourseType from StagingEducationDetails where TaskId = ? and UserId = ? and Status = ? ";
 		var queryArray = [taskID, companyID, 'pending'];
 		return settings.dbConnection().then(function(connecting){
 			return settings.dbCall(connecting, query, queryArray);
@@ -123,5 +120,5 @@ module.exports = function(settings){
 			return settings.dbCall(connecting, query, queryArray);
 		})
 	}
-	//sanitize(taskID, companyID)
+	settings.sanitizeEducation = sanitize;
 }

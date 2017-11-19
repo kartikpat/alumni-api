@@ -121,6 +121,12 @@ require(__dirname+"/routes/auth/auth.js")(settings);
 require(__dirname+"/routes/profile/profile.js")(settings);
 require(__dirname+"/routes/profile/alumnus.js")(settings);
 
+/**
+ * Image loading service
+ * 
+ */
+require(__dirname+"/routes/image-load/image-load.js")(settings);
+
 require(__dirname+"/routes/services/birthday.js")(settings);
 require(__dirname+"/routes/register/register.js")(settings);
 require(__dirname+"/routes/dashboard/init.js")(settings);

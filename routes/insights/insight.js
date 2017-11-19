@@ -9,7 +9,7 @@ module.exports = function(settings){
 		var companyID = req.params.companyID;
 		var ranges = ["1-3","4-6","7-9","10-12","13-15","16-18","19-21","22-above"];
 		var data = [ 0,0,0,0,0,0,0,0 ]
-		fetchSalaryMax()
+		fetchSalaryMax(companyID)
 		.then(function(rows){
 			rows.forEach(function(aRow){
 				var index = parseInt(aRow["range"].split('-')[1])/3;
@@ -18,7 +18,7 @@ module.exports = function(settings){
 					data[7] += aRow['cnt'];
 				}
 				else
-					data[index] += aRow['cnt'];
+					data[index-1] += aRow['cnt'];
 			});
 			var index = data.indexOf(Math.max(...data));
 			return res.json({
@@ -112,11 +112,12 @@ module.exports = function(settings){
 	}
 
 
-	function fetchSalaryMax(){
-		var query = "select concat(3*floor(SalaryLPA/3)+1, '-', 3*floor(SalaryLPA/3) + 3) as `range`,     count(*) as `cnt` from AlumnusMaster group by 1 order by SalaryLPA";
+	function fetchSalaryMax(companyID){
+		var query = "select concat(3*floor(SalaryLPA/3)+1, '-', 3*floor(SalaryLPA/3) + 3) as `range`,     count(*) as `cnt` from AlumnusMaster where SalaryLPA is not null and CompanyId = ? group by 1 order by SalaryLPA";
+		var queryArray = [ companyID ]
 
 		return settings.dbConnection().then(function(connection){
-			return settings.dbCall(connection, query);
+			return settings.dbCall(connection, query, queryArray);
 		})
 	}
 	/************************************/

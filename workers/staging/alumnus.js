@@ -67,15 +67,15 @@ module.exports = function(settings){
 	}
 	function fetchTask(taskID){
 		var query = "Select Id,TaskId, FilePath, UserId from TaskMaster where Status = ? and Id = ?";
-		var queryArray = ['pending', taskID];
+		var queryArray = ['done', taskID];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
 		})
 	}
-	app.post('/initiate/:taskID/start', function(req, res){
+	app.post('/initiate/:taskID/start', async function(req, res){
 		taskID = req.params.taskID || null;
-		fetchTask(taskID)
-		.then(function(rows){
+		try{
+			var rows = await fetchTask(taskID)
 			if(rows.length<1){
 				return	res.json({
 					status: 'fail',
@@ -89,12 +89,21 @@ module.exports = function(settings){
 			userID = rows[0]['UserId']
 			var filePath = rows[0]['FilePath'];
 			var fileStream = fs.createReadStream(settings.diskStorage+'/'+ filePath, 'utf8');
-			csvToJSON(fileStream, stepExecute, onCompletion);
-		})
-		.catch(function(err){
+			await new Promise(function(resolve, reject){
+				csvToJSON(fileStream, stepExecute, function(data){
+					return resolve(data)
+				})
+			})
+			fileStream = fs.createReadStream(settings.diskStorage+'/'+ filePath, 'utf8');
+			await settings.initiateEducationStaging(userID, taskID, fileStream)
+			await settings.sanitize(taskID, userID);
+			await settings.sanitizeEducation(taskID, userID)
+			updateTask();
+		}
+		catch(err){
 			cprint(err,1)
 			return settings.serviceError(res)
-		})
+		}
 
 	})
 
