@@ -22,7 +22,7 @@ module.exports = function(settings){
 	}
 
 	function fetchRecords(taskID, companyID){
-		var query = "Select EntryId, Email, Course, Institute, BatchFrom, BatchTo, CourseType from StagingEducationDetails where TaskId = ? and UserId = ? and Status = ? ";
+		var query = "Select EntryId, Email, Course, Institute, BatchFrom, BatchTo, CourseType, CompanyId from StagingEducationDetails where TaskId = ? and UserId = ? and Status = ? ";
 		var queryArray = [taskID, companyID, 'pending'];
 		return settings.dbConnection().then(function(connecting){
 			return settings.dbCall(connecting, query, queryArray);
@@ -54,7 +54,7 @@ module.exports = function(settings){
 		props.batchTo = aRow["BatchTo"];
 		props.batchFrom = aRow["BatchFrom"];
 		props.courseType = aRow["CourseType"];
-		props.companyID = companyID;
+		props.companyID = aRow["CompanyId"];
 
 		var alumniDetails = fetchAlumnus(props.email, props.companyID)
 		alumniDetails

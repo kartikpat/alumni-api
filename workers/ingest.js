@@ -1,6 +1,6 @@
 var moment = require('moment');
 function checkDate(aString){
-	var d = moment(aString, 'DD-MM-YYYY');
+	var d = moment(aString, 'DD/MM/YYYY');
 	if(!d.isValid())
 		return null;
 	return d.valueOf();
@@ -12,7 +12,7 @@ module.exports = function(settings){
 
 	function validateUserFields(anObject){
 		var requiredFields = ['firstName', 'email', 'companyEmail', 'doj', 'department', 'designation', 'salaryLPA'];
-		var dateFields = ['dob', 'doj', 'dol']
+		var dateFields = [ 'doj']
 		var emailFields = ['email', 'companyEmail']
 		var missing = [];
 		var invalid = [];
@@ -21,6 +21,7 @@ module.exports = function(settings){
 				missing.push(aField)
 		})
 		dateFields.forEach(function(aField){
+			console.log(anObject[aField])
 			if(anObject[aField])
 				if(!checkDate(anObject[aField]))
 					invalid.push(aField)
@@ -28,6 +29,7 @@ module.exports = function(settings){
 					anObject[aField] = checkDate(anObject[aField])
 		})
 		//TODO add a email validate function her
+		
 	
 		var errMessage = '';
 		if(missing.length>0)
@@ -88,9 +90,9 @@ module.exports = function(settings){
 			props.phone = rows[0]['Phone'] || null;
 			props.companyEmail = rows[0]['CompanyEmail'] || Date.now(); // TODO make this null default
 			props.dob = rows[0]['Dob'];
-			props.dateOfBirth = checkDate(rows[0]['Dob']) ? moment(rows[0]['Dob'], 'YYYY-MM-DD').format('YYYY-MM-DD') : null;
+			props.dateOfBirth = checkDate(rows[0]['Dob']) ? moment(rows[0]['Dob'], 'DD/MM/YYYY').format('YYYY-MM-DD') : null;
 			props.doj = rows[0]['DateOfJoining'];
-			props.dol = rows[0]['DateOfLeaving'];
+			props.dol = checkDate(rows[0]['DateOfLeaving']) ? moment(rows[0]['DateOfLeaving'], 'DD/MM/YYYY').format('x') : null;
 			props.department = rows[0]['Department'] || null;
 			props.designation = rows[0]['Designation'] || null;
 			props.linkedInUrl = rows[0]['LinkedinURL'] || null;

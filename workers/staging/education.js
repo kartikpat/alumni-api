@@ -3,6 +3,7 @@ var csvToJSON = require("../../adapters/csv-to-json").csvToJSON;
 var fs = require('fs');
 var userID = null;
 var taskID = null;
+var companyID = null;
 module.exports = function(settings){
 	var cprint = settings.cprint;
 	
@@ -10,7 +11,6 @@ module.exports = function(settings){
 		var educationArray = [];
 		parser.pause();
 		rows.data.forEach(function(aRow){
-			cprint(aRow)
 			var tempArray = [
 						taskID,
 						aRow['email'],
@@ -19,7 +19,8 @@ module.exports = function(settings){
 						aRow['from'] ? aRow['from'] : null,
 						aRow['to'] ? aRow['to'] : null,
 						aRow['type'] ? aRow['type'] : null,
-						userID
+						userID,
+						companyID
 					];
 			educationArray.push(tempArray);
 		});
@@ -34,16 +35,17 @@ module.exports = function(settings){
 	}
 
 	function addEducation(educationArray){
-		var query = "Insert into StagingEducationDetails (TaskId, Email, Course, Institute, BatchFrom, BatchTo, CourseType, CompanyId) values ?";
+		var query = "Insert into StagingEducationDetails (TaskId, Email, Course, Institute, BatchFrom, BatchTo, CourseType, UserId, CompanyId) values ?";
 		var queryArray = [ educationArray ];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
 		})
 	}
 
-	function initiateEducationStaging(someUserID, someTaskID, fileStream){
+	function initiateEducationStaging(someUserID, someTaskID,someCompanyID, fileStream){
 		userID = someUserID;
 		taskID = someTaskID;
+		companyID = someCompanyID
 		return new Promise(function(resolve, reject){
 			csvToJSON(fileStream, stepExecute, function(data){
 				return resolve(data)

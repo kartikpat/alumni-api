@@ -4,6 +4,7 @@ var uuidV4 = require("uuid/v4");
 var csvToJSON = require("../../adapters/csv-to-json").csvToJSON;
 var taskID = null;
 var userID = null;
+var companyID = null;
 module.exports = function(settings){
 	var config = settings.config;
 	var cprint = settings.cprint;
@@ -44,6 +45,7 @@ module.exports = function(settings){
 				aRow['code'] ? aRow['code'] : null,
 				aRow['salaryLPA'] ? aRow['salaryLPA'] : null,
 				userID,
+				companyID,
 				aRow['sex'] ? aRow['sex'] : null
 			];
 			userArray.push(tempArray);
@@ -59,15 +61,15 @@ module.exports = function(settings){
 	}
 
 	function addUser(userArray){
-		var query = "Insert into StagingAlumnusMaster (TaskId, FirstName, MiddleName, LastName, Email, Phone, CompanyEmail, Dob, DateOfJoining, DateOfLeaving, Department, Designation, LinkedinURL, Code, SalaryLPA, UserId, Sex ) values ?";
+		var query = "Insert into StagingAlumnusMaster (TaskId, FirstName, MiddleName, LastName, Email, Phone, CompanyEmail, Dob, DateOfJoining, DateOfLeaving, Department, Designation, LinkedinURL, Code, SalaryLPA, UserId, CompanyId,Sex ) values ?";
 		var queryArray = [ userArray ];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
 		})
 	}
 	function fetchTask(taskID){
-		var query = "Select Id,TaskId, FilePath, UserId from TaskMaster where Status = ? and Id = ?";
-		var queryArray = ['done', taskID];
+		var query = "Select tm.Id, tm.TaskId, tm.FilePath, tm.UserId, ca.CompanyId from TaskMaster tm inner join CompanyAccess ca on tm.UserId = ca.Id where tm.Status = ? and tm.Id = ?";
+		var queryArray = ['pending', taskID];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
 		})
@@ -87,6 +89,7 @@ module.exports = function(settings){
 				message: 'initiated'
 			});
 			userID = rows[0]['UserId']
+			companyID = rows[0]['CompanyId'];
 			var filePath = rows[0]['FilePath'];
 			var fileStream = fs.createReadStream(settings.diskStorage+'/'+ filePath, 'utf8');
 			await new Promise(function(resolve, reject){
@@ -95,7 +98,7 @@ module.exports = function(settings){
 				})
 			})
 			fileStream = fs.createReadStream(settings.diskStorage+'/'+ filePath, 'utf8');
-			await settings.initiateEducationStaging(userID, taskID, fileStream)
+			await settings.initiateEducationStaging(userID, taskID, companyID, fileStream)
 			await settings.sanitize(taskID, userID);
 			await settings.sanitizeEducation(taskID, userID)
 			updateTask();
