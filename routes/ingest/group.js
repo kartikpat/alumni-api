@@ -20,9 +20,8 @@ module.exports = function(settings){
 			alumniArray.forEach(function(anID){
 				queryArray.push([ anID, name, companyID]);
 			})
-			await addDepartment(queryArray);
+			await mapAlumniDepartment(queryArray);
 			return res.json({
-				data: group,
 				status: "success"
 			});
 		}
@@ -36,7 +35,7 @@ module.exports = function(settings){
 	function mapAlumniDepartment(queryArray){
 		var query = "Insert into AlumniGroupMapping (AlumnusId, `Group`, CompanyId) values ?";
 		return settings.dbConnection().then(function(connection){
-			return settings.dbCall(connection, query, queryArray);
+			return settings.dbCall(connection, query, [queryArray]);
 		})
 	}
 }
