@@ -18,6 +18,8 @@
 					type: aRow["FileType"],
 					status: aRow["Status"],
 					timestamp: aRow["Timestamp"],
+					correctRows: aRow['CorrectRowCount'],
+					incorrectRows: aRow['IncorrectRowCount'],
 					endTimestamp: aRow["EndTimestamp"]
 				});
 			})
@@ -33,7 +35,7 @@
 	})
 
 	function fetchTaskList(UserID){
-		var query = "Select Id, FilePath, FileType, Timestamp, EndTimestamp, Status from TaskMaster where UserId = ?";
+		var query = "Select Id, FilePath, FileType, Timestamp, EndTimestamp, Status, CorrectRowCount, IncorrectRowCount from TaskMaster where UserId = ?";
 		var queryArray = [UserID];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);

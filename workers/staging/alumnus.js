@@ -74,13 +74,15 @@ module.exports = function(settings){
 			return settings.dbCall(connection, query, queryArray);
 		})
 	}
+
 	function fetchTaskRows(taskID){
-		var query = "select count(*) as cnt, message  from StagingAlumnusMaster where TaskId = ? group by message";
+		var query = "select if(message is null or message ='', 'correct', 'incorrect') as field, count(*) as cnt from StagingAlumnusMaster where TaskId = ? group by 1 order by message";
 		var queryArray = [taskID];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
 		})
 	}
+
 	app.post('/initiate/:taskID/start', async function(req, res){
 		taskID = req.params.taskID || null;
 		try{
@@ -112,9 +114,9 @@ module.exports = function(settings){
 			var correctRows = 0;
 			var incorrectRows = 0;
 			processedRows.forEach(function(aRow){
-				if(aRow['message'] && aRow['message']!= 'null' && aRow['message']!= 'NULL')
-					return correctRows++;
-				return incorrectRows++
+				if(aRow['field'] && aRow['field']== 'correct')
+					return correctRows+=aRow['cnt'];
+				return incorrect+=aRow['cnt'];
 			})
 			return updateTask(taskID, correctRows, incorrectRows);
 		}

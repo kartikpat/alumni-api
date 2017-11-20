@@ -11,7 +11,7 @@ module.exports = function(settings){
 			return settings.unprocessableEntity(res);
 	}
 
-	app.post("/company/:companyID/department", async function(req, res){
+	app.post("/company/:companyID/group", async function(req, res){
 		var name = req.body.name;
 		var alumniArray = req.body.alumni.split(',');
 		var companyID = req.params.companyID;
