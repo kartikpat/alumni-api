@@ -6,7 +6,7 @@ module.exports = function(settings){
 	var cprint = settings.cprint;
 
 	function validate(req, res, next){
-		if(( req.query.pageNumber && req.query.pageNumber <1 ) || ( req.query.by && ['designation', 'department'].indexOf(req.query.by) ==-1 ) || ( req.query.value && req.query.value <1) )
+		if(( req.query.pageNumber && req.query.pageNumber <1 ) || ( req.query.by && ['designation', 'department', 'group'].indexOf(req.query.by) ==-1 ) || ( req.query.value && req.query.value <1) )
 			return settings.unprocessableEntity(res);
 		return next();
 	}
@@ -32,7 +32,8 @@ module.exports = function(settings){
 					doj: anItem["DateOfJoining"],
 					dol: anItem["DateOfLeaving"],
 					designation: anItem["Designation"],
-					department: anItem["Department"]
+					department: anItem["Department"],
+					group: anItem["Group"]
 				})
 			})
 
@@ -60,6 +61,10 @@ module.exports = function(settings){
 					break;
 				case "department":
 					query+=' and am.DepartmentId = ?';
+					queryArray.push(conditionValue);
+					break;
+				case "group":
+					query = "Select am.AlumnusId,FirstName, MiddleName, LastName, DateOfBirth, dsg.Name as Designation, dep.Name as Department, DateOfLeaving, DateOfLeaving, agm.Group from AlumnusMaster am inner join DepartmentMaster dep on am.DepartmentId=dep.DepartmentId inner join DesignationMaster dsg on dsg.DesignationId = am.DesignationId inner join AlumniGroupMapping agm on am.AlumnusId = agm.AlumnusId where am.companyId = ? and `Group` = ?";
 					queryArray.push(conditionValue);
 					break;
 			}

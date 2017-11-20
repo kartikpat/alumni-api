@@ -126,6 +126,10 @@ module.exports = function(settings){
 			
 			return addUser([props.firstName , props.middleName , props.lastName , props.email , props.phone, props.companyEmail , props.dob , props.dateOfBirth, props.doj , props.dol , props.departmentID , props.designationID , props.linkedInUrl , props.code , props.salaryLPA , props.companyID , props.sex])
 		})
+		.then(function(rows){
+			var alumnusID = rows.insertId;
+			return mapAlumniGroup(alumnusID, props.department, props.companyID)
+		})
 		.then(function(qOb){
 			return	updateStaging(entryID)
 		})
@@ -263,6 +267,13 @@ module.exports = function(settings){
 		var queryArray = [message, entryID];
 		return settings.dbConnection().then(function(connecting){
 			return settings.dbCall(connecting, query, queryArray);
+		})
+	}
+	function mapAlumniGroup(alumnusID, group, companyID){
+		var query = "Insert into AlumniGroupMapping (AlumnusId, `Group`, CompanyId, Status) values(?, ?, ?, ?)";
+		var queryArray = [alumnusID, group, companyID, "active"]
+		return settings.dbConnection().then(function(connection){
+			return settings.dbCall(connection, query, queryArray);
 		})
 	}
 	settings.sanitize = sanitize;
