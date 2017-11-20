@@ -51,7 +51,7 @@ module.exports = function(settings){
 	function fetchAlumni(companyID, pageNumber=1,pageContent=10, condition =null, conditionValue = null){
 		var offset = (pageNumber-1)*pageContent;
 		pageContent = parseInt(pageContent)
-		var query = "Select AlumnusId,FirstName, MiddleName, LastName, DateOfBirth, dsg.Name as Designation, dep.Name as Department, DateOfLeaving, DateOfLeaving from AlumnusMaster am inner join DepartmentMaster dep on am.DepartmentId=dep.DepartmentId inner join DesignationMaster dsg on dsg.DesignationId = am.DesignationId where am.companyId = ? ";
+		var query = "Select AlumnusId,FirstName, MiddleName, LastName, DateOfBirth, dsg.Name as Designation, dep.Name as Department, DateOfLeaving, DateOfJoining from AlumnusMaster am inner join DepartmentMaster dep on am.DepartmentId=dep.DepartmentId inner join DesignationMaster dsg on dsg.DesignationId = am.DesignationId where am.companyId = ? ";
 		var queryArray = [companyID];
 		if(condition ){
 			switch(condition){
