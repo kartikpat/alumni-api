@@ -28,6 +28,14 @@ module.exports = function(settings){
 	var env = settings.env;
 	var cprint = settings.cprint;
 
+	function validate(req, res, next){
+		if(!(state == "subscribe" || state =="unsubscribe"))
+			return settings.unprocessableEntity(res);
+		if(! (req.body.id  && req.body.templateID ))
+			return settings.unprocessableEntity(res);
+		return next()
+	}
+
 	app.post('/company/:companyID/service/:serviceID/:state', function(req, res){
 		var companyID = req.params.companyID,
 			serviceID = req.params.serviceID;
@@ -35,13 +43,11 @@ module.exports = function(settings){
 			templateID = req.body.templateID || null; // integer;
 
 		var state = req.params.state;
-		if(!(state == "subscribe" || state =="unsubscribe"))
-			return settings.unprocessableEntity(res);
+		
 
 		var timestamp = Date.now();
 
-		if(! (id && companyID && templateID ))
-			return settings.unprocessableEntity(res);
+		
 
 		try {
 			var temp = id.split(',');

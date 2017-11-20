@@ -15,10 +15,10 @@ module.exports = function(settings){
 		updateTask();
 	}
 
-	function updateTask(){
+	function updateTask(taskID, correctRows, incorrectRows){
 		var timestamp = Date.now();
-		var query = 'Update TaskMaster set Status = ?, EndTimestamp = ? where Id = ?';
-		var queryArray = [ 'done', timestamp,taskID ];
+		var query = 'Update TaskMaster set Status = ?, EndTimestamp = ?, CorrectRowCount = ?, IncorrectRowCount= ? where Id = ?';
+		var queryArray = [ 'done', timestamp, correctRows, incorrectRows, taskID ];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
 		})
@@ -74,6 +74,13 @@ module.exports = function(settings){
 			return settings.dbCall(connection, query, queryArray);
 		})
 	}
+	function fetchTaskRows(taskID){
+		var query = "select count(*) as cnt, message  from StagingAlumnusMaster where TaskId = ? group by message";
+		var queryArray = [taskID];
+		return settings.dbConnection().then(function(connection){
+			return settings.dbCall(connection, query, queryArray);
+		})
+	}
 	app.post('/initiate/:taskID/start', async function(req, res){
 		taskID = req.params.taskID || null;
 		try{
@@ -101,7 +108,15 @@ module.exports = function(settings){
 			await settings.initiateEducationStaging(userID, taskID, companyID, fileStream)
 			await settings.sanitize(taskID, userID);
 			await settings.sanitizeEducation(taskID, userID)
-			updateTask();
+			var processedRows = await fetchTaskRows(taskID);
+			var correctRows = 0;
+			var incorrectRows = 0;
+			processedRows.forEach(function(aRow){
+				if(aRow['message'] && aRow['message']!= 'null' && aRow['message']!= 'NULL')
+					return correctRows++;
+				return incorrectRows++
+			})
+			return updateTask(taskID, correctRows, incorrectRows);
 		}
 		catch(err){
 			cprint(err,1)

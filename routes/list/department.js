@@ -6,11 +6,14 @@ module.exports = function(settings){
 	var cprint = settings.cprint;
 
 	function validate(req, res, next){
+		console.log(req.params.property)
 		if(!(req.params.companyID && req.params.companyID >0))
 			return settings.unprocessableEntity(res);
 
-		if( !(req.params.property =='designation' || req.params.property =='department') )
+		if( !(req.params.property =='designation' || req.params.property =='department' || req.params.property == 'group') ){
+			console.log(req.params.property)
 			return settings.unprocessableEntity(res);
+		}
 		return next();
 	}
 
@@ -25,6 +28,8 @@ module.exports = function(settings){
 		var fetchProperty = fetchDepartment(companyID);
 		if(req.params.property =='designation')
 			fetchProperty = fetchDesignation(companyID);
+		else if(req.params.property == 'group')
+			fetchProperty = fetchGroup(companyID)
 
 		fetchProperty.then(function(rows){
 			var data = [];
@@ -46,6 +51,13 @@ module.exports = function(settings){
 		})
 	})
 
+	function fetchGroup(companyID){
+		var query = "Select count(*) as cnt, `Group` as Name from AlumniGroupMapping where CompanyId = ? and Status = ? group by `Group`";
+		var queryArray = [ companyID, "active" ];
+		return settings.dbConnection().then(function(connection){
+			return settings.dbCall(connection, query, queryArray);
+		})
+	}
 	function fetchDepartment(companyID){
 		var query = "Select dm.Name, dm.DepartmentId as id, count(*) as cnt from AlumnusMaster am inner join DepartmentMaster dm on am.DepartmentId = dm.DepartmentId where am.CompanyId = ? and dm.Status = ? group by dm.DepartmentId, dm.Name"
 		//var query = "Select Name, DepartmentId as id from DepartmentMaster where CompanyId = ? and Status = ?";
