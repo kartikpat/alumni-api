@@ -52,7 +52,7 @@ module.exports = function(settings){
 	})
 
 	function fetchGroup(companyID){
-		var query = "Select count(*) as cnt, `Group` as Name from AlumniGroupMapping where CompanyId = ? and Status = ? group by `Group`";
+		var query = "Select count(*) as cnt, `Group` as Name, Id as id from AlumniGroupMapping where CompanyId = ? and Status = ? group by `Group`";
 		var queryArray = [ companyID, "active" ];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
