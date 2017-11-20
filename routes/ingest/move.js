@@ -6,20 +6,24 @@ module.exports = function(settings){
 	var cprint = settings.cprint;
 
 	function validate(req, res, next){
-		var name = req.body.name || null;
-		if(!(name && alumni && alumni.split(',').length<1))
+		var alumni =  req.body.alumni || null;
+		if(!( alumni && alumni.split(',').length>0)){
 			return settings.unprocessableEntity(res);
+		}
 		return next();
 	}
 
-	app.post("/company/:companyID/group",validate, async function(req, res){
-		var name = req.body.name;
+	app.post("/company/:companyID/group/:groupName/move/:toGroupName",validate, async function(req, res){
+		var groupName = req.params.groupName;
+		var toGroupName = req.params.toGroupName;
 		var alumniArray = req.body.alumni.split(',');
+		var alumni = req.body.alumni;
 		var companyID = req.params.companyID;
 		try{
+			await unMapGroup(alumni, companyID, groupName);
 			var queryArray = [];
 			alumniArray.forEach(function(anID){
-				queryArray.push([ anID, name, companyID, 'active']);
+				queryArray.push([ anID, toGroupName, companyID, 'active']);
 			})
 			await mapAlumniDepartment(queryArray);
 			return res.json({
@@ -32,6 +36,13 @@ module.exports = function(settings){
 		}
 	});
 
+	function unMapGroup(alumnusID, companyID, groupName){
+		var query = "Update AlumniGroupMapping set status = ? where AlumnusId in (?) and companyId = ? and `Group` = ?";
+		var queryArray = ['inactive',alumnusID, companyID, groupName];
+		return settings.dbConnection().then(function(connection){
+			return settings.dbCall(connection, query, queryArray);
+		})
+	}
 	function mapAlumniDepartment(queryArray){
 		var query = "Insert into AlumniGroupMapping (AlumnusId, `Group`, CompanyId, Status) values ? on duplicate key update `Group` = values(`Group`), Status = values(Status)";
 		return settings.dbConnection().then(function(connection){

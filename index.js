@@ -114,6 +114,7 @@ require(__dirname+"/routes/ingest/upload-file.js")(settings);
 require(__dirname+"/routes/ingest/ingest.js")(settings);
 require(__dirname+"/routes/ingest/single.js")(settings);
 require(__dirname+"/routes/ingest/group.js")(settings);
+require(__dirname+"/routes/ingest/move.js")(settings);
 
 require(__dirname+"/routes/common/error.js")(settings);
 require(__dirname+"/routes/auth/auth.js")(settings);
