@@ -180,7 +180,7 @@ module.exports = function(settings){
 
 
 	function fetchTenure(companyID){
-		var query = "select Sum(DateOfLeaving - DateOfJoining )as Tenure, dm.Name as Department , dsg.Name as Designation, count(*) as cnt  from AlumnusMaster am inner join DepartmentMaster dm on dm.DepartmentId=am.DepartmentId inner join DesignationMaster dsg on dsg.DesignationId = am.DesignationId where am.CompanyId =?  group by am.DesignationId, am.DepartmentId, dm.Name, dsg.Name"
+		var query = "select Sum(DateOfLeaving - DateOfJoining )as Tenure, dm.Name as Department , dsg.Name as Designation, count(*) as cnt  from AlumnusMaster am inner join DepartmentMaster dm on dm.DepartmentId=am.DepartmentId inner join DesignationMaster dsg on dsg.DesignationId = am.DesignationId where am.CompanyId =? and am.DateOfLeaving is not null and am.DateOfLeaving > am.DateOfJoining group by am.DesignationId, am.DepartmentId, dm.Name, dsg.Name"
 		var queryArray = [companyID]
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
