@@ -21,7 +21,6 @@ module.exports = function(settings){
 				missing.push(aField)
 		})
 		dateFields.forEach(function(aField){
-			console.log(anObject[aField])
 			if(anObject[aField])
 				if(!checkDate(anObject[aField]))
 					invalid.push(aField)
@@ -138,7 +137,6 @@ module.exports = function(settings){
 			var message = err.message;
 			if(err.errno ==1048 ){
 				message = err.sqlMessage.match(/[^"]+(?=(" ")|"$)/g);
-				console.log(message)
 				message = "Invalid format for "+message;
 			}
 			return updateError(entryID, err.message);

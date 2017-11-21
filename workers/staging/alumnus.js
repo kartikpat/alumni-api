@@ -116,7 +116,7 @@ module.exports = function(settings){
 			processedRows.forEach(function(aRow){
 				if(aRow['field'] && aRow['field']== 'correct')
 					return correctRows+=aRow['cnt'];
-				return incorrect+=aRow['cnt'];
+				return incorrectRows+=aRow['cnt'];
 			})
 			return updateTask(taskID, correctRows, incorrectRows);
 		}

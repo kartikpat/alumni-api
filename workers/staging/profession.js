@@ -10,7 +10,6 @@ module.exports = function(settings){
 		var professionArray = [];
 		parser.pause();
 		rows.data.forEach(function(aRow){
-			cprint(aRow)
 			var tempArray = [
 						taskID,
 						aRow['email'],

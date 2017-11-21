@@ -50,7 +50,9 @@ module.exports = function(settings){
 
 		if(!( firstName && email && designation && department && doj && companyEmail ))
 			return settings.unprocessableEntity(res);
-		if(!( checkDateUTC(doj) && checkDateUTC(dol) && checkDate(dob) ))
+		if(!( checkDateUTC(doj) ))
+			return settings.unprocessableEntity(res, 'invalid date format');
+		if(  (dol && !checkDateUTC(dol)) || (dob && !checkDate(dob)) )
 			return settings.unprocessableEntity(res, 'invalid date format');
 		if(educationArray){
 			try{
@@ -102,11 +104,12 @@ module.exports = function(settings){
 
 		var sex = req.body.sex || null;
 		
-		var dob = req.body.dob || null,
+		var dob = moment(req.body.dob, 'DD/MM/YYYY').format('x'),
+
 			dol = req.body.dol || null,
 			doj = req.body.doj || null;
 
-		var dateOfBirth = checkDate(dob);
+		var dateOfBirth = moment(req.body.dob, 'DD/MM/YYYY').format('YYYY-MM-DD');
 
 		var educationArray = req.body.educationArray || null,
 			professionArray = req.body.professionArray || null;
