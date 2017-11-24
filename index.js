@@ -129,7 +129,13 @@ require(__dirname+"/routes/profile/alumnus.js")(settings);
  */
 require(__dirname+"/routes/image-load/image-load.js")(settings);
 
+
+/**
+ * Helper services
+ */
 require(__dirname+"/routes/services/birthday.js")(settings);
+require(__dirname+"/routes/services/news.js")(settings);
+
 require(__dirname+"/routes/register/register.js")(settings);
 require(__dirname+"/routes/dashboard/init.js")(settings);
 require(__dirname+"/routes/search/search.js")(settings);

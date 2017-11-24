@@ -71,3 +71,14 @@ Create table AccessMaster (
 	Role enum('admin', 'read', 'write'),
 	Status enum('active', 'inactive')
 )
+
+Create table AlumniGroupMapping (
+	Id Bigint unsigned Primary Key auto_increment,
+	CompanyId Bigint unsigned not null,
+	AlumnusId Bigint unsigned Not null,
+	Status enum('active', 'inactive'),
+	`Group` char(50) not null
+)
+Alter table TaskMaster add Column CorrectRowCount tinyint unsigned
+Alter table TaskMaster add Column IncorrectRowCount tinyint unsigned
+ALTER TABLE `AlumniGroupMapping` ADD INDEX `group_name` (`Group`)

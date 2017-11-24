@@ -31,54 +31,50 @@ module.exports = function(settings){
 	function validate(req, res, next){
 		if(!(state == "subscribe" || state =="unsubscribe"))
 			return settings.unprocessableEntity(res);
-		if(! (req.body.id  && req.body.templateID ))
+		if(! (req.body.id  && req.body.templateID && req.body.id.split(',').length<1))
 			return settings.unprocessableEntity(res);
 		return next()
 	}
 
-	app.post('/company/:companyID/service/:serviceID/:state', function(req, res){
+	app.post('/company/:companyID/service/:serviceID/:state', async function(req, res){
 		var companyID = req.params.companyID,
 			serviceID = req.params.serviceID;
-		var id = req.body.id || null, // [Array of alumnus ids]
-			templateID = req.body.templateID || null; // integer;
-
+		var id = req.body.id,
+			templateID = req.body.templateID;
 		var state = req.params.state;
-		
-
 		var timestamp = Date.now();
-
-		
-
 		try {
-			var temp = id.split(',');
-		}
-		catch(e){
-			cprint(e);
-			return settings.unprocessableEntity(res)
-		}
-
-		idArray = id.split(',');
-		var queryArray = [];
-		idArray.forEach(function(anItem){
-			var temp = [
-				anItem,
-				templateID,
-				(state =="subscribe")? 'active' : 'inactive',
-				timestamp
-			];
-			queryArray.push(temp);
-		})
-		subscribe(queryArray)
-		.then(function(rows){
+			idArray = id.split(',');
+			var queryArray = [];
+			idArray.forEach(function(anItem){
+				queryArray.push([
+						anItem,
+						serviceID,
+						'active'
+					]);
+			})
+			// pending population logic
+			// idArray.forEach(function(anItem){
+			// 	var temp = [
+			// 		anItem,
+			// 		templateID,
+			// 		(state =="subscribe")? 'active' : 'inactive',
+			// 		timestamp
+			// 	];
+			// 	queryArray.push(temp);
+			// })
+			await subscribe(queryArray)
 			res.json({
 				status: "success"
 			});
-			populateQ(queryArray);
-		})
-		.catch(function(err){
+			// if(serviceID ==1)
+			// 	populateQ(queryArray);
+			return
+		}
+		catch(err){
 			cprint(err,1);
 			return settings.serviceError(res);
-		})
+		}
 	})
 
 	function populateQ(anArray){
@@ -113,6 +109,13 @@ module.exports = function(settings){
 	}
 
 	function subscribe(queryArray){
+		var query = "Insert into ServiceSubscription (AlumnusId, ServiceId, Status) values ?";
+		return settings.dbConnection().then(function(connection){
+			return settings.dbCall(connection, query, queryArray);
+		})
+	}
+
+	function subscribeBirthday(queryArray){
 		var query = "Insert into ServiceBirthdaySubscription ( AlumnusId, TemplateId, Status, UpdatedAt ) values ? on duplicate key update TemplateId = values(TemplateId), Status = values(Status), UpdatedAt = values(UpdatedAt)";
 		var queryArray = [ queryArray];
 		return settings.dbConnection().then(function(connection){

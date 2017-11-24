@@ -1,21 +1,21 @@
 var aws = require('aws-sdk');
-var config = require('../../configuration.json')["q"]["birthday"];
+var config = require('../../configuration.json')["q"]["news"];
 
 aws.config.update({
 	accessKeyId: config["accessKey"],
     secretAccessKey: config["secretKey"],
-    region: "ap-south-1"
+    region: config["region"]
 })
 
 var sqs = new aws.SQS();
 
 var qURL =config["url"]
 
-var accountNumber = "103293947098";
-var params = {
-  QueueName: 'test', /* required */
-  QueueOwnerAWSAccountId: accountNumber
-};
+// var accountNumber = "103293947098";
+// var params = {
+//   QueueName: 'test',  required 
+//   QueueOwnerAWSAccountId: accountNumber
+// };
 
 // Sample message object
 // {
@@ -35,6 +35,7 @@ function sendMessage(message){
 	var params = {
         MessageBody: JSON.stringify(message),
         QueueUrl: qURL,
+        MessageGroupId: "1",
         DelaySeconds: 0
     };
     sqs.sendMessage(params, function(err, data){
@@ -43,7 +44,6 @@ function sendMessage(message){
     	console.log(data)
     })
 }	
-// sendMessage();
 
 function receiveMessage(){
 	var params = {

@@ -16,7 +16,7 @@ module.exports = function(settings){
 			var birthdayRows = dataArray[1];
 
 			var total = alumniRows[0]["totalCount"];
-			var birthdayCount = birthdayRows[0]["birthdayRows"];
+			var birthdayCount = birthdayRows[0]["birthdayCount"];
 			var data = [];
 			data.push({
 				id: "total",
@@ -51,5 +51,8 @@ module.exports = function(settings){
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
 		});				
+	}
+	function getNewsCount(){
+			x
 	}
 }

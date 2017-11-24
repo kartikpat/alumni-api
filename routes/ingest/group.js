@@ -7,7 +7,8 @@ module.exports = function(settings){
 
 	function validate(req, res, next){
 		var name = req.body.name || null;
-		if(!(name && alumni && alumni.split(',').length<1))
+		var alumni = req.body.alumni || null;
+		if(!(name && alumni && alumni.split(',').length>0))
 			return settings.unprocessableEntity(res);
 		return next();
 	}
