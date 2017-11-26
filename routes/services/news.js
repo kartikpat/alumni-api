@@ -41,7 +41,7 @@ module.exports = function(settings){
 				}
 			});
 			if(batchArray.length >0)
-				populateQ("end", companyID, newsID, batchArray, timestamp);
+				populateQ("send", companyID, newsID, batchArray, timestamp);
 			return
 		}
 		catch(err){

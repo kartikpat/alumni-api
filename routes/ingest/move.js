@@ -20,7 +20,7 @@ module.exports = function(settings){
 		var alumni = req.body.alumni;
 		var companyID = req.params.companyID;
 		try{
-			await unMapGroup(alumni, companyID, groupName);
+			await unMapGroup(alumniArray, companyID, groupName);
 			var queryArray = [];
 			alumniArray.forEach(function(anID){
 				queryArray.push([ anID, toGroupName, companyID, 'active']);
