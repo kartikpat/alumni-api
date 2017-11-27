@@ -43,7 +43,7 @@ module.exports = function(settings){
 	});
 
 	function searchAlumni(companyID, searchString){
-		var query = "Select FirstName, MiddleName, LastName, Phone, Email, CompanyEmail, DateOfLeaving, DateOfJoining, dsg.Name as Designation , dm.Name as Department from AlumnusMaster am inner join DepartmentMaster dm on am.DepartmentId = dm.DepartmentId inner join DesignationMaster dsg on dsg.DesignationId = am.DesignationId where (am.FirstName like ? or am.MiddleName like ? or am.LastName like ? or am.Phone like ? or am.Email like ? or am.CompanyEmail like ? or dm.Name like ? or dsg.Name like ?) and am.CompanyId = ?"
+		var query = "Select FirstName, MiddleName, LastName, Phone, Email, CompanyEmail, DateOfLeaving, DateOfJoining, dsg.Name as Designation , dm.Name as Department, am.AlumnusId from AlumnusMaster am inner join DepartmentMaster dm on am.DepartmentId = dm.DepartmentId inner join DesignationMaster dsg on dsg.DesignationId = am.DesignationId where (am.FirstName like ? or am.MiddleName like ? or am.LastName like ? or am.Phone like ? or am.Email like ? or am.CompanyEmail like ? or dm.Name like ? or dsg.Name like ?) and am.CompanyId = ?"
 		var queryArray =["%"+searchString+"%", "%"+searchString+"%", "%"+searchString+"%", "%"+searchString+"%", "%"+searchString+"%", "%"+searchString+"%","%"+searchString+"%", "%"+searchString+"%", companyID];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray)
