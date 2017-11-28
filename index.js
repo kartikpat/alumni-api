@@ -136,6 +136,12 @@ require(__dirname+"/routes/image-load/image-load.js")(settings);
 require(__dirname+"/routes/services/birthday.js")(settings);
 require(__dirname+"/routes/services/news.js")(settings);
 
+/**
+ * Staging apis
+ */
+require(__dirname+"/routes/staging/disable.js")(settings);
+
+
 require(__dirname+"/routes/register/register.js")(settings);
 require(__dirname+"/routes/dashboard/init.js")(settings);
 require(__dirname+"/routes/search/search.js")(settings);

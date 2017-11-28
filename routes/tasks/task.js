@@ -47,8 +47,8 @@
 	});
 
 	function fetchTask(taskID, userID){
-		var query = "Select sam.EntryId, sam.FirstName, sam.MiddleName, sam.LastName, sam.Email, sam.CompanyEmail, sam.Phone, sam.Dob, sam.DateOfLeaving, sam.DateOfJoining, sam.Department, sam.Designation, sam.LinkedinURL, sam.Code, sam.SalaryLPA, sam.Sex, sam.Message from StagingAlumnusMaster sam inner join TaskMaster tm on tm.Id = sam.TaskId where tm.Id = ? and tm.UserId = ? and sam.message is not null";
-		var queryArray = [ taskID, userID ];
+		var query = "Select sam.EntryId, sam.FirstName, sam.MiddleName, sam.LastName, sam.Email, sam.CompanyEmail, sam.Phone, sam.Dob, sam.DateOfLeaving, sam.DateOfJoining, sam.Department, sam.Designation, sam.LinkedinURL, sam.Code, sam.SalaryLPA, sam.Sex, sam.Message from StagingAlumnusMaster sam inner join TaskMaster tm on tm.Id = sam.TaskId where tm.Id = ? and tm.UserId = ? and sam.message is not null and sam.message !=? ";
+		var queryArray = [ taskID, userID , 'discarded'];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
 		})

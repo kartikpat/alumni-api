@@ -115,7 +115,7 @@ module.exports = function(settings){
 			professionArray = req.body.professionArray || null;
 
 		try{
-			const prepareAlumni = await Promise.all([ addDepartment(department, companyID), addDesignation(designation, companyID) ]);
+			const prepareAlumni = await Promise.all([ addDepartment(department, companyID), addDesignation(designation, companyID)]);
 			const departmentID = prepareAlumni[0].insertId;
 			const designationID = prepareAlumni[1].insertId;
 			
@@ -145,7 +145,7 @@ module.exports = function(settings){
 					await addProfessionalDetails(alumnusID, designationID, organisationID, fromTimestamp, toTimestamp, companyID);
 				}
 			}
-
+			await mapAlumniGroup(alumnusID, department, companyID)
 			return res.json({
 				status : 'success',
 				message: 'record inserted successfully'
@@ -159,6 +159,14 @@ module.exports = function(settings){
 		}
 
 	});
+
+	function mapAlumniGroup(alumnusID, group, companyID){
+		var query = "Insert into AlumniGroupMapping (AlumnusId, `Group`, CompanyId, Status) values(?, ?, ?, ?)";
+		var queryArray = [alumnusID, group, companyID, "active"]
+		return settings.dbConnection().then(function(connection){
+			return settings.dbCall(connection, query, queryArray);
+		})
+	}
 
 	function addDepartment(departmentName, companyID){
 		var query = 'Insert into DepartmentMaster (Name, CompanyId) values (? , ?) On Duplicate key Update DepartmentId=LAST_INSERT_ID(DepartmentId), Name = ?, CompanyId = ?';
