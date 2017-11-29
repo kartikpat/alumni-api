@@ -28,10 +28,14 @@ module.exports = function(settings){
 			data.email = alumniRows[0]['Email'],
 			data.education = [];
 			data.profession = [];
+			data.services = [];
 
-			var otherDetails = await  Promise.all([ fetchEducation(companyID, alumnusID), fetchProfession(companyID, alumnusID) ]);
+			var otherDetails = await  Promise.all([ fetchEducation(companyID, alumnusID), fetchProfession(companyID, alumnusID), fetchSubscriptions(alumnusID) ]);
+			cprint(otherDetails)
 			var educationRows = otherDetails[0];
 			var professionRows = otherDetails[1];
+			var subscriptionRows = otherDetails[2]
+			cprint(subscriptionRows)
 
 			educationRows.forEach(function(aRow){
 				data.education.push({
@@ -50,6 +54,14 @@ module.exports = function(settings){
 					to: aRow["ToTimestamp"]
 				})
 			})
+
+			subscriptionRows.forEach(function(aSubscription){	
+				data.services.push({
+					id: aSubscription['Id'],
+					name: aSubscription['Name']
+				})
+			});
+
 			return res.json({
 				status: "success",
 				data: data
@@ -61,6 +73,14 @@ module.exports = function(settings){
 		}
 
 	});
+
+	function fetchSubscriptions(alumnusID){
+		var query = "Select sm.Name, sm.Id, ss.AlumnusId from ServiceSubscription ss inner join ServicesMaster sm on ss.ServiceId = sm.Id where AlumnusId =? and ss.Status = ? and sm.Status = ?"
+		var queryArray = [alumnusID, 'active', 'active'];
+		return settings.dbConnection().then(function(connection){
+			return settings.dbCall(connection, query, queryArray);
+		})
+	}
 
 	function fetchAlumni(companyID, userID){
 		var query = "Select AlumnusId,FirstName, MiddleName, LastName, DateOfBirth, dsg.Name as Designation, dep.Name as Department, DateOfLeaving, DateOfJoining, Phone, Email from AlumnusMaster am inner join DepartmentMaster dep on am.DepartmentId=dep.DepartmentId inner join DesignationMaster dsg on dsg.DesignationId = am.DesignationId where am.CompanyId = ?  and AlumnusId = ?  "
