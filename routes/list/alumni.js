@@ -11,7 +11,7 @@ module.exports = function(settings){
 		return next();
 	}
 
-	app.get("/company/:companyID/list", validate, function(req, res){
+	app.get("/company/:companyID/list", validate, async function(req, res){
 		var companyID = req.params.companyID;
 
 		var pageNumber = req.query.pageNumber || 1,
@@ -19,11 +19,13 @@ module.exports = function(settings){
 			by = req.query.by || null,
 			value = req.query.value || null;
 
-		fetchAlumni(companyID, pageNumber, pageContent, by, value)
-		.then(function(rows){
-			var data = [];
+		try{
+			var rows = await fetchAlumni(companyID, pageNumber, pageContent, by, value);
+			var data = {};
+			var alumniArray = [];
 			rows.forEach(function(anItem){
-				data.push({
+				alumniArray.push(anItem["AlumnusId"])
+				data[anItem["AlumnusId"]] = {
 					id: anItem["AlumnusId"],
 					firstName: anItem["FirstName"],
 					middleName: anItem["MiddleName"],
@@ -33,20 +35,43 @@ module.exports = function(settings){
 					dol: anItem["DateOfLeaving"],
 					designation: anItem["Designation"],
 					department: anItem["Department"],
-					group: anItem["Group"]
-				})
-			})
-
-			return res.json({
-				data: data,
-				status: "success"
+					group: anItem["Group"],
+					services: []
+				}
 			});
-		})
-		.catch(function(err){
+			var subscriptionRows = await fetchSubscriptions(alumniArray);
+			subscriptionRows.forEach(function(aSubscription){
+				if(data[aSubscription['AlumnusId']]){
+					data[aSubscription['AlumnusId']]['services'].push({
+						id: aSubscription['Id'],
+						name: aSubscription['Name']
+					})
+				}
+			});
+
+			var resData = [];
+			for(var alumnus in data){
+				resData.push(data[alumnus]);
+			}
+			return res.json({
+				status: 'success',
+				data: resData
+			});
+		}
+		catch(err){
 			cprint(err,1);
 			return settings.serviceError(res);
-		})
+		}
+
 	})
+
+	function fetchSubscriptions(alumniArray){
+		var query = "Select sm.Name, sm.Id, ss.AlumnusId from ServiceSubscription ss inner join ServicesMaster sm on ss.ServiceId = sm.Id where AlumnusId in (?) and ss.Status = ? and sm.Status = ?"
+		var queryArray = [alumniArray, 'active', 'active'];
+		return settings.dbConnection().then(function(connection){
+			return settings.dbCall(connection, query, queryArray);
+		})
+	}
 
 	function fetchAlumni(companyID, pageNumber=1,pageContent=10, condition =null, conditionValue = null){
 		var offset = (pageNumber-1)*pageContent;

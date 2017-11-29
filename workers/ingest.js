@@ -1,4 +1,5 @@
 var moment = require('moment');
+var serviceArray = [];
 function checkDate(aString){
 	var d = moment(aString, 'DD/MM/YYYY');
 	if(!d.isValid())
@@ -39,8 +40,14 @@ module.exports = function(settings){
 			throw new Error(errMessage);
 	}
 
-	 function sanitize(taskID, userID){
-	 	return fetchRecords(taskID, userID)
+	function sanitize(taskID, userID){
+	 	fetchServices(userID)
+	 	.then(function(rows){
+	 		rows.forEach(function(aService){
+	 			serviceArray.push(aService['ServiceId'])
+	 		});
+	 		return fetchRecords(taskID, userID)
+	 	})
 		.then( sanitizeEachRecord )
 		.catch(function(err){
 			cprint(err,1);
@@ -127,7 +134,21 @@ module.exports = function(settings){
 		})
 		.then(function(rows){
 			var alumnusID = rows.insertId;
+			props.alumnusID = alumnusID;
 			return mapAlumniGroup(alumnusID, props.department, props.companyID)
+		})
+		.then(function(rows){
+			var subscriptionArray = [];
+			if(serviceArray.length <1)
+				return Promise.resolve('1');
+			serviceArray.forEach(function(aService){
+				subscriptionArray.push([
+					aService, 
+					props.alumnusID, 
+					'active'
+					])
+			})
+			return subscribe(subscriptionArray);
 		})
 		.then(function(qOb){
 			return	updateStaging(entryID)
@@ -140,6 +161,23 @@ module.exports = function(settings){
 				message = "Invalid format for "+message;
 			}
 			return updateError(entryID, err.message);
+		})
+	}
+
+	function fetchServices(){
+		//var query = 'Select ServiceId from ServicesAccess sa inner join ServicesMaster sm on sa.ServiceId = sm.Id inner join CompanyAccess ca on ca.CompanyId = sa.CompanyId inner join CompanyMaster cm on ca.CompanyId = cm.Id where ca.Id = ? and sa.Status = ? and ca.Status = ? and cm.Status = ? ';
+		//var queryArray = [userID , 'active', 'active', 'active'];
+		var query = 'Select Id as ServiceId from ServicesMaster where Status = ?'
+		var queryArray = ['active'];
+		return settings.dbConnection().then(function(connection){
+			return settings.dbCall(connection, query, queryArray);
+		})
+	}
+
+	function subscribe(subscriptionArray){
+		var query = 'Insert into ServiceSubscription ( ServiceId, AlumnusId, Status) values ?';
+		return settings.dbConnection().then(function(connection){
+			return settings.dbCall(connection, query, [subscriptionArray]);
 		})
 	}
 
@@ -243,7 +281,6 @@ module.exports = function(settings){
 			return settings.dbCall(connecting, query, queryArray);
 		})
 	};
-
 
 	function addDepartment(departmentName, companyID){
 		var query = 'Insert into DepartmentMaster (Name, CompanyId) values (? , ?) On Duplicate key Update DepartmentId=LAST_INSERT_ID(DepartmentId), Name = ?, CompanyId = ?';
