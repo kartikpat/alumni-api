@@ -30,7 +30,7 @@ module.exports = function(settings){
 				if(anItem['Image']){
 					var image = anItem['Image'].split('-');
 					image = [image[0], image[1], image[2]].join('/')
-					profileImage = getSignedUrl.getObjectSignedUrl(config["aws"]["s3"]["bucket"],image+'/'+anItem['Image'], 120)
+					profileImage = getSignedUrl.getObjectSignedUrl(config["aws"]["s3"]["bucket"],'/profileImages/'+image+'/'+anItem['Image'], 120)
 				}
 				data[anItem["AlumnusId"]] = {
 					id: anItem["AlumnusId"],
