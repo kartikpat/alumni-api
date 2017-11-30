@@ -25,7 +25,7 @@ module.exports = function(settings){
 				if(aRow['Image']){
 					var image = aRow['Image'].split('-');
 					image = [image[0], image[1], image[2]].join('/')
-					profileImage = getSignedUrl.getObjectSignedUrl(config["aws"]["s3"]["bucket"],image+'/'+aRow['Image'], 120)
+					profileImage = getSignedUrl.getObjectSignedUrl(config["aws"]["s3"]["bucket"],'profileImages/'+image+'/'+aRow['Image'], 120)
 				}
 				data['alumni'].push({
 					id: aRow["AlumnusId"],
