@@ -12,8 +12,6 @@ function checkDate(aString){
 module.exports = function(settings){
 	var cprint = settings.cprint;
 
-	var taskID ="96f7bf4627d94bd4a49c13be26d9eb66";
-	var companyID = 1;
 
 	function sanitize(taskID, companyID){
 		fetchRecords(taskID, companyID)
@@ -124,5 +122,5 @@ module.exports = function(settings){
 			return settings.dbCall(connecting, query, queryArray);
 		})
 	}
-	//sanitize(taskID, companyID)
+	settings.sanitizeProfession = sanitize;
 }

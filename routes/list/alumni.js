@@ -1,3 +1,4 @@
+var getSignedUrl = require('../../lib/get-signed-url.js')
 module.exports = function(settings){
 	var app = settings.app;
 	var mode = settings.mode;
@@ -25,6 +26,12 @@ module.exports = function(settings){
 			var alumniArray = [];
 			rows.forEach(function(anItem){
 				alumniArray.push(anItem["AlumnusId"])
+				var profileImage = null;
+				if(anItem['Image']){
+					var image = anItem['Image'].split('-');
+					image = [image[0], image[1], image[2]].join('/')
+					profileImage = getSignedUrl.getObjectSignedUrl(config["aws"]["s3"]["bucket"],image+'/'+anItem['Image'], 120)
+				}
 				data[anItem["AlumnusId"]] = {
 					id: anItem["AlumnusId"],
 					firstName: anItem["FirstName"],
@@ -36,6 +43,7 @@ module.exports = function(settings){
 					designation: anItem["Designation"],
 					department: anItem["Department"],
 					group: anItem["Group"],
+					image: profileImage,
 					services: []
 				}
 			});
@@ -76,7 +84,7 @@ module.exports = function(settings){
 	function fetchAlumni(companyID, pageNumber=1,pageContent=10, condition =null, conditionValue = null){
 		var offset = (pageNumber-1)*pageContent;
 		pageContent = parseInt(pageContent)
-		var query = "Select AlumnusId,FirstName, MiddleName, LastName, DateOfBirth, dsg.Name as Designation, dep.Name as Department, DateOfLeaving, DateOfJoining from AlumnusMaster am inner join DepartmentMaster dep on am.DepartmentId=dep.DepartmentId inner join DesignationMaster dsg on dsg.DesignationId = am.DesignationId where am.companyId = ? ";
+		var query = "Select AlumnusId,FirstName, MiddleName, LastName, DateOfBirth, dsg.Name as Designation, dep.Name as Department, DateOfLeaving, DateOfJoining, Image from AlumnusMaster am inner join DepartmentMaster dep on am.DepartmentId=dep.DepartmentId inner join DesignationMaster dsg on dsg.DesignationId = am.DesignationId where am.companyId = ? ";
 		var queryArray = [companyID];
 		if(condition ){
 			switch(condition){
@@ -89,7 +97,7 @@ module.exports = function(settings){
 					queryArray.push(conditionValue);
 					break;
 				case "group":
-					query = "Select am.AlumnusId,FirstName, MiddleName, LastName, DateOfBirth, dsg.Name as Designation, dep.Name as Department, DateOfLeaving, DateOfJoining, agm.Group from AlumnusMaster am inner join DepartmentMaster dep on am.DepartmentId=dep.DepartmentId inner join DesignationMaster dsg on dsg.DesignationId = am.DesignationId inner join AlumniGroupMapping agm on am.AlumnusId = agm.AlumnusId where am.companyId = ? and `Group` = ? and agm.Status = 'active'";
+					query = "Select am.AlumnusId,FirstName, MiddleName, LastName, DateOfBirth, dsg.Name as Designation, dep.Name as Department, DateOfLeaving, DateOfJoining, agm.Group, Image from AlumnusMaster am inner join DepartmentMaster dep on am.DepartmentId=dep.DepartmentId inner join DesignationMaster dsg on dsg.DesignationId = am.DesignationId inner join AlumniGroupMapping agm on am.AlumnusId = agm.AlumnusId where am.companyId = ? and `Group` = ? and agm.Status = 'active'";
 					queryArray.push(conditionValue);
 					break;
 			}

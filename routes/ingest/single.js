@@ -1,4 +1,5 @@
 var moment = require('moment');
+var uploader = require('../../lib/upload.js');
 function checkDate(aString){
 	var d = moment(aString, 'DD-MM-YYYY');
 	if(!d.isValid())
@@ -18,6 +19,17 @@ function myError(err, data){
 	i.data = data;
 	return i;
 }
+const Multer = require('multer');
+const multer = Multer({
+  storage: Multer.memoryStorage(),
+  // limits: {
+  //   fileSize: 5 * 1024 * 1024 // no larger than 5mb
+  // },
+  onError : function(err, next) {
+      console.log('error', err);
+      next(err);
+    }
+});
 
 module.exports = function(settings){
 	var app = settings.app;
@@ -47,6 +59,8 @@ module.exports = function(settings){
 
 		var educationArray = req.body.educationArray || null,
 			professionArray = req.body.professionArray || null;
+
+		var	imageBase64 =req.body.imageBase64 || null;
 
 		if(!( firstName && email && designation && department && doj && companyEmail ))
 			return settings.unprocessableEntity(res);
@@ -84,7 +98,7 @@ module.exports = function(settings){
 		return next()
 	}
 
-	app.post("/company/:companyID/alumni", validate, async function(req, res){
+	app.post("/company/:companyID/alumni", multer.single('image'),validate, async function(req, res){
 		var companyID = req.params.companyID;
 		
 		var firstName = req.body.firstName || null,
@@ -115,11 +129,23 @@ module.exports = function(settings){
 			professionArray = req.body.professionArray || null;
 
 		try{
-			const prepareAlumni = await Promise.all([ addDepartment(department, companyID), addDesignation(designation, companyID)]);
+			var fileStream = null;
+			var imageBase64 = req.body.imageBase64 || null;
+			if(imageBase64){
+			imageBase64 = imageBase64.replace(/^data:image\/png;base64,/, "");
+			fileStream = new Buffer(imageBase64, 'base64') // to be used when loading through disk
+			}
+			else if(req.file)
+				fileStream = req.file.buffer;
+			var t = moment();
+			var storagePath = config["aws"]["s3"]["bucket"] +"/profileImages/"+t.format('YYYY/MM/DD')
+			var fileName = t.format('YYYY-MM-DD-HH-MM-SS-x')+'.jpg';
+			const prepareAlumni = await Promise.all([ addDepartment(department, companyID), addDesignation(designation, companyID), uploadFile(fileName, fileStream,storagePath)]);
 			const departmentID = prepareAlumni[0].insertId;
 			const designationID = prepareAlumni[1].insertId;
+			const imageName = (prepareAlumni[2]===1) ? null: prepareAlumni[2];
 			
-			const insertAlumni = await addAlumni(firstName, middleName, lastName, email, phone, companyEmail, dob, dateOfBirth, doj, dol, departmentID, designationID, linkedInURL, code, salary, companyID, sex);
+			const insertAlumni = await addAlumni(firstName, middleName, lastName, email, phone, companyEmail, dob, dateOfBirth, doj, dol, departmentID, designationID, linkedInURL, code, salary, companyID, sex, imageName);
 			const alumnusID = insertAlumni.insertId;
 
 			if(educationArray){
@@ -160,6 +186,20 @@ module.exports = function(settings){
 
 	});
 
+
+	function uploadFile(fileName, fileStream, storagePath){
+		return new Promise(function(resolve, reject){
+				if(!fileStream)
+					return resolve(1);
+				uploader.upload(fileName, fileStream, storagePath, 'public-read', function(err, data){
+					if(err){
+						reject(err)
+					}
+					resolve(fileName)
+				})
+			})
+	}
+
 	function mapAlumniGroup(alumnusID, group, companyID){
 		var query = "Insert into AlumniGroupMapping (AlumnusId, `Group`, CompanyId, Status) values(?, ?, ?, ?)";
 		var queryArray = [alumnusID, group, companyID, "active"]
@@ -184,9 +224,9 @@ module.exports = function(settings){
 		})	
 	}
 
-	function addAlumni(firstName , middleName , lastName , email , phone, companyEmail , dob , dateOfBirth, doj , dol , departmentID , designationID , linkedInUrl , code , salaryLPA , companyID , sex){
-		var query = "Insert into AlumnusMaster (FirstName, MiddleName, LastName, Email, Phone, CompanyEmail, Dob, DateOfBirth, DateOfJoining, DateOfLeaving, DepartmentId, DesignationId, LinkedinURL, Code, SalaryLPA, CompanyId, Sex ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )";
-		var queryArray = [firstName , middleName , lastName , email , phone, companyEmail , dob , dateOfBirth, doj , dol , departmentID , designationID , linkedInUrl , code , salaryLPA , companyID , sex];
+	function addAlumni(firstName , middleName , lastName , email , phone, companyEmail , dob , dateOfBirth, doj , dol , departmentID , designationID , linkedInUrl , code , salaryLPA , companyID , sex, imageName){
+		var query = "Insert into AlumnusMaster (FirstName, MiddleName, LastName, Email, Phone, CompanyEmail, Dob, DateOfBirth, DateOfJoining, DateOfLeaving, DepartmentId, DesignationId, LinkedinURL, Code, SalaryLPA, CompanyId, Sex, Image ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,  ?)";
+		var queryArray = [firstName , middleName , lastName , email , phone, companyEmail , dob , dateOfBirth, doj , dol , departmentID , designationID , linkedInUrl , code , salaryLPA , companyID , sex, imageName];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
 		})

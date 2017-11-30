@@ -20,6 +20,7 @@ module.exports = function(settings){
 			var data = {
 				name :rows[0]['Name'],
 				email : rows[0]['Email'],
+				companyName: rows[0]['CompanyName'],
 				access : rows[0]['AccessLevel'],
 				logo: logo
 			} 
@@ -36,7 +37,7 @@ module.exports = function(settings){
 	});
 
 	function fetchUser(companyID, userID){
-		var query = "Select ca.Name, ca.Email, ca.AccessLevel, cm.Logo from CompanyAccess ca inner join  CompanyMaster cm on ca.CompanyId = cm.Id where cm.Id = ? and ca.Id = ? and cm.Status = ? and ca.Status = ?" ;
+		var query = "Select ca.Name, ca.Email, ca.AccessLevel, cm.Logo, cm.Name as CompanyName from CompanyAccess ca inner join  CompanyMaster cm on ca.CompanyId = cm.Id where cm.Id = ? and ca.Id = ? and cm.Status = ? and ca.Status = ?" ;
 		var queryArray = [ companyID, userID, 'active', 'active'  ];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);

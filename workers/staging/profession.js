@@ -39,6 +39,20 @@ module.exports = function(settings){
 		})
 	}
 
+	function initiateProfessionStaging(someUserID, someTaskID,someCompanyID, fileStream){
+		userID = someUserID;
+		taskID = someTaskID;
+		companyID = someCompanyID
+		return new Promise(function(resolve, reject){
+			csvToJSON(fileStream, stepExecute, function(data){
+				return resolve(data)
+			})
+		})
+
+	}
+
+	settings.initiateProfessionStaging = initiateProfessionStaging;
+
 	//csvToJSON(fileStream, stepExecute)
 
 }

@@ -1,6 +1,5 @@
 var fs = require("fs")
 var uuidV4 = require("uuid/v4");
-//var fileStream = fs.createReadStream('./test/generate/employee.csv', 'utf8');
 var csvToJSON = require("../../adapters/csv-to-json").csvToJSON;
 var taskID = null;
 var userID = null;
@@ -28,6 +27,7 @@ module.exports = function(settings){
 		var userArray = [];
 		parser.pause();
 		rows.data.forEach(function(aRow){
+			console.log(aRow)
 			var tempArray = [
 				taskID,
 				aRow['firstName'],
@@ -101,15 +101,19 @@ module.exports = function(settings){
 			companyID = rows[0]['CompanyId'];
 			var filePath = rows[0]['FilePath'];
 			var fileStream = fs.createReadStream(settings.diskStorage+'/'+ filePath, 'utf8');
+			// Staging Alumni details
 			await new Promise(function(resolve, reject){
 				csvToJSON(fileStream, stepExecute, function(data){
 					return resolve(data)
 				})
 			})
 			fileStream = fs.createReadStream(settings.diskStorage+'/'+ filePath, 'utf8');
-			await settings.initiateEducationStaging(userID, taskID, companyID, fileStream)
+			// Staging education details
+			await settings.initiateEducationStaging(userID, taskID, companyID, fileStream);
+			await settings.initiateProfessionStaging(userID, taskID, companyID, fileStream);
 			await settings.sanitize(taskID, userID);
-			await settings.sanitizeEducation(taskID, userID)
+			await settings.sanitizeEducation(taskID, userID);
+			await settings.sanitizeProfession(task, userID);
 			var processedRows = await fetchTaskRows(taskID);
 			var correctRows = 0;
 			var incorrectRows = 0;
