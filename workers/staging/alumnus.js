@@ -110,6 +110,7 @@ module.exports = function(settings){
 			fileStream = fs.createReadStream(settings.diskStorage+'/'+ filePath, 'utf8');
 			// Staging education details
 			await settings.initiateEducationStaging(userID, taskID, companyID, fileStream);
+			fileStream = fs.createReadStream(settings.diskStorage+'/'+ filePath, 'utf8');
 			await settings.initiateProfessionStaging(userID, taskID, companyID, fileStream);
 			await settings.sanitize(taskID, userID);
 			await settings.sanitizeEducation(taskID, userID);
