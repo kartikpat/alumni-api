@@ -113,8 +113,8 @@ module.exports = function(settings){
 			fileStream = fs.createReadStream(settings.diskStorage+'/'+ filePath, 'utf8');
 			await settings.initiateProfessionStaging(userID, taskID, companyID, fileStream);
 			await settings.sanitize(taskID, userID);
-			await settings.sanitizeEducation(taskID, userID);
-			await settings.sanitizeProfession(task, userID);
+			await settings.sanitizeEducation(taskID, userID)
+			await settings.sanitizeProfession(taskID, userID);
 			var processedRows = await fetchTaskRows(taskID);
 			var correctRows = 0;
 			var incorrectRows = 0;

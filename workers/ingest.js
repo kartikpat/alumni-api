@@ -41,7 +41,7 @@ module.exports = function(settings){
 	}
 
 	function sanitize(taskID, userID){
-	 	fetchServices(userID)
+	 	return fetchServices(userID)
 	 	.then(function(rows){
 	 		rows.forEach(function(aService){
 	 			serviceArray.push(aService['ServiceId'])
