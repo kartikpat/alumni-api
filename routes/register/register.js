@@ -47,6 +47,29 @@ module.exports = function(settings){
 			cprint(err,1);
 			return settings.serviceError(res);
 		})
+	});
+
+	function addSubscription(){
+
+	}
+
+	app.post('/company/:companyID/services', async function(req, res){
+		var companyID = req.params.companyID;
+		var serviceArray = req.body.serviceArray || null;
+		if(!serviceArray)
+			return settings.unprocessableEntity(res);
+		try{
+			var subscriptionArray = []
+			serviceArray = serviceArray.split(',');
+			serviceArray.forEach(function(aService){
+			})
+			
+			var rows = await addSubscription()
+		}
+		catch(err){
+			cprint(err,1)
+			return settings.serviceError(res);
+		}
 	})
 
 	app.post("/company/add", multer.single('logo'), function(req, res){
@@ -56,7 +79,6 @@ module.exports = function(settings){
 			email = req.body.email || null,
 			wUrl = req.body.wUrl || null,
 			organisation = req.body.organisation || null;
-		console.log(logoBase64)
 		if(!(name && email && wUrl &&  organisation && (req.file|| logoBase64))){
 			return settings.unprocessableEntity(res);
 		}
@@ -67,7 +89,6 @@ module.exports = function(settings){
 		}
 		else
 			fileStream = req.file.buffer;
-		console.log(fileStream);
 		var t = moment();
 		var storagePath = config["aws"]["s3"]["bucket"] +"/"+t.format('YYYY/MM/DD')
 		var fileName = t.format('YYYY-MM-DD-HH-MM-SS-x')+'.jpg';
@@ -109,6 +130,36 @@ module.exports = function(settings){
 				return settings.serviceError(res);
 			})
 		})
+	})
+
+	app.post("/forgot", async function(req, res){
+		var email = req.body.email || null;
+		if(!email)
+			return settings.unprocessableEntity(res);
+		try{
+			var userRows = await fetchUser(email);
+			if(userRows.length <1)
+				return settings.notFound(res);
+			var password = userRows[0]['Password'];
+			var link = config["app"]["web"]["domain"]+"/verify?e="+email+"&k="+password; 
+			if(email.indexOf('@iimjobs.com') >-1){
+				var ob = {};
+				ob[email] = {
+					link: link,
+					email:email
+				}
+				var sendingMail = await settings.sendMail("Forgot password?", template, email, ob)
+				cprint(sendingMail)
+				return res.json({
+					status: 'success'
+				});
+			}
+		}
+		catch(err){
+			cprint(err,1);
+			return settings.serviceError(res);
+		}
+
 	})
 
 	app.post('/reset-password', function(req, res){
@@ -203,18 +254,13 @@ module.exports = function(settings){
 			return settings.dbCall(connection, query, queryArray);
 		})
 	}
-	
-	// return settings.sendMail("Welcome", template, "saurabh.nanda@iimjobs.com", {
-	// 	"saurabh.nanda@iimjobs.com":{
-	// 	link: "test",
-	// 	email:"saurabh.nanda@iimjobs.com"
-	// 	}
-	// }).then(function(rows){
-	// 	cprint(rows)
-	// })
-	// .catch(function(err){
-	// 	return cprint(err,1)
-	// })
 
+	function fetchUser(email){
+		var query = 'Select Email, Password from CompanyAccess where Email = ?';
+		var queryArray = [email];
+		return settings.dbConnection().then(function(connection){
+			return settings.dbCall(connection, query, queryArray);
+		})
+	}
 	
 }
