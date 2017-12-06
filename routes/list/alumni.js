@@ -47,7 +47,9 @@ module.exports = function(settings){
 					services: []
 				}
 			});
-			var subscriptionRows = await fetchSubscriptions(alumniArray);
+			var subscriptionRows = [];
+			if(alumniArray.length >0)
+				subscriptionRows = await fetchSubscriptions(alumniArray);
 			subscriptionRows.forEach(function(aSubscription){
 				if(data[aSubscription['AlumnusId']]){
 					data[aSubscription['AlumnusId']]['services'].push({
