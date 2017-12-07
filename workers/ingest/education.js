@@ -13,7 +13,7 @@ module.exports = function(settings){
 	var cprint = settings.cprint;
 
 	function sanitize(taskID, userID){
-		fetchRecords(taskID, userID)
+		return fetchRecords(taskID, userID)
 		.then( sanitizeEachRecord )
 		.catch(function(err){
 			cprint(err,1);

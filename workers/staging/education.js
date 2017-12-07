@@ -24,7 +24,7 @@ module.exports = function(settings){
 					];
 			educationArray.push(tempArray);
 		});
-		addEducation(educationArray)
+		return addEducation(educationArray)
 		.then(function(rows){
 			return parser.resume()
 		})

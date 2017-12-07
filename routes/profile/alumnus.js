@@ -1,4 +1,4 @@
-//var getSignedUrl = require('../../lib/get-signed-url.js')
+var getSignedUrl = require('../../lib/get-signed-url.js')
 module.exports = function(settings){
 	var app = settings.app;
 	var mode = settings.mode;
@@ -26,15 +26,28 @@ module.exports = function(settings){
 			data.doj = alumniRows[0]['DateOfJoining'];
 			data.phone = alumniRows[0]['Phone'],
 			data.email = alumniRows[0]['Email'],
+			data.companyEmail = alumniRows[0]['CompanyEmail'],
 			data.education = [];
 			data.profession = [];
+			data.services = [];
+			var profileImage = null;
+			if(alumniRows[0]['Image']){
+				console.log(alumniRows[0]['Image'])
+				var image = alumniRows[0]['Image'].split('-');
+				console.log(image)
+				image = [image[0], image[1], image[2]].join('/')
+				profileImage = getSignedUrl.getObjectSignedUrl(config["aws"]["s3"]["bucket"],'profileImages/'+image+'/'+alumniRows[0]['Image'], 120)
+				data.image = profileImage;
+			}
 
-			var otherDetails = await  Promise.all([ fetchEducation(companyID, alumnusID), fetchProfession(companyID, alumnusID) ]);
+			var otherDetails = await  Promise.all([ fetchEducation(companyID, alumnusID), fetchProfession(companyID, alumnusID), fetchSubscriptions(alumnusID) ]);
 			var educationRows = otherDetails[0];
 			var professionRows = otherDetails[1];
+			var subscriptionRows = otherDetails[2]
 
 			educationRows.forEach(function(aRow){
 				data.education.push({
+					id: aRow['EntryId'],
 					institute: aRow['Institute'],
 					course: aRow['Course'],
 					from: aRow['BatchFrom'],
@@ -44,12 +57,20 @@ module.exports = function(settings){
 			});
 			professionRows.forEach(function(aRow){
 				data.profession.push({
+					id: aRow['EntryId'],
 					designation: aRow["Designation"],
 					organisation: aRow['Organisation'],
 					from: aRow["FromTimestamp"],
 					to: aRow["ToTimestamp"]
 				})
 			})
+			subscriptionRows.forEach(function(aSubscription){	
+				data.services.push({
+					id: aSubscription['Id'],
+					name: aSubscription['Name']
+				})
+			});
+
 			return res.json({
 				status: "success",
 				data: data
@@ -62,8 +83,16 @@ module.exports = function(settings){
 
 	});
 
+	function fetchSubscriptions(alumnusID){
+		var query = "Select sm.Name, sm.Id, ss.AlumnusId from ServiceSubscription ss inner join ServicesMaster sm on ss.ServiceId = sm.Id where AlumnusId =? and ss.Status = ? and sm.Status = ?"
+		var queryArray = [alumnusID, 'active', 'active'];
+		return settings.dbConnection().then(function(connection){
+			return settings.dbCall(connection, query, queryArray);
+		})
+	}
+
 	function fetchAlumni(companyID, userID){
-		var query = "Select AlumnusId,FirstName, MiddleName, LastName, DateOfBirth, dsg.Name as Designation, dep.Name as Department, DateOfLeaving, DateOfJoining, Phone, Email from AlumnusMaster am inner join DepartmentMaster dep on am.DepartmentId=dep.DepartmentId inner join DesignationMaster dsg on dsg.DesignationId = am.DesignationId where am.CompanyId = ?  and AlumnusId = ?  "
+		var query = "Select AlumnusId,FirstName, MiddleName, LastName, DateOfBirth, dsg.Name as Designation, dep.Name as Department, DateOfLeaving, DateOfJoining, Phone, Email, Image, CompanyEmail from AlumnusMaster am inner join DepartmentMaster dep on am.DepartmentId=dep.DepartmentId inner join DesignationMaster dsg on dsg.DesignationId = am.DesignationId where am.CompanyId = ?  and AlumnusId = ?  "
 		var queryArray = [ companyID, userID, 'active', 'active'  ];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
@@ -71,7 +100,7 @@ module.exports = function(settings){
 	}
 
 	function fetchEducation(companyID, alumnusID){
-		var query = "Select cm.Name as Course, im.Name as Institute, CourseType, BatchFrom, BatchTo from EducationDetails ed inner join CourseMaster cm on ed.CourseId=cm.CourseId inner join InstituteMaster im on ed.InstituteId = im.InstituteId where ed.AlumnusId = ? and ed.CompanyId = ?";
+		var query = "Select ed.EntryId,cm.Name as Course, im.Name as Institute, CourseType, BatchFrom, BatchTo from EducationDetails ed inner join CourseMaster cm on ed.CourseId=cm.CourseId inner join InstituteMaster im on ed.InstituteId = im.InstituteId where ed.AlumnusId = ? and ed.CompanyId = ?";
 		var queryArray = [ alumnusID, companyID ];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);

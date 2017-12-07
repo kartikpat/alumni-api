@@ -62,8 +62,11 @@ module.exports = function(settings){
 
 		var	imageBase64 =req.body.imageBase64 || null;
 
-		if(!( firstName && email && designation && department && doj && companyEmail ))
+		cprint(req.body)
+
+		if(!( firstName && designation && department && doj && companyEmail )){
 			return settings.unprocessableEntity(res);
+		}
 		if(!( checkDateUTC(doj) ))
 			return settings.unprocessableEntity(res, 'invalid date format');
 		if(  (dol && !checkDateUTC(dol)) || (dob && !checkDate(dob)) )
@@ -98,8 +101,9 @@ module.exports = function(settings){
 		return next()
 	}
 
-	app.post("/company/:companyID/alumni", multer.single('image'),validate, async function(req, res){
-		var companyID = req.params.companyID;
+	app.post("/company/:companyID/alumni/:alumnusID", multer.single('image'),validate, async function(req, res){
+		var companyID = req.params.companyID,
+			alumnusID = req.params.alumnusID;
 		
 		var firstName = req.body.firstName || null,
 			middleName = req.body.middleName || null,
@@ -125,52 +129,24 @@ module.exports = function(settings){
 
 		var dateOfBirth = moment(req.body.dob, 'DD/MM/YYYY').format('YYYY-MM-DD');
 
-		var educationArray = req.body.educationArray || null,
-			professionArray = req.body.professionArray || null;
-
 		try{
 			var fileStream = null;
 			var imageBase64 = req.body.imageBase64 || null;
 			if(imageBase64){
-			imageBase64 = imageBase64.replace(/^data:image\/png;base64,/, "");
-			fileStream = new Buffer(imageBase64, 'base64') // to be used when loading through disk
+				imageBase64 = imageBase64.replace(/^data:image\/png;base64,/, "");
+				fileStream = new Buffer(imageBase64, 'base64') // to be used when loading through disk
 			}
 			else if(req.file)
 				fileStream = req.file.buffer;
 			var t = moment();
-			var storagePath = config["aws"]["s3"]["bucket"] +"/profileImages/"+t.format('YYYY/MM/DD')
+			var storagePath = config["aws"]["s3"]["bucket"] +"/profileImages/"+t.format('YYYY/MM/DD');
 			var fileName = t.format('YYYY-MM-DD-HH-MM-SS-x')+'.jpg';
 			const prepareAlumni = await Promise.all([ addDepartment(department, companyID), addDesignation(designation, companyID), uploadFile(fileName, fileStream,storagePath)]);
 			const departmentID = prepareAlumni[0].insertId;
 			const designationID = prepareAlumni[1].insertId;
 			const imageName = (prepareAlumni[2]===1) ? null: prepareAlumni[2];
 			
-			const insertAlumni = await addAlumni(firstName, middleName, lastName, email, phone, companyEmail, dob, dateOfBirth, doj, dol, departmentID, designationID, linkedInURL, code, salary, companyID, sex, imageName);
-			const alumnusID = insertAlumni.insertId;
-
-			if(educationArray){
-				educationArray = JSON.parse(educationArray);
-				for( var i=0; i < educationArray.length; i++ ){
-					var prepareEducation = await Promise.all([ addCourse(educationArray[i]["course"]), addInstitute(educationArray[i]["institute"]) ]);
-					var courseID = prepareEducation[0].insertId;
-					var instituteID = prepareEducation[1].insertId;
-					var batchFrom = educationArray[i]['from'];
-					var batchTo = educationArray[i]['to'];
-					var type = educationArray[i]['type'];
-					await addEducationDetails(alumnusID, courseID, instituteID, batchFrom, batchTo, type, companyID);
-				}
-			}
-			if(professionArray){
-				professionArray = JSON.parse(professionArray);	
-				for( var i=0; i < professionArray.length; i++){
-					var prepareProfession = await Promise.all([ addOrganisation(professionArray[i]['organisation']), addPastRole(professionArray[i]['designation']) ]);
-					var organisationID = prepareProfession[0].insertId;
-					var roleID = prepareProfession[1].insertId;
-					var fromTimestamp = professionArray[i]['from'];
-					var toTimestamp = professionArray[i]['to'];
-					await addProfessionalDetails(alumnusID, designationID, organisationID, fromTimestamp, toTimestamp, companyID);
-				}
-			}
+			const insertAlumni = await updateAlumni(firstName, middleName, lastName, email, phone, companyEmail, dob, dateOfBirth, doj, dol, departmentID, designationID, linkedInURL, code, salary, companyID, sex, imageName, alumnusID, companyID);
 			await mapAlumniGroup(alumnusID, department, companyID)
 			return res.json({
 				status : 'success',
@@ -186,7 +162,6 @@ module.exports = function(settings){
 
 	});
 
-
 	function uploadFile(fileName, fileStream, storagePath){
 		return new Promise(function(resolve, reject){
 				if(!fileStream)
@@ -201,7 +176,7 @@ module.exports = function(settings){
 	}
 
 	function mapAlumniGroup(alumnusID, group, companyID){
-		var query = "Insert into AlumniGroupMapping (AlumnusId, `Group`, CompanyId, Status) values(?, ?, ?, ?)";
+		var query = "Insert into AlumniGroupMapping (AlumnusId, `Group`, CompanyId, Status) values(?, ?, ?, ?) on duplicate key Update CompanyId = values(CompanyId), Status = values(Status)";
 		var queryArray = [alumnusID, group, companyID, "active"]
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
@@ -224,9 +199,9 @@ module.exports = function(settings){
 		})	
 	}
 
-	function addAlumni(firstName , middleName , lastName , email , phone, companyEmail , dob , dateOfBirth, doj , dol , departmentID , designationID , linkedInUrl , code , salaryLPA , companyID , sex, imageName){
-		var query = "Insert into AlumnusMaster (FirstName, MiddleName, LastName, Email, Phone, CompanyEmail, Dob, DateOfBirth, DateOfJoining, DateOfLeaving, DepartmentId, DesignationId, LinkedinURL, Code, SalaryLPA, CompanyId, Sex, Image ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,  ?)";
-		var queryArray = [firstName , middleName , lastName , email , phone, companyEmail , dob , dateOfBirth, doj , dol , departmentID , designationID , linkedInUrl , code , salaryLPA , companyID , sex, imageName];
+	function updateAlumni(firstName , middleName , lastName , email , phone, companyEmail , dob , dateOfBirth, doj , dol , departmentID , designationID , linkedInUrl , code , salaryLPA , companyID , sex, imageName, alumnusID, companyID){
+		var query = "Update AlumnusMaster set FirstName = ?, MiddleName = ? , LastName = ?, Phone = ?, CompanyEmail = ?, Dob = ?, DateOfBirth = ?, DateOfJoining = ?, DateOfLeaving = ?, DepartmentId=?, DesignationId=?, LinkedinURL = ?, Code = ?, SalaryLPA = ?, Sex = ?, Image = ? where AlumnusId = ? and CompanyId = ?"
+		var queryArray = [firstName , middleName , lastName , phone, companyEmail , dob , dateOfBirth, doj , dol , departmentID , designationID , linkedInUrl , code , salaryLPA , sex, imageName, alumnusID, companyID];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
 		})

@@ -12,11 +12,9 @@ function checkDate(aString){
 module.exports = function(settings){
 	var cprint = settings.cprint;
 
-	var taskID ="96f7bf4627d94bd4a49c13be26d9eb66";
-	var companyID = 1;
 
 	function sanitize(taskID, companyID){
-		fetchRecords(taskID, companyID)
+		return fetchRecords(taskID, companyID)
 		.then( sanitizeEachRecord )
 		.catch(function(err){
 			cprint(err,1);
@@ -25,7 +23,7 @@ module.exports = function(settings){
 	}
 
 	function fetchRecords(taskID, companyID){
-		var query = "Select EntryId, Email, Designation, Organisation, DateOfJoining, DateOfLeaving from StagingProfessionalDetails where TaskId = ? and CompanyId = ? and Status = ? ";
+		var query = "Select EntryId, Email, Designation, Organisation, DateOfJoining, DateOfLeaving , CompanyId from StagingProfessionalDetails where TaskId = ? and UserId = ? and Status = ? ";
 		var queryArray = [taskID, companyID, 'pending'];
 		return settings.dbConnection().then(function(connecting){
 			return settings.dbCall(connecting, query, queryArray);
@@ -56,7 +54,7 @@ module.exports = function(settings){
 		props.organisation = aRow["Organisation"];
 		props.doj = aRow["DateOfJoining"];
 		props.dol = aRow["DateOfLeaving"];
-		props.companyID = companyID;
+		props.companyID = aRow["CompanyId"];
 
 		var alumniDetails = fetchAlumnus(props.email, props.companyID)
 		alumniDetails
@@ -72,7 +70,7 @@ module.exports = function(settings){
 			var organisationID = dataArray[0]["insertId"];
 			var designationID = dataArray[1]["insertId"];
 			var educationRowsArray = [];
-			return addProfessionalDetails(props.alumnusID, designationID, organisationID, props.fromTimestamp, props.toTimestamp, companyID)
+			return addProfessionalDetails(props.alumnusID, designationID, organisationID, props.fromTimestamp, props.toTimestamp, props.companyID)
 		})
 		.then(function(rows){
 			return	updateStaging(props.entryID)
@@ -124,5 +122,5 @@ module.exports = function(settings){
 			return settings.dbCall(connecting, query, queryArray);
 		})
 	}
-	//sanitize(taskID, companyID)
+	settings.sanitizeProfession = sanitize;
 }

@@ -25,7 +25,7 @@ var mapper = {
 	"Middle name": 	 "middleName",
 	"Email": 	 "email",
 	"Phone": 	 "phone",
-	"Company Email": 	 "companyEmail",
+	"Company email": 	 "companyEmail",
 	"Date of birth": 	 "dob",
 	"Date of joining": 	 "doj",
 	"Date of relieving": 	 "dol",
@@ -54,14 +54,11 @@ function csvToJSON(inputStream, stepCallback, doneCallback){
 	        var rows = chunk.split( /\r\n|\r|\n/ );
 	        var headings = rows[0]
 	        for(var key in mapper){
-	        	console.log(key)
-	        	console.log(mapper[key])
 	        	if(key){
 	        		headings =headings.replace(RegExp(key, "g"), mapper[key])
 	        	}
 	        }
 	        rows[0] = headings;
-	        console.log(rows[0])
 	        return rows.join("\r\n");
 	    },
 		step: stepCallback,

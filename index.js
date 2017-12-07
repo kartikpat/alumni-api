@@ -108,7 +108,11 @@ require(__dirname+"/routes/tasks/task.js")(settings);
 
 /**
  * Ingestion Api
+ * /company/:companyID/upload
  * /company/:companyID/ingest
+ * /company/:companyID/alumni
+ * /company/:companyID/group
+ * /company/:companyID/group/:groupName/move/:toGroupName
  */
 require(__dirname+"/routes/ingest/upload-file.js")(settings);
 require(__dirname+"/routes/ingest/ingest.js")(settings);
@@ -116,10 +120,19 @@ require(__dirname+"/routes/ingest/single.js")(settings);
 require(__dirname+"/routes/ingest/group.js")(settings);
 require(__dirname+"/routes/ingest/move.js")(settings);
 
+/**
+ * Authorization API
+ * /company/login
+ */
 require(__dirname+"/routes/common/error.js")(settings);
 require(__dirname+"/routes/auth/auth.js")(settings);
 
 
+/**
+ * Profiel API
+ * /company/:companyID/user/:userID
+ * /company/:companyID/alumni/:alumnusID
+ */
 require(__dirname+"/routes/profile/profile.js")(settings);
 require(__dirname+"/routes/profile/alumnus.js")(settings);
 
@@ -135,6 +148,19 @@ require(__dirname+"/routes/image-load/image-load.js")(settings);
  */
 require(__dirname+"/routes/services/birthday.js")(settings);
 require(__dirname+"/routes/services/news.js")(settings);
+
+/**
+ * Staging apis
+ */
+require(__dirname+"/routes/staging/disable.js")(settings);
+
+/**
+ * Update Apis
+ * /company/:companyID/alumni/:alumnusID/education
+ * /company/:companyID/alumni/:alumnusID/education/:entryID
+ */
+require(__dirname+"/routes/update/alumni.js")(settings);
+require(__dirname+"/routes/update/education.js")(settings);
 
 require(__dirname+"/routes/register/register.js")(settings);
 require(__dirname+"/routes/dashboard/init.js")(settings);

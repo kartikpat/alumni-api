@@ -41,9 +41,6 @@ module.exports = function(settings){
 			});
 		})
 	}
-	//TODO to be experimented
-	// exports.dbTransaction = dbTransaction;
-	// exports.dbConnection = dbConnection;
 
 	settings.dbConnection = dbConnection;
 	settings.dbTransaction = dbTransaction;
