@@ -54,14 +54,11 @@ function csvToJSON(inputStream, stepCallback, doneCallback){
 	        var rows = chunk.split( /\r\n|\r|\n/ );
 	        var headings = rows[0]
 	        for(var key in mapper){
-	        	console.log(key)
-	        	console.log(mapper[key])
 	        	if(key){
 	        		headings =headings.replace(RegExp(key, "g"), mapper[key])
 	        	}
 	        }
 	        rows[0] = headings;
-	        console.log(rows[0])
 	        return rows.join("\r\n");
 	    },
 		step: stepCallback,
