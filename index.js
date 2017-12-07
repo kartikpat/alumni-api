@@ -161,6 +161,7 @@ require(__dirname+"/routes/staging/disable.js")(settings);
  */
 require(__dirname+"/routes/update/alumni.js")(settings);
 require(__dirname+"/routes/update/education.js")(settings);
+require(__dirname+"/routes/update/profession.js")(settings);
 
 require(__dirname+"/routes/register/register.js")(settings);
 require(__dirname+"/routes/dashboard/init.js")(settings);

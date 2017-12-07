@@ -1,4 +1,4 @@
-var getSignedUrl = require('../../lib/get-signed-url.js')
+var getSignedUrl = require('../../lib/get-signed-url.js');
 module.exports = function(settings){
 	var app = settings.app;
 	var mode = settings.mode;
@@ -59,7 +59,7 @@ module.exports = function(settings){
 				data.profession.push({
 					id: aRow['EntryId'],
 					designation: aRow["Designation"],
-					organisation: aRow['Organisation'],
+					organisation: aRow["Organisation"],
 					from: aRow["FromTimestamp"],
 					to: aRow["ToTimestamp"]
 				})
@@ -108,7 +108,7 @@ module.exports = function(settings){
 	}
 
 	function fetchProfession(companyID, alumnusID){
-		var query = "Select * from ProfessionDetails pd inner join OrganisationMaster om on pd.OrganisationId = om.OrganisationId inner join RoleMaster rm on pd.DesignationId = rm.RoleId where pd.AlumnusId = ? and pd.CompanyId = ?";
+		var query = "Select pd.EntryId, om.Name as Organisation, rm.Name as Designation, pd.FromTimestamp, pd.ToTimestamp from ProfessionDetails pd inner join OrganisationMaster om on pd.OrganisationId = om.OrganisationId inner join RoleMaster rm on pd.DesignationId = rm.RoleId where pd.AlumnusId = ? and pd.CompanyId = ?";
 		var queryArray = [ alumnusID, companyID ];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
