@@ -26,6 +26,7 @@ module.exports = function(settings){
 			data.doj = alumniRows[0]['DateOfJoining'];
 			data.phone = alumniRows[0]['Phone'],
 			data.email = alumniRows[0]['Email'],
+			data.companyEmail = alumniRows[0]['CompanyEmail'],
 			data.education = [];
 			data.profession = [];
 			data.services = [];
@@ -46,6 +47,7 @@ module.exports = function(settings){
 
 			educationRows.forEach(function(aRow){
 				data.education.push({
+					id: aRow['EntryId'],
 					institute: aRow['Institute'],
 					course: aRow['Course'],
 					from: aRow['BatchFrom'],
@@ -55,13 +57,13 @@ module.exports = function(settings){
 			});
 			professionRows.forEach(function(aRow){
 				data.profession.push({
+					id: aRow['EntryId'],
 					designation: aRow["Designation"],
 					organisation: aRow['Organisation'],
 					from: aRow["FromTimestamp"],
 					to: aRow["ToTimestamp"]
 				})
 			})
-
 			subscriptionRows.forEach(function(aSubscription){	
 				data.services.push({
 					id: aSubscription['Id'],
@@ -90,7 +92,7 @@ module.exports = function(settings){
 	}
 
 	function fetchAlumni(companyID, userID){
-		var query = "Select AlumnusId,FirstName, MiddleName, LastName, DateOfBirth, dsg.Name as Designation, dep.Name as Department, DateOfLeaving, DateOfJoining, Phone, Email, Image from AlumnusMaster am inner join DepartmentMaster dep on am.DepartmentId=dep.DepartmentId inner join DesignationMaster dsg on dsg.DesignationId = am.DesignationId where am.CompanyId = ?  and AlumnusId = ?  "
+		var query = "Select AlumnusId,FirstName, MiddleName, LastName, DateOfBirth, dsg.Name as Designation, dep.Name as Department, DateOfLeaving, DateOfJoining, Phone, Email, Image, CompanyEmail from AlumnusMaster am inner join DepartmentMaster dep on am.DepartmentId=dep.DepartmentId inner join DesignationMaster dsg on dsg.DesignationId = am.DesignationId where am.CompanyId = ?  and AlumnusId = ?  "
 		var queryArray = [ companyID, userID, 'active', 'active'  ];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
@@ -98,7 +100,7 @@ module.exports = function(settings){
 	}
 
 	function fetchEducation(companyID, alumnusID){
-		var query = "Select cm.Name as Course, im.Name as Institute, CourseType, BatchFrom, BatchTo from EducationDetails ed inner join CourseMaster cm on ed.CourseId=cm.CourseId inner join InstituteMaster im on ed.InstituteId = im.InstituteId where ed.AlumnusId = ? and ed.CompanyId = ?";
+		var query = "Select ed.EntryId,cm.Name as Course, im.Name as Institute, CourseType, BatchFrom, BatchTo from EducationDetails ed inner join CourseMaster cm on ed.CourseId=cm.CourseId inner join InstituteMaster im on ed.InstituteId = im.InstituteId where ed.AlumnusId = ? and ed.CompanyId = ?";
 		var queryArray = [ alumnusID, companyID ];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
