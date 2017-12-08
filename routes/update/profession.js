@@ -81,6 +81,30 @@ module.exports = function(settings){
 			return settings.serviceError(res);
 		}
 	})
+
+	app.post("/company/:companyID/alumni/:alumnusID/profession/:entryID/remove", async function(req, res){
+		var companyID = req.params.companyID,
+			alumnusID = req.params.alumnusID,
+			entryID = req.params.entryID;
+		try{
+			await removeProfessionDetail(entryID);
+			res.json({
+				status: 'success'
+			})
+		}
+		catch(err){
+			cprint(err,1);
+			return settings.serviceError(res);
+		}
+	})
+
+	function removeEducationDetail(entryID){
+		var query = "Update ProfessionDetails Set Status = ? where EntryId = ?";
+		var queryArray = [entryID];
+		return settings.dbConnection().then(function(connection){
+			return settings.dbCall(connection, query, queryArray);
+		})	
+	}
 	
 	function addOrganisation(organisation){
 		var query = "Insert into OrganisationMaster (Name) values(?) on duplicate key update OrganisationId = LAST_INSERT_ID(OrganisationId)"

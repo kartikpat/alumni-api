@@ -115,22 +115,16 @@ async function init(url){
 	try{
 		var files = await listFiles(url);
 		files = files['entries'] || [];
-		for(var i=0; i < 2;i++ ){
-			console.log(files[i])
+		for(var i=0; i < files.length; i++ ){
 			var file = await getFile(files[i]["name"], url);
-			console.log(file)
 			var fileStream = file;
 			var name = await uploadFile(fileStream);
-			console.log(name)
 			var email = files[i]["name"].split('.')
 			email.splice(-1,1);
-			console.log(email)
 			email = email.join('.')
-			console.log(email)
 			await updateImagePath(name, email);
 		}
 		connection.destroy();
-
 	}
 	catch(err){
 		console.log(err);
@@ -138,4 +132,5 @@ async function init(url){
 	}
 }
 
-var test =init("https://www.dropbox.com/sh/l9eebaka6newp8y/AABipCAAZBgzX4EG6Zbprte9a?dl=0");
+// var test =init("https://www.dropbox.com/sh/l9eebaka6newp8y/AABipCAAZBgzX4EG6Zbprte9a?dl=0");
+exports.init = init;

@@ -113,12 +113,14 @@ require(__dirname+"/routes/tasks/task.js")(settings);
  * /company/:companyID/alumni
  * /company/:companyID/group
  * /company/:companyID/group/:groupName/move/:toGroupName
+ * /company/:companyID/upload/profile
  */
 require(__dirname+"/routes/ingest/upload-file.js")(settings);
 require(__dirname+"/routes/ingest/ingest.js")(settings);
 require(__dirname+"/routes/ingest/single.js")(settings);
 require(__dirname+"/routes/ingest/group.js")(settings);
 require(__dirname+"/routes/ingest/move.js")(settings);
+require(__dirname+"/routes/ingest/profileImage.js")(settings);
 
 /**
  * Authorization API
