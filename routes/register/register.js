@@ -172,7 +172,7 @@ module.exports = function(settings){
 			email = req.body.email || null,
 			newPassword = req.body.newPassword || null;
 
-		if(! (password && newPassword && id)){
+		if(! (password && newPassword && email)){
 			return settings.unprocessableEntity(res);
 		};
 		password = getHash(password);
