@@ -137,7 +137,7 @@ module.exports = function(settings){
 	}
 	function removeEducationDetail(entryID){
 		var query = "Update EducationDetails Set Status = ? where EntryId = ?";
-		var queryArray = [entryID];
+		var queryArray = ['inactive',entryID];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
 		})	

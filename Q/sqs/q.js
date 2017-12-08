@@ -35,6 +35,7 @@ function sendMessage(message){
 	var params = {
         MessageBody: JSON.stringify(message),
         QueueUrl: qURL,
+         MessageGroupId: "1",
         DelaySeconds: 0
     };
     sqs.sendMessage(params, function(err, data){

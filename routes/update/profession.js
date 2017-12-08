@@ -98,9 +98,9 @@ module.exports = function(settings){
 		}
 	})
 
-	function removeEducationDetail(entryID){
+	function removeProfessionDetail(entryID){
 		var query = "Update ProfessionDetails Set Status = ? where EntryId = ?";
-		var queryArray = [entryID];
+		var queryArray = ['inactive',entryID];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
 		})	
