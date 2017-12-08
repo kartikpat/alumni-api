@@ -181,7 +181,7 @@ module.exports = function(settings){
 			if(rows.length<1){
 				return Promise.reject(new Error("incorrect"));
 			}
-			return updatePassword(id, newPassword);
+			return updatePassword(email, newPassword);
 		})
 		.then(function(updationRows){
 			return res.json({
@@ -210,7 +210,6 @@ module.exports = function(settings){
 			if(rows.length<1){
 				return Promise.reject(new Error("incorrect"));
 			}
-			console.log(password)
 			return updatePassword(email, password);
 		})
 		.then(function(updationRows){
