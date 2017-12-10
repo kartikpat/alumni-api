@@ -1,9 +1,6 @@
 var fs = require("fs")
 var uuidV4 = require("uuid/v4");
 var csvToJSON = require("../../adapters/csv-to-json").csvToJSON;
-var taskID = null;
-var userID = null;
-var companyID = null;
 module.exports = function(settings){
 	var config = settings.config;
 	var cprint = settings.cprint;
@@ -23,11 +20,13 @@ module.exports = function(settings){
 		})
 	}
 
-	function stepExecute(rows, parser){
+	function stepExecute(rows, parser, companyID, userID, taskID){
 		var userArray = [];
 		parser.pause();
+		var shouldResume = false;
 		rows.data.forEach(function(aRow){
-			console.log(aRow)
+			if(!aRow['firstName'])
+				shouldResume = true;
 			var tempArray = [
 				taskID,
 				aRow['firstName'],
@@ -50,6 +49,8 @@ module.exports = function(settings){
 			];
 			userArray.push(tempArray);
 		});
+		if(shouldResume)
+			return parser.resume();
 		addUser(userArray)
 		.then(function(rows){
 			return parser.resume()
@@ -75,16 +76,30 @@ module.exports = function(settings){
 		})
 	}
 
-	function fetchTaskRows(taskID){
+	function fetchTaskRows(taskID, type){
 		var query = "select if(message is null or message ='', 'correct', 'incorrect') as field, count(*) as cnt from StagingAlumnusMaster where TaskId = ? group by 1 order by message";
 		var queryArray = [taskID];
+		if(type =='education')
+			query = "select if(message is null or message ='', 'correct', 'incorrect') as field, count(*) as cnt from StagingEducationDetails where TaskId = ? group by 1 order by message";
+		if(type =='profession')
+			query = "select if(message is null or message ='', 'correct', 'incorrect') as field, count(*) as cnt from StagingProfessionalDetails where TaskId = ? group by 1 order by message";
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
 		})
 	}
 
 	app.post('/initiate/:taskID/start', async function(req, res){
-		taskID = req.params.taskID || null;
+		var taskID = req.params.taskID ;
+		var type = req.body.type || null;
+		if(type =='education')
+			return educationProcess(req, res);
+		if(type == 'profession')
+			return professionProcess(req, res);
+		return alumniProcess(req, res);
+
+	})
+	async function alumniProcess(req, res){
+		var taskID = req.params.taskID || null;
 		try{
 			var rows = await fetchTask(taskID)
 			if(rows.length<1){
@@ -97,18 +112,19 @@ module.exports = function(settings){
 				status: 'success',
 				message: 'initiated'
 			});
-			userID = rows[0]['UserId']
-			companyID = rows[0]['CompanyId'];
+			var userID = rows[0]['UserId']
+			var companyID = rows[0]['CompanyId'];
 			var filePath = rows[0]['FilePath'];
 			var fileStream = fs.createReadStream(settings.diskStorage+'/'+ filePath, 'utf8');
 			// Staging Alumni details
 			await new Promise(function(resolve, reject){
-				csvToJSON(fileStream, stepExecute, function(data){
+				csvToJSON(fileStream, function(rows, parser){
+					return stepExecute(rows, parser, companyID, userID, taskID)
+				}, function(data){
 					return resolve(data)
 				})
 			})
 			fileStream = fs.createReadStream(settings.diskStorage+'/'+ filePath, 'utf8');
-			// Staging education details
 			await settings.initiateEducationStaging(userID, taskID, companyID, fileStream);
 			fileStream = fs.createReadStream(settings.diskStorage+'/'+ filePath, 'utf8');
 			await settings.initiateProfessionStaging(userID, taskID, companyID, fileStream);
@@ -129,9 +145,43 @@ module.exports = function(settings){
 			cprint(err,1)
 			return settings.serviceError(res)
 		}
-
-	})
-
+	}
+	async function educationProcess(req, res){
+		var taskID = req.params.taskID || null;
+		var type = req.body.type || null;
+		try{
+			var rows = await fetchTask(taskID)
+			if(rows.length<1){
+				return	res.json({
+					status: 'fail',
+					message: 'no tasks available'
+				})
+			}
+			res.json({
+				status: 'success',
+				message: 'initiated'
+			});
+			var userID = rows[0]['UserId']
+			var companyID = rows[0]['CompanyId'];
+			var filePath = rows[0]['FilePath'];
+			var fileStream = fs.createReadStream(settings.diskStorage+'/'+ filePath, 'utf8');
+			// Staging education details
+			await settings.initiateEducationStaging(userID, taskID, companyID, fileStream);
+			await settings.sanitizeEducation(taskID, userID)
+			var processedRows = await fetchTaskRows(taskID, type);
+			var correctRows = 0;
+			var incorrectRows = 0;
+			processedRows.forEach(function(aRow){
+				if(aRow['field'] && aRow['field']== 'correct')
+					return correctRows+=aRow['cnt'];
+				return incorrectRows+=aRow['cnt'];
+			})
+			return updateTask(taskID, correctRows, incorrectRows);
+		}
+		catch(err){
+			cprint(err,1)
+			return settings.serviceError(res)
+		}
+	}
 	//csvToJSON(fileStream, stepExecute)
-
 }

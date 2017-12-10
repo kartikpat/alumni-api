@@ -7,23 +7,29 @@ var companyID = null;
 module.exports = function(settings){
 	var cprint = settings.cprint;
 	
-	function stepExecute(rows, parser){
+	function stepExecute(rows, parser, companyID, userID, taskID){
 		var educationArray = [];
 		parser.pause();
+		var shouldResume = false;
 		rows.data.forEach(function(aRow){
+			if(aRow['firstName'])
+				shouldResume = true;
 			var tempArray = [
 						taskID,
 						aRow['email'],
 						aRow['course'],
 						aRow['institute'],
-						aRow['from'] ? aRow['from'] : null,
-						aRow['to'] ? aRow['to'] : null,
-						aRow['type'] ? aRow['type'] : null,
+						aRow['batchFrom'] ? aRow['batchFrom'] : null,
+						aRow['batchTo'] ? aRow['batchTo'] : null,
+						aRow['type'] ? aRow['type'].replace(/ /g, '-').toLowerCase() : null,
 						userID,
 						companyID
 					];
 			educationArray.push(tempArray);
 		});
+		if(shouldResume)
+			return parser.resume()
+		console.log(rows)
 		return addEducation(educationArray)
 		.then(function(rows){
 			return parser.resume()
@@ -43,15 +49,13 @@ module.exports = function(settings){
 	}
 
 	function initiateEducationStaging(someUserID, someTaskID,someCompanyID, fileStream){
-		userID = someUserID;
-		taskID = someTaskID;
-		companyID = someCompanyID
 		return new Promise(function(resolve, reject){
-			csvToJSON(fileStream, stepExecute, function(data){
+			csvToJSON(fileStream, function(rows, parser){
+				return stepExecute(rows, parser, someCompanyID, someUserID, someTaskID)
+			}, function(data){
 				return resolve(data)
 			})
 		})
-
 	}
 	settings.initiateEducationStaging = initiateEducationStaging;
 	//csvToJSON(fileStream, stepExecute)
