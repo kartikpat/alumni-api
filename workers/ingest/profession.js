@@ -1,12 +1,10 @@
+var moment = require('moment');
 function checkDate(aString){
-	try{
-		var d = new Date(aString);
-			if(d=="Invalid Date")
-				return null;
-		return d.getTime();
-	}catch(err){
-		return null
-	}
+	var d = moment(aString, 'DD/MM/YYYY');
+	if(!d.isValid())
+		return null;
+	return d.valueOf();
+
 }
 
 module.exports = function(settings){
@@ -52,12 +50,12 @@ module.exports = function(settings){
 		props.email =aRow["Email"];
 		props.designation = aRow["Designation"];
 		props.organisation = aRow["Organisation"];
-		props.doj = aRow["DateOfJoining"];
-		props.dol = aRow["DateOfLeaving"];
+		props.doj = checkDate(aRow["DateOfJoining"]);
+		props.dol = checkDate(aRow["DateOfLeaving"]);
 		props.companyID = aRow["CompanyId"];
 
 		var alumniDetails = fetchAlumnus(props.email, props.companyID)
-		alumniDetails
+		return alumniDetails
 		.then(function(rows){
 			if(rows.length <1)
 				return Promise.reject(-1);
@@ -70,7 +68,7 @@ module.exports = function(settings){
 			var organisationID = dataArray[0]["insertId"];
 			var designationID = dataArray[1]["insertId"];
 			var educationRowsArray = [];
-			return addProfessionalDetails(props.alumnusID, designationID, organisationID, props.fromTimestamp, props.toTimestamp, props.companyID)
+			return addProfessionalDetails(props.alumnusID, designationID, organisationID, props.doj, props.dol, props.companyID)
 		})
 		.then(function(rows){
 			return	updateStaging(props.entryID)

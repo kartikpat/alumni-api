@@ -113,12 +113,14 @@ require(__dirname+"/routes/tasks/task.js")(settings);
  * /company/:companyID/alumni
  * /company/:companyID/group
  * /company/:companyID/group/:groupName/move/:toGroupName
+ * /company/:companyID/upload/profile
  */
 require(__dirname+"/routes/ingest/upload-file.js")(settings);
 require(__dirname+"/routes/ingest/ingest.js")(settings);
 require(__dirname+"/routes/ingest/single.js")(settings);
 require(__dirname+"/routes/ingest/group.js")(settings);
 require(__dirname+"/routes/ingest/move.js")(settings);
+require(__dirname+"/routes/ingest/profileImage.js")(settings);
 
 /**
  * Authorization API
@@ -161,6 +163,7 @@ require(__dirname+"/routes/staging/disable.js")(settings);
  */
 require(__dirname+"/routes/update/alumni.js")(settings);
 require(__dirname+"/routes/update/education.js")(settings);
+require(__dirname+"/routes/update/profession.js")(settings);
 
 require(__dirname+"/routes/register/register.js")(settings);
 require(__dirname+"/routes/dashboard/init.js")(settings);

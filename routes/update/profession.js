@@ -27,15 +27,12 @@ module.exports = function(settings){
 	var cprint = settings.cprint;
 
 	function validate(req, res, next){
-		var course = req.body.course || null,
-			institute = req.body.institute || null,
-			batchFrom = req.body.batchFrom || null,
-			batchTo = req.body.batchTo || null,
-			type = req.body.type || null;
-		if(!(institute && course))
+		var organisation = req.body.organisation || null,
+			designation = req.body.designation || null,
+			fromTimestamp = req.body.from || null,
+			toTimestamp = req.body.to || null;
+		if(!(organisation && designation))
 			return settings.unprocessableEntity(res);
-		if(type && ['full-time','part-time','distance','executive','certification'].indexOf(type) == -1)
-			return settings.unprocessableEntity(res, 'invalid course type');
 		return next();
 	}
 
@@ -48,12 +45,12 @@ module.exports = function(settings){
 			fromTimestamp = req.body.from || null,
 			toTimestamp = req.body.to || null;
 		try{
-			var prepareEducation = await Promise.all([ addCourse(course), addInstitute(institute) ]);
-			var courseID = prepareEducation[0].insertId;
-			var instituteID = prepareEducation[1].insertId;
-			await addProfessionalDetails(alumnusID, designationID, organisationId, fromTimestamp, toTimestamp, companyID)
+			var prepareEducation = await Promise.all([ addOrganisation(organisation), addPastRole(designation) ]);
+			var organisationID = prepareEducation[0].insertId;
+			var designationID = prepareEducation[1].insertId;
+			await addProfessionalDetails(alumnusID, designationID, organisationID, fromTimestamp, toTimestamp, companyID)
 			return res.json({
-				status: success
+				status: "success"
 			});
 		}
 		catch(err){
@@ -74,7 +71,7 @@ module.exports = function(settings){
 			var preparePofession = await Promise.all([ addOrganisation(organisation), addPastRole(designation) ]);
 			var organisationID = preparePofession[0].insertId;
 			var designationID = preparePofession[1].insertId;
-			await  updateProfessionalDetails(entryID, designationID, organisationId, fromTimestamp, toTimestamp, companyID)
+			await  updateProfessionalDetails(entryID, designationID, organisationID, fromTimestamp, toTimestamp, companyID)
 			return res.json({
 				status: 'success'
 			})
@@ -84,6 +81,30 @@ module.exports = function(settings){
 			return settings.serviceError(res);
 		}
 	})
+
+	app.post("/company/:companyID/alumni/:alumnusID/profession/:entryID/remove", async function(req, res){
+		var companyID = req.params.companyID,
+			alumnusID = req.params.alumnusID,
+			entryID = req.params.entryID;
+		try{
+			await removeProfessionDetail(entryID);
+			res.json({
+				status: 'success'
+			})
+		}
+		catch(err){
+			cprint(err,1);
+			return settings.serviceError(res);
+		}
+	})
+
+	function removeProfessionDetail(entryID){
+		var query = "Update ProfessionDetails Set Status = ? where EntryId = ?";
+		var queryArray = ['inactive',entryID];
+		return settings.dbConnection().then(function(connection){
+			return settings.dbCall(connection, query, queryArray);
+		})	
+	}
 	
 	function addOrganisation(organisation){
 		var query = "Insert into OrganisationMaster (Name) values(?) on duplicate key update OrganisationId = LAST_INSERT_ID(OrganisationId)"

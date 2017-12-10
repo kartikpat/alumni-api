@@ -1,21 +1,21 @@
 var uuidV4 = require("uuid/v4");
 var csvToJSON = require("../../adapters/csv-to-json").csvToJSON;
 var fs = require('fs');
-var companyID = null;
-var taskID = null;
-var userID = null;
 // var fileStream = fs.createReadStream('./test/generate/profession.csv', 'utf8');
 module.exports = function(settings){
 	var cprint = settings.cprint;	
-	function stepExecute(rows, parser){
+	function stepExecute(rows, parser, companyID, userID, taskID){
 		var professionArray = [];
 		parser.pause();
+		var shouldResume = false;
 		rows.data.forEach(function(aRow){
+			if(aRow['firstName'])
+				shouldResume = true;
 			var tempArray = [
 						taskID,
 						aRow['email'],
-						aRow['designation'],
-						aRow['organisation'],
+						aRow['previous_designation'],
+						aRow['previous_organisation'],
 						aRow['from'] ? aRow['from'] : null,
 						aRow['to'] ? aRow['to'] : null,
 						userID,
@@ -23,6 +23,9 @@ module.exports = function(settings){
 					];
 			professionArray.push(tempArray);
 		});
+		if(shouldResume)
+			return parser.resume()
+		console.log(rows)
 		addProfessionalDetails(professionArray)
 		.then(function(rows){
 			return parser.resume()
@@ -42,19 +45,16 @@ module.exports = function(settings){
 	}
 
 	function initiateProfessionStaging(someUserID, someTaskID,someCompanyID, fileStream){
-		userID = someUserID;
-		taskID = someTaskID;
-		companyID = someCompanyID
 		return new Promise(function(resolve, reject){
-			csvToJSON(fileStream, stepExecute, function(data){
+			csvToJSON(fileStream, function(rows, parser){
+				return stepExecute(rows, parser, someCompanyID, someUserID, someTaskID)
+			}, function(data){
 				return resolve(data)
 			})
 		})
-
 	}
 
 	settings.initiateProfessionStaging = initiateProfessionStaging;
-
 	//csvToJSON(fileStream, stepExecute)
 
 }
