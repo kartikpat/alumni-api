@@ -49,7 +49,7 @@ module.exports = function(settings){
 			idArray.forEach(function(anItem){
 				var temp = [
 					anItem,
-					templateID,
+					serviceID,
 					(state =="subscribe")? 'active' : 'inactive'
 				];
 				queryArray.push(temp);
@@ -58,8 +58,18 @@ module.exports = function(settings){
 			res.json({
 				status: "success"
 			});
-			if(serviceID ==1)
-				populateQ(queryArray);
+			if(serviceID ==1){
+				var qArray = [];
+				queryArray.forEach(function(anItem){
+					qArray.push([
+						anItem[0], 
+						templateID,
+						anItem[2],
+						timestamp
+						])
+				})
+				populateQ(qArray);
+			}
 			return
 		}
 		catch(err){
@@ -92,7 +102,7 @@ module.exports = function(settings){
 	}
 
 	function fetchAlumnus(entryID){
-		var query = "Select FirstName, MiddleName, LastName, Email, AlumnusId, CompanyId, Dob, DateOfBirth from AlumnusMaster where AlumnusId = ?"
+		var query = "Select am.FirstName, am.MiddleName, am.LastName, am.Email, am.AlumnusId, am.CompanyId, am.Dob, am.DateOfBirth, cm.Name as CompanyName from AlumnusMaster am inner join CompanyMaster cm on am.companyId = cm.CompanyId where am.AlumnusId = ?"
 		var queryArray = [entryID];
 		return settings.dbConnection().then(function(connecting){
 			return settings.dbCall(connecting, query, queryArray);
