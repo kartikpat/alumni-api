@@ -37,6 +37,8 @@ var mapper = {
 	"Gender": 	 "sex",
 	"Current Organization": "previous_organisation",
 	"Current designation": "previous_designation",
+	"Previous Organization": "previous_organisation",
+	"Previous designation": "previous_designation",
 	"Batch From": "batchFrom",
 	"Batch To": 'batchTo',
 	"Course Type": 'type',

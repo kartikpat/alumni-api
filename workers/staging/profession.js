@@ -23,9 +23,6 @@ module.exports = function(settings){
 					];
 			professionArray.push(tempArray);
 		});
-		if(shouldResume)
-			return parser.resume()
-		console.log(rows)
 		addProfessionalDetails(professionArray)
 		.then(function(rows){
 			return parser.resume()
