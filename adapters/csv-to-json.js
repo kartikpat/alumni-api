@@ -39,11 +39,11 @@ var mapper = {
 	"Current designation": "previous_designation",
 	"Previous Organization": "previous_organisation",
 	"Previous designation": "previous_designation",
-	"Batch From": "batchFrom",
-	"Batch To": 'batchTo',
-	"Course Type": 'type',
 	"From": "from",
 	"To": 'to',
+	"Batch to": 'batchTo',
+	"Batch from": "batchFrom",
+	"Course Type": 'type',
 	"": 	 "companyId"
 }
 

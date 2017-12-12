@@ -94,7 +94,8 @@ module.exports = function(settings){
 	}
 
 	function addEducationDetails(alumnusID, courseID, instituteID, batchFrom, batchTo, courseType, companyID){
-			var query = "Insert ignore into  EducationDetails (AlumnusId, CourseID, InstituteID, BatchFrom, BatchTo, CourseType, CompanyId) values (?, ?, ?, ?, ?, ?, ?)";
+			// var query = "Insert ignore into  EducationDetails (AlumnusId, CourseID, InstituteID, BatchFrom, BatchTo, CourseType, CompanyId) values (?, ?, ?, ?, ?, ?, ?)";
+			var query = "Insert into  EducationDetails (AlumnusId, CourseID, InstituteID, BatchFrom, BatchTo, CourseType, CompanyId) values (?, ?, ?, ?, ?, ?, ?) on duplicate key Update BatchTo = values(BatchTo), BatchFrom = values(BatchFrom), CourseType = values(CourseType)";
 			var queryArray = [ alumnusID, courseID, instituteID, batchFrom, batchTo, courseType, companyID ];
 			return settings.dbConnection().then(function(connection){
 				return settings.dbCall(connection, query, queryArray);
