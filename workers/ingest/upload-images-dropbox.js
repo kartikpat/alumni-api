@@ -69,7 +69,7 @@ function getFile(path, url){
 function uploadFile(fileStream){
 	return new Promise(function(resolve, reject){
 		var t = moment();
-		var storagePath = config["aws"]["s3"]["bucket"] +"/"+t.format('YYYY/MM/DD')
+		var storagePath = config["aws"]["s3"]["bucket"] +"/profileImages/"+t.format('YYYY/MM/DD')
 		var fileName = t.format('YYYY-MM-DD-HH-MM-SS-x')+'.jpg';
 
 		uploader.upload(fileName, fileStream, storagePath, 'public-read', function(err, data){

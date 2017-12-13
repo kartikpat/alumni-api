@@ -246,7 +246,7 @@ module.exports = function(settings){
 		}
 
 	function addUser(queryArray){
-			var query = "Insert into AlumnusMaster (FirstName, MiddleName, LastName, Email, Phone, CompanyEmail, Dob, DateOfBirth, DateOfJoining, DateOfLeaving, DepartmentId, DesignationId, LinkedinURL, Code, SalaryLPA, CompanyId, Sex ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )";
+			var query = "Insert into AlumnusMaster (FirstName, MiddleName, LastName, Email, Phone, CompanyEmail, Dob, DateOfBirth, DateOfJoining, DateOfLeaving, DepartmentId, DesignationId, LinkedinURL, Code, SalaryLPA, CompanyId, Sex ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ) on duplicate key update FirstName = values(FirstName), MiddleName = values(MiddleName), LastName= values(LastName), Phone= values(Phone), CompanyEmail = values(CompanyEmail), Dob= values(Dob), DateOfBirth = values(DateOfBirth), DateOfJoining = values(DateOfJoining), DateOfLeaving=values(DateOfLeaving), DepartmentId = values(DepartmentId), DesignationId = values(DesignationId), LinkedinURL= values(LinkedinURL), Code = values(Code), SalaryLPA = values(SalaryLPA), Sex = values(Sex) ";
 			return settings.dbConnection().then(function(connection){
 				return settings.dbCall(connection, query, queryArray);
 			})
