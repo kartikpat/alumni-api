@@ -15,7 +15,7 @@ var writePoolConfig = {
 		connectTimeout: 120000 ,
 		timeout: 120000
 	};
-var connection = mysql.createConnection(writePoolConfig);
+var connection = null;
 
 
 function dbCall(connection, query, queryArray){
@@ -112,6 +112,7 @@ function listFiles(url){
 	})
 }
 async function init(url){
+	connection = mysql.createConnection(writePoolConfig);
 	try{
 		var files = await listFiles(url);
 		files = files['entries'] || [];
