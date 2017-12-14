@@ -1,7 +1,7 @@
 var Mailgun = require('mailgun-js');
 
 module.exports = function(settings){
-	var config= settings.config;
+	var config = settings.config;
 	var cprint = settings.cprint;
 
 	//We pass the api_key and domain to the wrapper, or it won't be able to identify + send emails
@@ -13,7 +13,7 @@ module.exports = function(settings){
 	      from: config["mail"]["mailgun"]["sender"],
 	    //The email to contact
 	      to: recepientMail,
-	    //Subject and text data  
+	    //Subject and text data
 	      subject: subject,
 	      html: text,
 	      'recipient-variables': variables
@@ -34,10 +34,10 @@ module.exports = function(settings){
 		            return reject(err);
 		        }
 		        return fulfill(body);
-		    });	
+		    });
     	})
     }
 
     settings.sendMail = sendMail;
-	
+
 }

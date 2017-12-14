@@ -1,6 +1,6 @@
 module.exports = function(settings){
 	var cprint = settings.cprint;
-
+ 
 	function dbCall(connection, query, queryArray){
 		return new Promise(function (resolve, reject){
 				connection.query(query, queryArray, function(err, rows, fields){
