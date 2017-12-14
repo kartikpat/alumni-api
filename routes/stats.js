@@ -270,9 +270,7 @@ module.exports = function(settings){
 		var companyID = req.params.companyID;
 		var fromDay = moment().date();
 		var fromMonth = 1+moment().month();
-		var toDay = moment().add(2, 'd').date();
-		var toMonth = 1+moment().add(2, 'd').month();
-		getComingBirthday(companyID, fromMonth, toMonth, fromDay, toDay)
+		getComingBirthday(companyID, fromMonth, fromDay)
 		.then(function(rows){
 			var data = [];
 			rows.forEach(function(aRow){
@@ -295,9 +293,9 @@ module.exports = function(settings){
 			return settings.serviceError(res);
 		})
 	})
-	function getComingBirthday(companyID, fromMonth, toMonth, fromDay, toDay){
-		var query = "Select FirstName, MiddleName, LastName, DateOfBirth, dm.Name as Department, dsg.Name as Designation  from AlumnusMaster am inner join DepartmentMaster dm on am.DepartmentId=dm.DepartmentId inner join DesignationMaster dsg on am.DesignationId=dsg.DesignationId  where am.companyId = ? and ( Month(DateOfBirth) = ? or Month(DateOfBirth) = ?) and (Day(DateOfBirth) between ? and ?  )";
-		var queryArray = [companyID, fromMonth, toMonth, fromDay, toDay];
+	function getComingBirthday(companyID, month, day){
+		var query = "Select FirstName, MiddleName, LastName, DateOfBirth, dm.Name as Department, dsg.Name as Designation  from AlumnusMaster am inner join DepartmentMaster dm on am.DepartmentId=dm.DepartmentId inner join DesignationMaster dsg on am.DesignationId=dsg.DesignationId  where am.companyId = ? and ( Month(DateOfBirth) > ?  or ( Month(DateOfBirth)= ?  and Day(DateOfBirth) >= ?  )) limit 0, 10";
+		var queryArray = [companyID, month, month, day];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
 		});				

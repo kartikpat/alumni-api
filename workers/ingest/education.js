@@ -56,8 +56,11 @@ module.exports = function(settings){
 		props.courseType = aRow["CourseType"];
 		props.companyID = aRow["CompanyId"];
 
+		if(props.courseType)
+			props.courseType = props.courseType.replace(/ /g,'-').toLowerCase();
+
 		var alumniDetails = fetchAlumnus(props.email, props.companyID)
-		alumniDetails
+		return alumniDetails
 		.then(function(rows){
 			if(rows.length <1)
 				return Promise.reject(-1);

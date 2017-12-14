@@ -173,6 +173,7 @@ module.exports = function(settings){
 			}
 			await mapAlumniGroup(alumnusID, department, companyID)
 			return res.json({
+				data: alumnusID,
 				status : 'success',
 				message: 'record inserted successfully'
 			});

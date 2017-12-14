@@ -47,28 +47,19 @@ module.exports = function(settings){
 			idArray = id.split(',');
 			var queryArray = [];
 			idArray.forEach(function(anItem){
-				queryArray.push([
-						anItem,
-						serviceID,
-						'active'
-					]);
+				var temp = [
+					anItem,
+					templateID,
+					(state =="subscribe")? 'active' : 'inactive'
+				];
+				queryArray.push(temp);
 			})
-			// pending population logic
-			// idArray.forEach(function(anItem){
-			// 	var temp = [
-			// 		anItem,
-			// 		templateID,
-			// 		(state =="subscribe")? 'active' : 'inactive',
-			// 		timestamp
-			// 	];
-			// 	queryArray.push(temp);
-			// })
 			await subscribe(queryArray)
 			res.json({
 				status: "success"
 			});
-			// if(serviceID ==1)
-			// 	populateQ(queryArray);
+			if(serviceID ==1)
+				populateQ(queryArray);
 			return
 		}
 		catch(err){
@@ -109,9 +100,9 @@ module.exports = function(settings){
 	}
 
 	function subscribe(queryArray){
-		var query = "Insert into ServiceSubscription (AlumnusId, ServiceId, Status) values ?";
+		var query = "Insert into ServiceSubscription (AlumnusId, ServiceId, Status) values ? on duplicate key update Status = values(Status)";
 		return settings.dbConnection().then(function(connection){
-			return settings.dbCall(connection, query, queryArray);
+			return settings.dbCall(connection, query, [queryArray]);
 		})
 	}
 

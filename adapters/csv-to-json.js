@@ -35,6 +35,13 @@ var mapper = {
 	"Employee Code": 	 "code",
 	"Salary": 	 "salaryLPA",
 	"Gender": 	 "sex",
+	"Current Organization": "previous_organisation",
+	"Current designation": "previous_designation",
+	"Batch From": "batchFrom",
+	"Batch To": 'batchTo',
+	"Course Type": 'type',
+	"From": "from",
+	"To": 'to',
 	"": 	 "companyId"
 }
 

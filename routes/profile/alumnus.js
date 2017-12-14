@@ -1,4 +1,4 @@
-var getSignedUrl = require('../../lib/get-signed-url.js')
+var getSignedUrl = require('../../lib/get-signed-url.js');
 module.exports = function(settings){
 	var app = settings.app;
 	var mode = settings.mode;
@@ -59,7 +59,7 @@ module.exports = function(settings){
 				data.profession.push({
 					id: aRow['EntryId'],
 					designation: aRow["Designation"],
-					organisation: aRow['Organisation'],
+					organisation: aRow["Organisation"],
 					from: aRow["FromTimestamp"],
 					to: aRow["ToTimestamp"]
 				})
@@ -100,16 +100,16 @@ module.exports = function(settings){
 	}
 
 	function fetchEducation(companyID, alumnusID){
-		var query = "Select ed.EntryId,cm.Name as Course, im.Name as Institute, CourseType, BatchFrom, BatchTo from EducationDetails ed inner join CourseMaster cm on ed.CourseId=cm.CourseId inner join InstituteMaster im on ed.InstituteId = im.InstituteId where ed.AlumnusId = ? and ed.CompanyId = ?";
-		var queryArray = [ alumnusID, companyID ];
+		var query = "Select ed.EntryId,cm.Name as Course, im.Name as Institute, CourseType, BatchFrom, BatchTo from EducationDetails ed inner join CourseMaster cm on ed.CourseId=cm.CourseId inner join InstituteMaster im on ed.InstituteId = im.InstituteId where ed.AlumnusId = ? and ed.CompanyId = ? and ed.Status = ?";
+		var queryArray = [ alumnusID, companyID, 'active' ];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
 		})
 	}
 
 	function fetchProfession(companyID, alumnusID){
-		var query = "Select * from ProfessionDetails pd inner join OrganisationMaster om on pd.OrganisationId = om.OrganisationId inner join RoleMaster rm on pd.DesignationId = rm.RoleId where pd.AlumnusId = ? and pd.CompanyId = ?";
-		var queryArray = [ alumnusID, companyID ];
+		var query = "Select pd.EntryId, om.Name as Organisation, rm.Name as Designation, pd.FromTimestamp, pd.ToTimestamp from ProfessionDetails pd inner join OrganisationMaster om on pd.OrganisationId = om.OrganisationId inner join RoleMaster rm on pd.DesignationId = rm.RoleId where pd.AlumnusId = ? and pd.CompanyId = ? and pd.Status = ?";
+		var queryArray = [ alumnusID, companyID, 'active' ];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
 		})

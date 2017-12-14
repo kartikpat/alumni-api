@@ -82,9 +82,26 @@ module.exports = function(settings){
 			})
 		}
 		catch(err){
+			cprint(err,1)
+			return settings.serviceError(res);
+		}
+	})
+
+	app.post("/company/:companyID/alumni/:alumnusID/education/:entryID/remove", async function(req, res){
+		var companyID = req.params.companyID,
+			alumnusID = req.params.alumnusID,
+			entryID = req.params.entryID;
+		try{
+			await removeEducationDetail(entryID);
+			res.json({
+				status: 'success'
+			})
+		}
+		catch(err){
 			cprint(err,1);
 			return settings.serviceError(res);
 		}
+
 	})
 
 	function addCourse(course){
@@ -114,6 +131,13 @@ module.exports = function(settings){
 	function updateEducationDetails(entryID,alumnusID, courseID, instituteID, batchFrom, batchTo, courseType, companyID){
 		var query = "Update EducationDetails Set CourseId = ?, InstituteId = ?, BatchFrom = ?, BatchTo = ?, CourseType = ? where EntryId = ?"
 		var queryArray = [ courseID, instituteID, batchFrom, batchTo, courseType, entryID];
+		return settings.dbConnection().then(function(connection){
+			return settings.dbCall(connection, query, queryArray);
+		})	
+	}
+	function removeEducationDetail(entryID){
+		var query = "Update EducationDetails Set Status = ? where EntryId = ?";
+		var queryArray = ['inactive',entryID];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
 		})	

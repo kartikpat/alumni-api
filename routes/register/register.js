@@ -2,6 +2,7 @@ var crypto = require('crypto');
 var fs = require('fs');
 var uploader = require('../../lib/upload.js');
 var template = fs.readFileSync("./test.html", 'utf8');
+var templateForgotPassword = fs.readFileSync("./forgot-password.html", 'utf8')
 var uuidV4 = require("uuid/v4");
 var moment = require('moment');
 
@@ -112,7 +113,8 @@ module.exports = function(settings){
 					var ob = {};
 					ob[email] = {
 						link: link,
-						email:email
+						email:email,
+						companyName: organisation
 					}
 					return settings.sendMail("Welcome", template, email, ob).then(function(rows){
 						cprint(rows)
@@ -141,15 +143,18 @@ module.exports = function(settings){
 			if(userRows.length <1)
 				return settings.notFound(res);
 			var password = userRows[0]['Password'];
+			var name = userRows[0]['Name'];
+			var companyName = userRows[0]['CompanyName'];
 			var link = config["app"]["web"]["domain"]+"/verify?e="+email+"&k="+password; 
 			if(email.indexOf('@iimjobs.com') >-1){
 				var ob = {};
 				ob[email] = {
 					link: link,
-					email:email
+					email:email,
+					name: name,
+					companyName: companyName
 				}
-				var sendingMail = await settings.sendMail("Forgot password?", template, email, ob)
-				cprint(sendingMail)
+				var sendingMail = await settings.sendMail("Forgot password?", templateForgotPassword, email, ob)
 				return res.json({
 					status: 'success'
 				});
@@ -167,7 +172,7 @@ module.exports = function(settings){
 			email = req.body.email || null,
 			newPassword = req.body.newPassword || null;
 
-		if(! (password && newPassword && id)){
+		if(! (password && newPassword && email)){
 			return settings.unprocessableEntity(res);
 		};
 		password = getHash(password);
@@ -176,7 +181,7 @@ module.exports = function(settings){
 			if(rows.length<1){
 				return Promise.reject(new Error("incorrect"));
 			}
-			return updatePassword(id, newPassword);
+			return updatePassword(email, newPassword);
 		})
 		.then(function(updationRows){
 			return res.json({
@@ -205,7 +210,6 @@ module.exports = function(settings){
 			if(rows.length<1){
 				return Promise.reject(new Error("incorrect"));
 			}
-			console.log(password)
 			return updatePassword(email, password);
 		})
 		.then(function(updationRows){
@@ -256,8 +260,8 @@ module.exports = function(settings){
 	}
 
 	function fetchUser(email){
-		var query = 'Select Email, Password from CompanyAccess where Email = ?';
-		var queryArray = [email];
+		var query = 'Select ca.Email, ca.Password, ca.Name, cm.Name as CompanyName from CompanyAccess ca inner join CompanyMaster cm on ca.CompanyId = cm.Id where ca.Email = ? and ca.Status = ? and cm.Status = ?';
+		var queryArray = [ email, 'active', 'active'];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
 		})
