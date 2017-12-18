@@ -11,7 +11,7 @@ var mode = "prod";
 var env = "cloud";
 /**
  * node.js fs module for accessing system file storage
- * @type {module}	
+ * @type {module}
  */
 var fs = require("fs");
 
@@ -77,7 +77,7 @@ function cprint(text, level){
 		return console.log(text);
 }
 
-var settings= {
+var settings = {
 	config: config,
 	app: app,
 	vault: vault,
@@ -98,11 +98,13 @@ require(__dirname+"/workers/staging/profession.js")(settings)
 require(__dirname+"/workers/ingest/education.js")(settings)
 require(__dirname+"/workers/ingest/profession.js")(settings)
 require(__dirname+"/workers/ingest-file.js")(settings);
+
 /**
  * Tasks Api
  * /company/:companyID/tasks
  * /company/:companyID/task
  */
+ 
 require(__dirname+"/routes/tasks/list.js")(settings);
 require(__dirname+"/routes/tasks/task.js")(settings);
 
@@ -140,7 +142,7 @@ require(__dirname+"/routes/profile/alumnus.js")(settings);
 
 /**
  * Image loading service
- * 
+ *
  */
 require(__dirname+"/routes/image-load/image-load.js")(settings);
 
