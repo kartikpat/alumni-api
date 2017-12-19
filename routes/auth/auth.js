@@ -16,11 +16,6 @@ module.exports = function(settings){
 	var env = settings.env;
 	var cprint = settings.cprint;
 
-	// jwt.verify(sampleToken, "somesupersecret", function(err, decoded){
-	// 	if(err)
-	// 		cprint(err);
-	// 	cprint(decoded)
-	// })
 
 	app.post("/company/login", function(req, res){
 		var email = req.body.email || null,
@@ -40,15 +35,23 @@ module.exports = function(settings){
 				companyID: companyID,
 				role: role
 			}
-			jwt.sign(payload, "somesupersecret",{ expiresIn: 60*60 }, function(err, token){
-				if(err)
-					cprint(err)
-				res.json({
-					status: "success",
-					data: payload,
-					token: token
-				});
-				return
+			var expiresIn = 60*60;
+			jwt.sign(payload, "somesupersecret",{ expiresIn: expiresIn }, function(err, token){
+				if(err){
+					cprint(err,1);
+					return settings.serviceError(res);
+				}
+				var key = token;
+
+				settings.setKey(key, expiresIn).then(function(reply){
+					if(reply) {
+						return res.json({
+							status: "success",
+							data: payload,
+							token: token
+						});
+					}
+				})
 			})
 
 		})
@@ -60,7 +63,6 @@ module.exports = function(settings){
 
 	function validate(email, password){
 		password = getHash(password);
-		console.log(password);
 		var query = "Select Id, CompanyId, AccessLevel from CompanyAccess where Email = ? and Password = ? and Status = 'active'";
 		var queryArray = [email, password];
 		return settings.dbConnection().then(function(connection){

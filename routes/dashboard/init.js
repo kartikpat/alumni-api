@@ -7,7 +7,8 @@ module.exports = function(settings){
 	var env = settings.env;
 	var cprint = settings.cprint;
 
-	app.get("/company/:companyID/dashboard", function(req, res){
+	
+	app.get("/company/:companyID/dashboard",settings.isAuthenticated, function(req, res){
 		var companyID = req.params.companyID;
 		var currentMonth = 1+ moment().month();
 		var promiseArray = [ alumniCount(companyID), getBirthdayCount(companyID,currentMonth), getNewsCount(companyID)]
@@ -58,7 +59,7 @@ module.exports = function(settings){
 		var queryArray = [companyID, aMonth];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
-		});				
+		});
 	}
 	function getNewsCount(companyID){
 		return new Promise(function(fulfill, reject){
