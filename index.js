@@ -27,6 +27,8 @@ var mysql = require("mysql");
  */
 var request = require("request");
 
+
+
 program
 	.version(require('./package.json')['version'])
 	.option('-d, --debug', 'run in debug mode')
@@ -58,8 +60,9 @@ var vault = program.vault;
 var app = express();
 
 app.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Origin", "http://localhost:8080");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, appID, empID, version, token");
+  res.header("Access-Control-Allow-Credentials", "true")
   next();
 });
 
@@ -99,12 +102,21 @@ require(__dirname+"/workers/ingest/education.js")(settings)
 require(__dirname+"/workers/ingest/profession.js")(settings)
 require(__dirname+"/workers/ingest-file.js")(settings);
 
+
+
+
+/**
+ * cache Api
+ */
+require(__dirname+"/cache/redis/redis.js")(settings)
+require(__dirname+"/auth.js")(settings)
+
 /**
  * Tasks Api
  * /company/:companyID/tasks
  * /company/:companyID/task
  */
- 
+
 require(__dirname+"/routes/tasks/list.js")(settings);
 require(__dirname+"/routes/tasks/task.js")(settings);
 
@@ -133,7 +145,7 @@ require(__dirname+"/routes/auth/auth.js")(settings);
 
 
 /**
- * Profiel API
+ * Profile API
  * /company/:companyID/user/:userID
  * /company/:companyID/alumni/:alumnusID
  */
