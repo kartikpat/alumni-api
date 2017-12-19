@@ -4,11 +4,16 @@ module.exports = function(settings){
 
     function isAuthenticated(req,res,next) {
         var expiresIn = 60*60;
-        console.log(req.headers.cookie)
-        var token = getCookie("token",req)
+        var token = req.get('Authorization');
+        token = token.replace('Bearer ','');
         settings.keyExists(token).then(function(reply){
             if(reply) {
-                settings.setKey(token, expiresIn);
+                settings.setKey(token, expiresIn).then(function(reply){
+                    return next();
+                })
+            }
+            else {
+                return settings.unAuthorised(res);
             }
         })
     }

@@ -63,7 +63,6 @@ module.exports = function(settings){
 
 	function validate(email, password){
 		password = getHash(password);
-		console.log(password);
 		var query = "Select Id, CompanyId, AccessLevel from CompanyAccess where Email = ? and Password = ? and Status = 'active'";
 		var queryArray = [email, password];
 		return settings.dbConnection().then(function(connection){
