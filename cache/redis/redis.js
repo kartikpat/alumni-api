@@ -3,7 +3,7 @@ var redis = require('redis');
 
 module.exports = function(settings){
 
-    var redisClient = redis.createClient({host : 'localhost', port : 6379});
+    var redisClient = redis.createClient({host : config["redis"]["host"], port : config["redis"]["port"]});
 
     // redisClient.on('ready',function() {
     //     console.log("Redis is ready");
