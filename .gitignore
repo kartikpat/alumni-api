@@ -3,6 +3,7 @@ node_modules
 
 #excluding deployment script
 deploy.sh
+prod-deploy.sh
 
 #excluding build
 static/build/*
