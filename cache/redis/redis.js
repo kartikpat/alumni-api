@@ -1,8 +1,7 @@
 var redis = require('redis');
 
 module.exports = function(settings){
-	var config = settings.config;
-
+    var config = settings.config;
     var redisClient = redis.createClient({host : config["redis"]["host"], port : config["redis"]["port"]});
 
     // redisClient.on('ready',function() {
@@ -20,7 +19,7 @@ module.exports = function(settings){
 
     function setKey(key, value){
 		return new Promise(function(resolve, reject){
-			redisClient.set(key,value,function(err,reply){
+			redisClient.set(key,value,'EX', value,function(err,reply){
 				if(err){
 					return reject(err);
 				}
