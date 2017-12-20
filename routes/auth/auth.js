@@ -28,7 +28,7 @@ module.exports = function(settings){
 				return settings.unAuthorised(res);
 			var id = rows[0]["Id"],
 				companyID = rows[0]["CompanyId"],
-				role = rows[0]["Role"];
+				role = rows[0]["AccessLevel"];
 			var payload = {
 				emai: email,
 				id: id,
@@ -43,7 +43,7 @@ module.exports = function(settings){
 				}
 				var key = token;
 
-				settings.setKey(key, expiresIn).then(function(reply){
+				settings.setKey(key, expiresIn).then(function(reply) {
 					if(reply) {
 						return res.json({
 							status: "success",

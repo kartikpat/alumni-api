@@ -1,5 +1,7 @@
 var request = require('request');
 var sendMessage = require('../../Q/sqs/news.js');
+var jwt = require("jsonwebtoken");
+
 module.exports = function(settings){
 	var app = settings.app;
 	var mode = settings.mode;
@@ -13,7 +15,23 @@ module.exports = function(settings){
 			return settings.unprocessableEntity(res);
 		return next()
 	}
-	app.post('/company/:companyID/news/:newsID/send', validate, async function(req, res){
+
+	function isAuthorized(req, res, next) {
+
+		var token = req.get('Authorization');
+        token = token.replace('Bearer ','');
+
+		// get the decoded payload and header
+		var decoded = jwt.decode(token, {complete: true});
+		console.log(decoded.payload)
+
+		if(decoded.payload.role != "admin" && decoded.payload.role != "master") {
+			return settings.badRequest(res)
+		}
+		return next()
+	}
+
+	app.post('/company/:companyID/news/:newsID/send', validate, isAuthorized , async function(req, res){
 		var companyID = req.params.companyID,
 			newsID = req.params.newsID;
 		var groupArray = req.body.group.split(',');
@@ -58,7 +76,7 @@ module.exports = function(settings){
 			return settings.dbCall(connecting, query, queryArray);
 		})
 	}
-	
+
 	function populateQ( event, companyID, newsID, dataArray, timestamp){
 		var message = {
 			event: event,
@@ -69,7 +87,7 @@ module.exports = function(settings){
 		}
 		return sendMessage(message);
 	}
-		
+
 
 	function fetchNews(companyID, newsID){
 		return new Promise(function(fulfill, reject){
