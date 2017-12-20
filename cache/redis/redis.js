@@ -20,7 +20,7 @@ module.exports = function(settings){
 
     function setKey(key, value){
 		return new Promise(function(resolve, reject){
-			redisClient.set(key,value,function(err,reply){
+			redisClient.set(key,value,'EX', value,function(err,reply){
 				if(err){
 					return reject(err);
 				}
