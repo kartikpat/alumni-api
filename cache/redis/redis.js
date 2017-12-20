@@ -1,8 +1,8 @@
 var redis = require('redis');
-// bluebird.promisifyAll(redis.RedisClient.prototype);
+
 
 module.exports = function(settings){
-
+    var config = settings.config;
     var redisClient = redis.createClient({host : config["redis"]["host"], port : config["redis"]["port"]});
 
     // redisClient.on('ready',function() {
