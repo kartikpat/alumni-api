@@ -11,6 +11,7 @@ static/build/*
 #excluding confgurations
 configuration.json
 prod-configuration.json
+prod-public-configuration.json
 
 #excluding editor preferences
 *.sublime-workspace

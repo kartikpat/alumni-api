@@ -102,7 +102,7 @@ module.exports = function(settings){
 	}
 
 	function fetchAlumnus(entryID){
-		var query = "Select am.FirstName, am.MiddleName, am.LastName, am.Email, am.AlumnusId, am.CompanyId, am.Dob, am.DateOfBirth, cm.Name as CompanyName from AlumnusMaster am inner join CompanyMaster cm on am.companyId = cm.CompanyId where am.AlumnusId = ?"
+		var query = "Select am.FirstName, am.MiddleName, am.LastName, am.Email, am.AlumnusId, am.CompanyId, am.Dob, am.DateOfBirth, cm.Name as CompanyName from AlumnusMaster am inner join CompanyMaster cm on am.companyId = cm.Id where am.AlumnusId = ?"
 		var queryArray = [entryID];
 		return settings.dbConnection().then(function(connecting){
 			return settings.dbCall(connecting, query, queryArray);
