@@ -29,7 +29,7 @@ module.exports = function(settings){
 	var env = settings.env;
 	var cprint = settings.cprint;
 
-	app.post("/company/:companyID/register", function(req, res){
+	app.post("/company/:companyID/register", async function(req, res){
 		var companyID = req.params.companyID;
 		var email = req.body.email || null,
 			name = req.body.name || null,
@@ -37,17 +37,28 @@ module.exports = function(settings){
 			accessLevel = req.body.accessLevel || null;
 		if(!(email && password && accessLevel && name))
 			return settings.unprocessableEntity(res);
-
-		registerAccess(companyID, name, email, accessLevel, password)
-		.then(function(rows){
-			return res.json({
-				status: "success"
+		try{
+			var companyRows = await fetchCompanyName(companyID);
+			if(companyRows.length<1)
+				return settings.notFound(res, 'no company');
+			var organisation = companyRows[0]['Name'];
+			var rows = await registerAccess(companyID, name, email, accessLevel, password);
+			var link = config["app"]["web"]["domain"]+"/verify?e="+email+"&k="+password; 
+			var ob = {};
+			res.json({
+				status: 'success'
 			});
-		})
-		.catch(function(err){
+			ob[email] = {
+				link: link,
+				email:email,
+				companyName: organisation
+			}
+			var mailRows = await settings.sendMail("Welcome", template, email, ob);
+			cprint(mailRows,1);
+		}catch(err){
 			cprint(err,1);
 			return settings.serviceError(res);
-		})
+		}
 	});
 
 	function addSubscription(){
@@ -284,5 +295,14 @@ module.exports = function(settings){
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query);
 		})
+	}
+
+	function fetchCompanyName(companyID){
+		var query = "Select * from CompanyMaster where Id = ?";
+		var queryArray = [companyID];
+		return settings.dbConnection().then(function(connection){
+			return settings.dbCall(connection, query, queryArray);
+		})
+
 	}
 }
