@@ -35,7 +35,7 @@ module.exports = function(settings){
 			name = req.body.name || null,
 			password = req.body.password || null,
 			accessLevel = req.body.accessLevel || null;
-		if(!(email && password && accessLevel && name))
+		if(!(email && accessLevel && name))
 			return settings.unprocessableEntity(res);
 		try{
 			password =uuidV4().replace(/\-/g,"");
