@@ -131,7 +131,7 @@ module.exports = function(settings){
 				cprint(mailRows);
 			}catch(e){
 				cprint(e,1);
-				if(err.errno)
+				if(e.errno)
 					return settings.conflict(res);
 				return settings.serviceError(res);
 			}
