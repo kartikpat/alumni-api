@@ -93,44 +93,48 @@ module.exports = function(settings){
 		var t = moment();
 		var storagePath = config["aws"]["s3"]["bucket"] +"/"+t.format('YYYY/MM/DD')
 		var fileName = t.format('YYYY-MM-DD-HH-MM-SS-x')+'.jpg';
-		uploader.upload(fileName, fileStream, storagePath, 'public-read', function(err, data){
+		var timestamp = Date.now();
+		uploader.upload(fileName, fileStream, storagePath, 'public-read', async function(err, data){
 			if(err){
 				cprint(err,1);
 				return settings.serviceError(res);
 			}
 			var password =uuidV4().replace(/\-/g,"");
-			addCompany(organisation, fileName, wUrl)	
-			.then(function(rows){
-				var insertID = rows.insertId;
-				return registerAccess(insertID, name, email, 'master', password)
-			})
-			.then(function(rows){
+			try{
+				var companyRows = await addCompany(organisation, fileName, wUrl);
+				var insertID = companyRows.insertId;
+				var registerRows = await registerAccess(insertID, name, email, 'master', password);
+				var allServices = await fetchServices();
+				if(allServices && allServices.length >0){
+					var serviceArray = [];
+					for(var i=0; i< allServices.length; i ++){
+						serviceArray.push([
+								 allServices[i]['Id'],
+								 insertID,
+								 'active',
+								 timestamp
+							])
+					}
+					await registerService(serviceArray)
+				}
 				res.json({
 					status: 'success'
 				})
 				var link = config["app"]["web"]["domain"]+"/verify?e="+email+"&k="+password; 
-				if(email.indexOf('@iimjobs.com') >-1){
-					var ob = {};
-					ob[email] = {
-						link: link,
-						email:email,
-						companyName: organisation
-					}
-					return settings.sendMail("Welcome", template, email, ob).then(function(rows){
-						cprint(rows)
-					})
-					.catch(function(err){
-						return cprint(err,1)
-					})
+				var ob = {};
+				ob[email] = {
+					link: link,
+					email:email,
+					companyName: organisation
 				}
-				return
-			})
-			.catch(function(err){
-				cprint(err,1);
+				var mailRows = await settings.sendMail("Welcome", template, email, ob);
+				cprint(mailRows);
+			}catch(e){
+				cprint(e,1);
 				if(err.errno)
 					return settings.conflict(res);
 				return settings.serviceError(res);
-			})
+			}
 		})
 	})
 
@@ -266,5 +270,18 @@ module.exports = function(settings){
 			return settings.dbCall(connection, query, queryArray);
 		})
 	}
+
+	function registerService(queryArray){
+		var query = "Insert into ServicesAccess (ServiceId, CompanyId, Status, CreatedAt) values ?";
+		return settings.dbConnection().then(function(connection){
+			return settings.dbCall(connection, query, queryArray);
+		})
+	}
 	
+	function fetchServices(){
+		var query = "Select * from ServicesMaster";
+		return settings.dbConnection().then(function(connection){
+			return settings.dbCall(connection, query);
+		})
+	}
 }
