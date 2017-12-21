@@ -36,7 +36,22 @@ module.exports = function(settings){
 		return next()
 	}
 
-	app.post('/company/:companyID/service/:serviceID/:state', async function(req, res){
+	async function isAuthorised(req, res, next){
+		var companyID = req.params.companyID;
+		var serviceID = req.params.serviceID;
+		try {
+			var rows = await checkServiceAccess(companyID, serviceID);
+			if(rows.length<1)
+				return settings.badRequest(res);
+			return next();
+		}catch(err){
+			cprint(err,1);
+			return settings.serviceError(res);
+		}
+	}
+
+
+	app.post('/company/:companyID/service/:serviceID/:state', isAuthorised, async function(req, res){
 		var companyID = req.params.companyID,
 			serviceID = req.params.serviceID;
 		var id = req.body.id,
@@ -98,6 +113,14 @@ module.exports = function(settings){
 						cprint(message)
 						sendMessage(message);
 					})
+		})
+	}
+
+	function checkServiceAccess(companyID, serviceID){
+		var query = 'Select * from ServicesAccess where ServiceId = ? and CompanyId = ? and Status= ?';
+		var queryArray = [ serviceID, companyID, 'active'];
+		return settings.dbConnection().then(function(connecting){
+			return settings.dbCall(connecting, query, queryArray);
 		})
 	}
 

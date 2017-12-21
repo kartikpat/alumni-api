@@ -164,11 +164,11 @@ module.exports = function(settings){
 		})
 	}
 
-	function fetchServices(){
-		//var query = 'Select ServiceId from ServicesAccess sa inner join ServicesMaster sm on sa.ServiceId = sm.Id inner join CompanyAccess ca on ca.CompanyId = sa.CompanyId inner join CompanyMaster cm on ca.CompanyId = cm.Id where ca.Id = ? and sa.Status = ? and ca.Status = ? and cm.Status = ? ';
-		//var queryArray = [userID , 'active', 'active', 'active'];
-		var query = 'Select Id as ServiceId from ServicesMaster where Status = ?'
-		var queryArray = ['active'];
+	function fetchServices(userID){
+		var query = 'Select ServiceId from ServicesAccess sa inner join ServicesMaster sm on sa.ServiceId = sm.Id inner join CompanyAccess ca on ca.CompanyId = sa.CompanyId inner join CompanyMaster cm on ca.CompanyId = cm.Id where ca.Id = ? and sa.Status = ? and ca.Status = ? and cm.Status = ? ';
+		var queryArray = [userID , 'active', 'active', 'active'];
+		// var query = 'Select Id as ServiceId from ServicesMaster where Status = ?'
+		// var queryArray = ['active'];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
 		})
