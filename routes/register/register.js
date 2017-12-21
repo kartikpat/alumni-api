@@ -38,6 +38,7 @@ module.exports = function(settings){
 		if(!(email && password && accessLevel && name))
 			return settings.unprocessableEntity(res);
 		try{
+			password =uuidV4().replace(/\-/g,"");
 			var companyRows = await fetchCompanyName(companyID);
 			if(companyRows.length<1)
 				return settings.notFound(res, 'no company');
