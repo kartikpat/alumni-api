@@ -271,8 +271,9 @@ module.exports = function(settings){
 		})
 	}
 
-	function registerService(queryArray){
+	function registerService(serviceArray){
 		var query = "Insert into ServicesAccess (ServiceId, CompanyId, Status, CreatedAt) values ?";
+		var queryArray = [serviceArray]
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
 		})
