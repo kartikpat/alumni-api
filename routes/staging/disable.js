@@ -5,7 +5,7 @@ module.exports = function(settings){
 	var env = settings.env;
 	var cprint = settings.cprint;
 
-	app.post("/company/:companyID/staging/:stagingID/disable", async function(req, res){
+	app.post("/company/:companyID/staging/:stagingID/disable",settings.isAuthenticated, async function(req, res){
 		var companyID = req.params.companyID;
 		var stagingID = req.params.stagingID;
 		try{

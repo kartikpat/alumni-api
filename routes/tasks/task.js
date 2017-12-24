@@ -5,7 +5,7 @@
 	var env = settings.env;
 	var cprint = settings.cprint;
 
-	app.get('/company/:companyID/tasks/:taskID', function(req, res){
+	app.get('/company/:companyID/tasks/:taskID',settings.isAuthenticated, function(req, res){
 		var companyID = req.params.companyID,
 			taskID = req.params.taskID;
 		var userID = req.query.userID;

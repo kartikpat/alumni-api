@@ -5,7 +5,7 @@ module.exports = function(settings){
 	var env = settings.env;
 	var cprint = settings.cprint;
 
-	app.get('/company/:companyID/insights/salary/max', function(req, res){
+	app.get('/company/:companyID/insights/salary/max',settings.isAuthenticated, function(req, res){
 		var companyID = req.params.companyID;
 		var ranges = ["1-3","4-6","7-9","10-12","13-15","16-18","19-21","22-above"];
 		var data = [ 0,0,0,0,0,0,0,0 ]
@@ -34,7 +34,7 @@ module.exports = function(settings){
 			return settings.serviceError(res);
 		})
 	})
-	app.get("/company/:companyID/insights/:group/max", function(req, res){
+	app.get("/company/:companyID/insights/:group/max",settings.isAuthenticated, function(req, res){
 		var companyID = req.params.companyID;
 		var year = req.query.year ||null;
 		var group = req.params.group;
@@ -45,7 +45,7 @@ module.exports = function(settings){
 
 		var timestamp = new Date(year, 0, 1).getTime();
 		var nextTimestamp = new Date(parseInt(year)+1, 0, 1).getTime();
-		
+
 		fetchEmployeesLeaving(companyID, timestamp, nextTimestamp, group)
 		.then(function(rows){
 			rows.sort(function(a,b){
@@ -70,11 +70,11 @@ module.exports = function(settings){
 		var queryArray = [ companyID, timestamp, nextTimestamp ];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
-		})	
+		})
 	}
 
 
-	app.get("/company/:companyID/insights/:group/change", function(req, res){
+	app.get("/company/:companyID/insights/:group/change", settings.isAuthenticated, function(req, res){
 		var companyID = req.params.companyID;
 		var year = req.query.year ||null;
 		var metric = req.query.metric || null;
@@ -86,7 +86,7 @@ module.exports = function(settings){
 
 		var timestamp = new Date(parseInt(year)-1, 0, 1).getTime();
 		var nextTimestamp = new Date(parseInt(year)+1, 0, 1).getTime();
-		
+
 		fetchSeniorityChange(companyID, timestamp, nextTimestamp, metric, group)
 		.then(function(rows){
 			res.json({
@@ -122,7 +122,7 @@ module.exports = function(settings){
 	}
 	/************************************/
 
-	app.get("/company/:companyID/insights/:group/demography/:groupValue", function(req, res){
+	app.get("/company/:companyID/insights/:group/demography/:groupValue", settings.isAuthenticated, function(req, res){
 		var companyID = req.params.companyID;
 		var group = req.params.group,
 			groupValue = req.params.groupValue;
@@ -200,7 +200,7 @@ module.exports = function(settings){
 	}
 
 	function fetchDesignationGender(designation){
-		var query = "Select count(*) as `cnt`, Sex as `Name`	 from AlumnusMaster am inner join DesignationMaster dm on am.DesignationId=dm.DesignationId where dm.Name = ? group by Sex";
+		var query = "Select count(*) as `cnt`, Sex as `Name` from AlumnusMaster am inner join DesignationMaster dm on am.DesignationId=dm.DesignationId where dm.Name = ? group by Sex";
 		var queryArray = [ designation ];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
@@ -208,7 +208,7 @@ module.exports = function(settings){
 	}
 
 	function fetchDesignationEducation(designation){
-		
+
 		var queryArray = [designation];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);

@@ -51,7 +51,7 @@ module.exports = function(settings){
 	}
 
 
-	app.post('/company/:companyID/service/:serviceID/:state', isAuthorised, async function(req, res){
+	app.post('/company/:companyID/service/:serviceID/:state',settings.isAuthenticated, isAuthorised, async function(req, res){
 		var companyID = req.params.companyID,
 			serviceID = req.params.serviceID;
 		var id = req.body.id,
@@ -77,7 +77,7 @@ module.exports = function(settings){
 				var qArray = [];
 				queryArray.forEach(function(anItem){
 					qArray.push([
-						anItem[0], 
+						anItem[0],
 						templateID,
 						anItem[2],
 						timestamp

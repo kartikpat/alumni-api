@@ -6,7 +6,7 @@ module.exports = function(settings){
 	var env = settings.env;
 	var cprint = settings.cprint;
 
-	app.get("/company/:companyID/search", async function(req, res){
+	app.get("/company/:companyID/search",settings.isAuthenticated, async function(req, res){
 		var companyID = req.params.companyID;
 		var searchString = req.query.searchString || null;
 		if(!searchString)
@@ -66,7 +66,7 @@ module.exports = function(settings){
 		.catch(function(err){
 			cprint(err,1);
 			return settings.serviceError(res);
-		})	
+		})
 	});
 
 	function fetchSubscriptions(alumniArray){

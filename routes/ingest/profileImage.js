@@ -17,7 +17,7 @@ module.exports = function(settings){
 		return next();
 	}
 
-	app.post('/company/:companyID/upload/profile', validate, function(req, res){
+	app.post('/company/:companyID/upload/profile', settings.isAuthenticated, validate, function(req, res){
 		var companyID = req.params.companyID;
 		var type = req.body.type,
 			url = req.body.url;
@@ -34,7 +34,7 @@ module.exports = function(settings){
 					status: 'success',
 					data: body
 				});
-		})	
+		})
 	})
 
 	app.post("/initiate/profile/helper", function(req, res){

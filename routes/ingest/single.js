@@ -52,7 +52,7 @@ module.exports = function(settings){
 			linkedInURL = req.body.linkedInURL || null;
 
 		var salary = req.body.salary || null;
-		
+
 		var dob = req.body.dob || null,
 			dol = req.body.dol || null,
 			doj = req.body.doj || null;
@@ -75,11 +75,11 @@ module.exports = function(settings){
 					if(!( educationArray[i]["institute"] && educationArray[i]["course"] ))
 						return settings.unprocessableEntity(res, 'missing education values');
 				}
-			}	
+			}
 			catch(err){
 				cprint(err,1)
 				return settings.unprocessableEntity(res, 'invalid format');
-			}	
+			}
 		}
 		if(professionArray){
 			try{
@@ -93,14 +93,14 @@ module.exports = function(settings){
 				cprint(err,1)
 				return settings.unprocessableEntity(res, 'invalid format');
 			}
-		}	
+		}
 
 		return next()
 	}
 
-	app.post("/company/:companyID/alumni", multer.single('image'),validate, async function(req, res){
+	app.post("/company/:companyID/alumni",settings.isAuthenticated, multer.single('image'),validate, async function(req, res){
 		var companyID = req.params.companyID;
-		
+
 		var firstName = req.body.firstName || null,
 			middleName = req.body.middleName || null,
 			lastName = req.body.lastName || null,
@@ -117,7 +117,7 @@ module.exports = function(settings){
 		var salary = req.body.salary || null;
 
 		var sex = req.body.sex || null;
-		
+
 		var dob = moment(req.body.dob, 'DD/MM/YYYY').format('x'),
 
 			dol = req.body.dol || null,
@@ -144,7 +144,7 @@ module.exports = function(settings){
 			const departmentID = prepareAlumni[0].insertId;
 			const designationID = prepareAlumni[1].insertId;
 			const imageName = (prepareAlumni[2]===1) ? null: prepareAlumni[2];
-			
+
 			const insertAlumni = await addAlumni(firstName, middleName, lastName, email, phone, companyEmail, dob, dateOfBirth, doj, dol, departmentID, designationID, linkedInURL, code, salary, companyID, sex, imageName);
 			const alumnusID = insertAlumni.insertId;
 
@@ -161,7 +161,7 @@ module.exports = function(settings){
 				}
 			}
 			if(professionArray){
-				professionArray = JSON.parse(professionArray);	
+				professionArray = JSON.parse(professionArray);
 				for( var i=0; i < professionArray.length; i++){
 					var prepareProfession = await Promise.all([ addOrganisation(professionArray[i]['organisation']), addPastRole(professionArray[i]['designation']) ]);
 					var organisationID = prepareProfession[0].insertId;
@@ -222,7 +222,7 @@ module.exports = function(settings){
 		var queryArray = [designationName, companyID, designationName, companyID];
 		return settings.dbConnection().then(function(connecting){
 			return settings.dbCall(connecting, query, queryArray);
-		})	
+		})
 	}
 
 	function addAlumni(firstName , middleName , lastName , email , phone, companyEmail , dob , dateOfBirth, doj , dol , departmentID , designationID , linkedInUrl , code , salaryLPA , companyID , sex, imageName){
@@ -245,14 +245,14 @@ module.exports = function(settings){
 		var queryArray = [institute]
 		return settings.dbConnection().then(function(connecting){
 			return settings.dbCall(connecting, query, queryArray);
-		})	
+		})
 	};
 	function addEducationDetails(alumnusID, courseID, instituteID, batchFrom, batchTo, courseType, companyID){
 		var query = "Insert ignore into  EducationDetails (AlumnusId, CourseID, InstituteID, BatchFrom, BatchTo, CourseType, CompanyId) values (?, ?, ?, ?, ?, ?, ?)";
 		var queryArray = [ alumnusID, courseID, instituteID, batchFrom, batchTo, courseType, companyID ];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
-		})	
+		})
 	}
 	function addOrganisation(organisation){
 
@@ -260,7 +260,7 @@ module.exports = function(settings){
 		var queryArray = [organisation]
 		return settings.dbConnection().then(function(connecting){
 			return settings.dbCall(connecting, query, queryArray);
-		})		
+		})
 	};
 
 	function addPastRole(role){
@@ -275,7 +275,7 @@ module.exports = function(settings){
 		var queryArray = [ alumnusID, designationID, organisationId, fromTimestamp, toTimestamp, companyID ];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
-		})	
+		})
 	}
-	
+
 }

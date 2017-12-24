@@ -24,7 +24,7 @@ module.exports = function(settings){
 	function validate(req, res, next){
 		return next();
 	}
-	app.post("/company/:companyID/upload", validate ,multer.single('aFile'),function(req, res){
+	app.post("/company/:companyID/upload", settings.isAuthenticated, validate ,multer.single('aFile'),function(req, res){
 		var companyID = req.body.companyID,
 			userID = req.body.userID,
 			fileType = req.body.type,

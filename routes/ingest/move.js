@@ -13,7 +13,7 @@ module.exports = function(settings){
 		return next();
 	}
 
-	app.post("/company/:companyID/group/:groupName/move/:toGroupName",validate, async function(req, res){
+	app.post("/company/:companyID/group/:groupName/move/:toGroupName",settings.isAuthenticated, validate, async function(req, res){
 		var groupName = req.params.groupName;
 		var toGroupName = req.params.toGroupName;
 		var alumniArray = req.body.alumni.split(',');

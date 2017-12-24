@@ -33,7 +33,7 @@ module.exports = function(settings){
 	function getQuarter(timestamp) {
 		var d = (timestamp)? new Date(timestamp) : new Date();
 		var q = [1,2,3,4];
-		return { 
+		return {
 			quarter:q[Math.floor(d.getMonth() / 3)],
 			year: d.getFullYear()
 		};
@@ -52,7 +52,7 @@ module.exports = function(settings){
 		var queryArray = [companyID, timestamp, nextTimestamp ];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
-		})	
+		})
 	}
 	function fetchEmployeesLeaving(companyID, timestamp, nextTimestamp, metric){
 		var query = "select MONTH(FROM_UNIXTIME(DateOfLeaving/1000)) as `group`, YEAR(FROM_UNIXTIME(DateOfLeaving/1000)) as year, count(*) as cnt, dm.Name from AlumnusMaster am inner join DesignationMaster dm on am.DesignationId=dm.DesignationId where am.CompanyId =? and DateOfLeaving>? and DateOfLeaving <? group by MONTH(FROM_UNIXTIME(DateOfLeaving/1000)), YEAR(FROM_UNIXTIME(DateOfLeaving/1000)), am.DesignationId, dm.Name";
@@ -61,7 +61,7 @@ module.exports = function(settings){
 		var queryArray = [ companyID, timestamp, nextTimestamp ];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
-		})	
+		})
 	}
 	function fetchEmployees(companyID){
 		var query = "Select * from AlumnusMaster where companyID = ?";
@@ -109,7 +109,7 @@ module.exports = function(settings){
 		})
 	})
 
-	app.get("/company/:companyID/states", function(req, res){
+	app.get("/company/:companyID/states",settings.isAuthenticated, function(req, res){
 		var companyID = req.params.companyID;
 		var year = req.query.year || null,
 			metric = req.query.metric || null;
@@ -126,7 +126,7 @@ module.exports = function(settings){
 		var promiseArray = [fetchTotalEmployees(companyID, timestamp), fetchEmployeesJoining(companyID, timestamp, nextTimestamp, metric), fetchEmployeesLeaving(companyID, timestamp, nextTimestamp, metric)]
 		var allPromise = Promise.all(promiseArray)
 		allPromise.then(function(dataArray){
-			var totalEmployeesRows = dataArray[0]; 
+			var totalEmployeesRows = dataArray[0];
 			var joiningEmployeesRows = dataArray[1];
 			var leavingEmployeesRows = dataArray[2];
 
@@ -184,9 +184,9 @@ module.exports = function(settings){
 		var queryArray = [companyID]
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
-		});	
+		});
 	}
-	app.get("/company/:companyID/tenure", function(req, res){
+	app.get("/company/:companyID/tenure",settings.isAuthenticated, function(req, res){
 		var companyID = req.params.companyID;
 		var props = {}
 		var fetchingTenure = fetchTenure(companyID);
@@ -236,15 +236,15 @@ module.exports = function(settings){
 		}
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
-		});		
+		});
 	}
 
-	app.get("/company/:companyID/demography", function(req, res){
+	app.get("/company/:companyID/demography",settings.isAuthenticated, function(req, res){
 		var companyID = req.params.companyID;
 		var by = req.query.by || null;
 		if(!(by && ( by =='designation' || by=='institute' || by=='gender' || by=='education' || by=='location')))
 			return settings.unprocessableEntity(res);
-		var fetchingDemo = fetchEmployeesGroup(companyID, by);	
+		var fetchingDemo = fetchEmployeesGroup(companyID, by);
 		fetchingDemo.then(function(rows){
 			var data = [];
 			rows.forEach(function(aRow){
@@ -266,7 +266,7 @@ module.exports = function(settings){
 		})
 	});
 
-	app.get("/company/:companyID/birthday", function(req, res){
+	app.get("/company/:companyID/birthday",settings.isAuthenticated, function(req, res){
 		var companyID = req.params.companyID;
 		var fromDay = moment().date();
 		var fromMonth = 1+moment().month();
@@ -298,6 +298,6 @@ module.exports = function(settings){
 		var queryArray = [companyID, month, month, day];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
-		});				
+		});
 	}
 }

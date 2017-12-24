@@ -13,7 +13,7 @@ module.exports = function(settings){
 		return next();
 	}
 
-	app.post("/company/:companyID/group",validate, async function(req, res){
+	app.post("/company/:companyID/group",settings.isAuthenticated, validate, async function(req, res){
 		var name = req.body.name;
 		var alumniArray = req.body.alumni.split(',');
 		var companyID = req.params.companyID;
