@@ -12,18 +12,39 @@ function checkDate(aString){
 module.exports = function(settings){
 	var cprint = settings.cprint;
 
-	function sanitize(taskID, userID){
-		return fetchRecords(taskID, userID)
-		.then( sanitizeEachRecord )
-		.catch(function(err){
-			cprint(err,1);
-			return
+	function validateUserFields(anObject){
+		var requiredFields = ['course', 'institute'];
+		var dateFields = [ 'batchFrom','batchTo']
+		var missing = [];
+		var invalid = [];
+		requiredFields.forEach(function(aField){
+			if(!anObject[aField])
+				missing.push(aField)
 		})
+		dateFields.forEach(function(aField){
+			if(anObject[aField])
+				if(!checkDate(anObject[aField]))
+					invalid.push(aField)
+				else
+					anObject[aField] = checkDate(anObject[aField])
+		})
+		//TODO add a email validate function her
+
+
+		var errMessage = '';
+		if(missing.length>0)
+			errMessage+=('Missing values: '+ missing.join(', ')+'.' );
+		if(invalid.length>0)
+			errMessage+=('Invalid format: '+invalid.join(', ')+'.');
+		if(errMessage && errMessage!='')
+			throw new Error(errMessage);
 	}
 
-	function fetchRecords(taskID, companyID){
-		var query = "Select EntryId, Email, Course, Institute, BatchFrom, BatchTo, CourseType, CompanyId from StagingEducationDetails where TaskId = ? and UserId = ? and Status = ? ";
-		var queryArray = [taskID, companyID, 'pending'];
+
+
+	function fetchRecord(entryID){
+		var query = "Select EntryId, Email, Course, Institute, BatchFrom, BatchTo, CourseType, CompanyId from stagingAlumnusDetails where  EntryId= ?";
+		var queryArray = [entryID];
 		return settings.dbConnection().then(function(connecting){
 			return settings.dbCall(connecting, query, queryArray);
 		})
@@ -37,30 +58,34 @@ module.exports = function(settings){
 		})
 	}
 
-	async function sanitizeEachRecord(rows){
-		var len = rows.length;
-		for(var i=0; i < len; i++){
-			await sanitizeSingleRecord(rows[i])
-		}
-		return Promise.resolve(1)
-	}
-
-	function sanitizeSingleRecord(aRow){
+	function sanitizeSingleEducationRecord(aRow){
 		var props = {};
-		props.entryID = aRow["EntryId"];
-		props.email =aRow["Email"];
-		props.course = aRow['Course'];
-		props.institute = aRow['Institute'];
-		props.batchTo = aRow["BatchTo"];
-		props.batchFrom = aRow["BatchFrom"];
-		props.courseType = aRow["CourseType"];
-		props.companyID = aRow["CompanyId"];
+		var companyID = aRow["CompanyId"];
+		var email = aRow["Email"]
+		var entryID = aRow["EntryId"]
 
+		var alumniEducationDetails = Promise.all([fetchRecord(entryID)])
+		return alumniEducationDetails
+		.then(function(dataArray){
+			var rows = dataArray[0];
+		props.entryID = rows[0]["EntryId"];
+		props.email =rows[0]["Email"];
+		props.course = rows[0]['Course'];
+		props.institute = rows[0]['Institute'];
+		props.batchTo = rows[0]["BatchTo"];
+		props.batchFrom = rows[0]["BatchFrom"];
+		props.courseType = rows[0]["CourseType"];
+		props.companyID = rows[0]["CompanyId"];
+		if(!props.email) {
+			return Promise.reject(new Error("Email is missing, Education details discarded!"))
+		}
+		validateUserFields(props);
 		if(props.courseType)
 			props.courseType = props.courseType.replace(/ /g,'-').toLowerCase();
 
 		var alumniDetails = fetchAlumnus(props.email, props.companyID)
 		return alumniDetails
+		})
 		.then(function(rows){
 			if(rows.length <1)
 				return Promise.reject(-1);
@@ -75,21 +100,9 @@ module.exports = function(settings){
 			var educationRowsArray = [];
 			return addEducationDetails(props.alumnusID, courseID, instituteID, props.batchFrom, props.batchTo, props.courseType, props.companyID);
 		})
-		.then(function(rows){
-			return	updateStaging(props.entryID)
-		})
 		.catch(function(err){
 			cprint(err,1)
-			updateError(props.entryID, err.message);
-			return
-		})
-	}
-
-	function updateStaging(entryID){
-		var query = "Update StagingEducationDetails set Status = ? where EntryId = ?";
-		var queryArray = ['done',entryID];
-		return settings.dbConnection().then(function(connection){
-			return settings.dbCall(connection, query, queryArray);
+			return updateError(props.entryID, err.message);
 		})
 	}
 
@@ -99,7 +112,7 @@ module.exports = function(settings){
 			var queryArray = [ alumnusID, courseID, instituteID, batchFrom, batchTo, courseType, companyID ];
 			return settings.dbConnection().then(function(connection){
 				return settings.dbCall(connection, query, queryArray);
-			})	
+			})
 		}
 
 	function addCourse(course){
@@ -114,15 +127,15 @@ module.exports = function(settings){
 		var queryArray = [institute]
 		return settings.dbConnection().then(function(connecting){
 			return settings.dbCall(connecting, query, queryArray);
-		})	
+		})
 	};
 
 	function updateError(entryID, message){
-		var query = "Update StagingEducationDetails set Message = ? where EntryId = ?";
+		var query = "Update stagingAlumnusDetails set educationErrMsg = ? where EntryId = ?";
 		var queryArray = [message, entryID];
 		return settings.dbConnection().then(function(connecting){
 			return settings.dbCall(connecting, query, queryArray);
 		})
 	}
-	settings.sanitizeEducation = sanitize;
+	settings.sanitizeSingleEducationRecord = sanitizeSingleEducationRecord;
 }

@@ -22,7 +22,7 @@ module.exports = function(settings){
 	var env = settings.env;
 	var cprint = settings.cprint;
 
-	app.post("/company/:companyID/ingest", function(req, res){
+	app.post("/company/:companyID/ingest",settings.isAuthenticated, function(req, res){
 		var companyID = req.params.companyID;
 		var taskID = uuidV4().replace(/\-/g,"");
 		var props = {
@@ -74,10 +74,10 @@ module.exports = function(settings){
 			errorMessage = invalidFormat
 		}
 		payload = JSON.parse(payload);
-		
+
 		if(payload.length<1)
 			errorMessage = invalidFormat
-	
+
 		return checkUser(payload, props);
 	}
 

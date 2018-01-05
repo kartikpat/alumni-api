@@ -5,6 +5,7 @@ var template = fs.readFileSync("./test.html", 'utf8');
 var templateForgotPassword = fs.readFileSync("./forgot-password.html", 'utf8')
 var uuidV4 = require("uuid/v4");
 var moment = require('moment');
+var jwt = require("jsonwebtoken");
 
 function getHash(aString){
 	if(!aString)
@@ -44,7 +45,7 @@ module.exports = function(settings){
 				return settings.notFound(res, 'no company');
 			var organisation = companyRows[0]['Name'];
 			var rows = await registerAccess(companyID, name, email, accessLevel, password);
-			var link = config["app"]["web"]["domain"]+"/verify?e="+email+"&k="+password; 
+			var link = config["app"]["web"]["domain"]+"/verify?e="+email+"&k="+password;
 			var ob = {};
 			res.json({
 				status: 'success'
@@ -76,7 +77,7 @@ module.exports = function(settings){
 			serviceArray = serviceArray.split(',');
 			serviceArray.forEach(function(aService){
 			})
-			
+
 			var rows = await addSubscription()
 		}
 		catch(err){
@@ -85,7 +86,7 @@ module.exports = function(settings){
 		}
 	})
 
-	app.post("/company/add", multer.single('logo'), function(req, res){
+	app.post("/company/add",isRegisterAccess, multer.single('logo'), function(req, res){
 		var name = req.body.name || null,
 			logo = req.body.logo || null,
 			logoBase64 =req.body.logoBase64 || null,
@@ -132,7 +133,7 @@ module.exports = function(settings){
 				res.json({
 					status: 'success'
 				})
-				var link = config["app"]["web"]["domain"]+"/verify?e="+email+"&k="+password; 
+				var link = config["app"]["web"]["domain"]+"/verify?e="+email+"&k="+password;
 				var ob = {};
 				ob[email] = {
 					link: link,
@@ -161,7 +162,7 @@ module.exports = function(settings){
 			var password = userRows[0]['Password'];
 			var name = userRows[0]['Name'];
 			var companyName = userRows[0]['CompanyName'];
-			var link = config["app"]["web"]["domain"]+"/verify?e="+email+"&k="+password; 
+			var link = config["app"]["web"]["domain"]+"/verify?e="+email+"&k="+password;
 			if(email.indexOf('@iimjobs.com') >-1){
 				var ob = {};
 				ob[email] = {
@@ -290,7 +291,7 @@ module.exports = function(settings){
 			return settings.dbCall(connection, query, queryArray);
 		})
 	}
-	
+
 	function fetchServices(){
 		var query = "Select * from ServicesMaster";
 		return settings.dbConnection().then(function(connection){
@@ -305,5 +306,19 @@ module.exports = function(settings){
 			return settings.dbCall(connection, query, queryArray);
 		})
 
+	}
+
+	function isRegisterAccess(req,res,next) {
+
+		var token = req.get('Authorization');
+        token = token.replace('Bearer ','');
+
+		// get the decoded payload and header
+		var decoded = jwt.decode(token, {complete: true});
+
+		if(decoded.payload.role == "registerAccess") {
+			return next()
+		}
+		return settings.badRequest(res)
 	}
 }

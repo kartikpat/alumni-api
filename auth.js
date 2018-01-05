@@ -3,8 +3,11 @@
 module.exports = function(settings){
 
     function isAuthenticated(req,res,next) {
+        // TODO: Remove for production
+        return next()
         var expiresIn = 60*60;
         var token = req.get('Authorization');
+        console.log(token)
         token = token.replace('Bearer ','');
         settings.keyExists(token).then(function(reply){
             if(reply) {

@@ -7,10 +7,10 @@ module.exports = function(settings){
 	var cprint = settings.cprint;
 
 
-	app.get("/company/:companyID/alumni/:alumnusID", async function(req, res){
+	app.get("/company/:companyID/alumni/:alumnusID",settings.isAuthenticated, async function(req, res){
 		var companyID = req.params.companyID;
 		var alumnusID = req.params.alumnusID;
-		
+
 		try{
 			var alumniRows = await fetchAlumni(companyID, alumnusID);
 			if(alumniRows.length<1)
@@ -64,7 +64,7 @@ module.exports = function(settings){
 					to: aRow["ToTimestamp"]
 				})
 			})
-			subscriptionRows.forEach(function(aSubscription){	
+			subscriptionRows.forEach(function(aSubscription){
 				data.services.push({
 					id: aSubscription['Id'],
 					name: aSubscription['Name']

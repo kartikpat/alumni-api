@@ -7,7 +7,7 @@ module.exports = function(settings){
 	var cprint = settings.cprint;
 
 
-	app.get("/company/:companyID/user/:userID", function(req, res){
+	app.get("/company/:companyID/user/:userID", settings.isAuthenticated , function(req, res){
 		var companyID = req.params.companyID;
 		var userID = req.params.userID;
 		fetchUser(companyID, userID)
@@ -16,14 +16,14 @@ module.exports = function(settings){
 				return settings.unAuthorised(res);
 			var logoPath = rows[0]['Logo'].split('-');
 			logoPath = [logoPath[0], logoPath[1], logoPath[2]].join('/')
-			var logo = getSignedUrl.getObjectSignedUrl(config["aws"]["s3"]["bucket"],logoPath+'/'+rows[0]['Logo'], 120) 
+			var logo = getSignedUrl.getObjectSignedUrl(config["aws"]["s3"]["bucket"],logoPath+'/'+rows[0]['Logo'], 120)
 			var data = {
 				name :rows[0]['Name'],
 				email : rows[0]['Email'],
 				companyName: rows[0]['CompanyName'],
 				access : rows[0]['AccessLevel'],
 				logo: logo
-			} 
+			}
 			return res.json({
 				status: 'success',
 				data: data
@@ -38,7 +38,7 @@ module.exports = function(settings){
 
 	function fetchUser(companyID, userID){
 		var query = "Select ca.Name, ca.Email, ca.AccessLevel, cm.Logo, cm.Name as CompanyName from CompanyAccess ca inner join  CompanyMaster cm on ca.CompanyId = cm.Id where cm.Id = ? and ca.Id = ? and cm.Status = ? and ca.Status = ?" ;
-		var queryArray = [ companyID, userID, 'active', 'active'  ];
+		var queryArray = [companyID, userID, 'active', 'active'];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
 		})
