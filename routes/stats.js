@@ -79,7 +79,7 @@ module.exports = function(settings){
 		})
 	}
 
-	app.get("/company/:companyID/salary", function(req, res){
+	app.get("/company/:companyID/salary", settings.isAuthenticated, function(req, res){
 		var companyID = req.params.companyID;
 
 		fetchEmployeesSalary(companyID)

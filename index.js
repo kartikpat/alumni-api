@@ -136,6 +136,18 @@ require(__dirname+"/routes/ingest/group.js")(settings);
 require(__dirname+"/routes/ingest/move.js")(settings);
 require(__dirname+"/routes/ingest/profileImage.js")(settings);
 
+
+/**
+ * Ingestion Api after csv correction
+ * /company/:companyID/entry/:entryID/alumni
+ * /company/:companyID/entry/:entryID/alumni/profession
+ * /company/:companyID/entry/:entryID/alumni/education
+ */
+require(__dirname+"/routes/stagingIngest/single.js")(settings);
+require(__dirname+"/routes/stagingIngest/education.js")(settings);
+require(__dirname+"/routes/stagingIngest/profession.js")(settings);
+
+
 /**
  * Authorization API
  * /company/login

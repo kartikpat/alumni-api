@@ -34,7 +34,6 @@ module.exports = function(settings){
 		var taskID = uuidV4().replace(/\-/g,"");
 		var fileName = Date.now()+'.csv';
 		var writeStream = fs.createWriteStream(settings.diskStorage+'/'+fileName);
-		// fileStream.pipe(writeStream);
 		writeStream.write(fileStream);
 		var timestamp = Date.now();
 		addTask(userID, fileName, fileType, timestamp)
@@ -43,7 +42,7 @@ module.exports = function(settings){
 			res.json({
 				status: "success"
 			});
-			console.log('Calling request')
+			// console.log('Calling request')
 			request({uri: config['worker']['baseUrl']+'/initiate/'+id+'/start', method: 'POST'}, function(err, response, body){
 				if(err)
 					return cprint(err,1);

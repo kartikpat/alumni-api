@@ -22,8 +22,8 @@ module.exports = function(settings){
 	});
 
 	function discardAlumnus(entryID, companyID){
-		var query = "Update StagingAlumnusMaster set Status = ? , Message = ? where EntryId = ? and CompanyId = ?";
-		var queryArray = ['done', 'discarded', entryID, companyID];
+		var query = "Update stagingAlumnusDetails set Status = ? , message = ? where EntryId = ? and CompanyId = ?";
+		var queryArray = ['discarded', 'discarded', entryID, companyID];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
 		})
