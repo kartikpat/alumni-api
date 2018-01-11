@@ -70,8 +70,9 @@ module.exports = function(settings){
 	});
 
 	function fetchAlumniList(companyID, groupArray){
-		var query = "Select am.AlumnusId,FirstName, Email, `Group` from AlumnusMaster am inner join AlumniGroupMapping agm on am.AlumnusId = agm.AlumnusId where am.companyId = ? and `Group` in (?)";
-		var queryArray = [ companyID, groupArray ];
+		var query = "Select am.AlumnusId,FirstName, Email, `Group` from AlumnusMaster am inner join AlumniGroupMapping agm on am.AlumnusId = agm.AlumnusId inner join ServiceSubscription ss on ss.AlumnusId = agm.AlumnusId where ss.Status = ? and ss.ServiceId = 2 and  am.companyId = ? and `Group` in (?)";
+
+		var queryArray = ['active', companyID, groupArray ];
 		return settings.dbConnection().then(function(connecting){
 			return settings.dbCall(connecting, query, queryArray);
 		})
