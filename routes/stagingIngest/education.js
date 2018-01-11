@@ -71,6 +71,13 @@ module.exports = function(settings){
 		}
 		catch(err){
 			cprint(err,1);
+			if(err.message == "Alumni email doesn't exist") {
+
+				return res.json({
+					status: "fail",
+					message: "Alumni Doesn't Exist!"
+				})
+			}
 			return settings.serviceError(res);
 		}
 	});

@@ -30,14 +30,35 @@ module.exports = function(settings){
 	var env = settings.env;
 	var cprint = settings.cprint;
 
-	app.post("/company/:companyID/register", async function(req, res){
+	function validate(req, res, next) {
+		var token = req.get('Authorization');
+
+		// get the decoded payload and header
+		if(token) {
+			var email = req.body.email || null,
+				name = req.body.name || null,
+				accessLevel = req.body.accessLevel || null;
+			if(!(email && accessLevel && name)) {
+				return settings.unprocessableEntity(res);
+			}
+			if(accessLevel && ['master','admin','read','write'].indexOf(accessLevel) == -1)
+				return settings.unprocessableEntity(res, 'invalid access level');
+			token = token.replace('Bearer ','');
+			var decoded = jwt.decode(token, {complete: true});
+			if(decoded.payload.role == "master") {
+				return next();
+			}
+		}
+		return settings.badRequest(res)
+	}
+
+	app.post("/company/:companyID/register",settings.isAuthenticated, validate, async function(req, res){
 		var companyID = req.params.companyID;
 		var email = req.body.email || null,
 			name = req.body.name || null,
 			password = req.body.password || null,
 			accessLevel = req.body.accessLevel || null;
-		if(!(email && accessLevel && name))
-			return settings.unprocessableEntity(res);
+
 		try{
 			password =uuidV4().replace(/\-/g,"");
 			var companyRows = await fetchCompanyName(companyID);
@@ -85,6 +106,23 @@ module.exports = function(settings){
 			return settings.serviceError(res);
 		}
 	})
+
+	function isRegisterAccess(req,res,next) {
+
+		var token = req.get('Authorization');
+
+		// get the decoded payload and header
+		if(token) {
+			token = token.replace('Bearer ','');
+			var decoded = jwt.decode(token, {complete: true});
+
+			if(decoded.payload.role == "registerAccess") {
+				return next()
+			}
+		}
+
+		return settings.badRequest(res)
+	}
 
 	app.post("/company/add",isRegisterAccess, multer.single('logo'), function(req, res){
 		var name = req.body.name || null,
@@ -308,17 +346,5 @@ module.exports = function(settings){
 
 	}
 
-	function isRegisterAccess(req,res,next) {
 
-		var token = req.get('Authorization');
-        token = token.replace('Bearer ','');
-
-		// get the decoded payload and header
-		var decoded = jwt.decode(token, {complete: true});
-
-		if(decoded.payload.role == "registerAccess") {
-			return next()
-		}
-		return settings.badRequest(res)
-	}
 }

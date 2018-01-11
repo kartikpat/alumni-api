@@ -9,6 +9,13 @@ function checkDate(aString){
 	}
 }
 
+var validateMap = {
+	"course": "Course",
+	"institute": "Institute",
+	"batchFrom": "Batch From",
+	"batchTo": "Batch To"
+}
+
 module.exports = function(settings){
 	var cprint = settings.cprint;
 
@@ -19,12 +26,12 @@ module.exports = function(settings){
 		var invalid = [];
 		requiredFields.forEach(function(aField){
 			if(!anObject[aField])
-				missing.push(aField)
+				missing.push(validateMap[aField])
 		})
 		dateFields.forEach(function(aField){
 			if(anObject[aField])
 				if(!checkDate(anObject[aField]))
-					invalid.push(aField)
+					invalid.push(validateMap[aFields])
 				else
 					anObject[aField] = checkDate(anObject[aField])
 		})

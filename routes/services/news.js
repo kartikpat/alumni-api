@@ -31,7 +31,7 @@ module.exports = function(settings){
 		return next()
 	}
 
-	app.post('/company/:companyID/news/:newsID/send',settings.isAuthenticated, validate, isAuthorized , async function(req, res){
+	app.post('/company/:companyID/news/:newsID/send',settings.isAuthenticated,  isAuthorized ,validate, async function(req, res){
 		var companyID = req.params.companyID,
 			newsID = req.params.newsID;
 		var groupArray = req.body.group.split(',');

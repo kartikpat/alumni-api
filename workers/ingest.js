@@ -7,6 +7,17 @@ function checkDate(aString){
 
 }
 
+var validateMap = {
+	"firstName": "First Name",
+	"email": "Email",
+	"companyEmail": "Company Email",
+	"doj": "Date Of Joining",
+	"dol": "Date Of Leaving",
+	"department": "Department",
+	"designation": "Designation",
+	"salaryLPA": "SalaryLPA"
+}
+
 module.exports = function(settings){
 	var cprint = settings.cprint;
 
@@ -18,12 +29,12 @@ module.exports = function(settings){
 		var invalid = [];
 		requiredFields.forEach(function(aField){
 			if(!anObject[aField])
-				missing.push(aField)
+				missing.push(validateMap[aField])
 		})
 		dateFields.forEach(function(aField){
 			if(anObject[aField])
 				if(!checkDate(anObject[aField]))
-					invalid.push(aField)
+					invalid.push(validateMap[aField])
 				else
 					anObject[aField] = checkDate(anObject[aField])
 		})

@@ -60,7 +60,7 @@ module.exports = function(settings){
 
 	app.post("/company/:companyID/entry/:entryID/alumni",settings.isAuthenticated,validate, async function(req, res){
 		var companyID = req.params.companyID;
-
+		var userID = req.query.userID;
         var entryID = req.params.entryID;
 
 		var firstName = req.body.firstName || null,
@@ -98,6 +98,16 @@ module.exports = function(settings){
 
 			await mapAlumniGroup(alumnusID, department, companyID)
             await updateStaging(entryID)
+			var serviceRows = await fetchServices(userID)
+			var subscriptionArray = [];
+			serviceRows.forEach(function(aService){
+				subscriptionArray.push([
+					aService['ServiceId'],
+					alumnusID,
+					'active'
+					])
+			})
+			await subscribe(subscriptionArray);
 			return res.json({
 				data: alumnusID,
 				status : 'success',
@@ -147,9 +157,24 @@ module.exports = function(settings){
 
     function updateStaging(entryID){
 		var query = "Update stagingAlumnusDetails set PersonalErrMsg = ? where EntryId = ?";
-		var queryArray = [NULL, entryID];
+		var queryArray = [null, entryID];
 		return settings.dbConnection().then(function(connecting){
 			return settings.dbCall(connecting, query, queryArray);
+		})
+	}
+
+	function fetchServices(userID){
+		var query = 'Select ServiceId from ServicesAccess sa inner join ServicesMaster sm on sa.ServiceId = sm.Id inner join CompanyAccess ca on ca.CompanyId = sa.CompanyId inner join CompanyMaster cm on ca.CompanyId = cm.Id where ca.Id = ? and sa.Status = ? and ca.Status = ? and cm.Status = ? ';
+		var queryArray = [userID , 'active', 'active', 'active'];
+		return settings.dbConnection().then(function(connection){
+			return settings.dbCall(connection, query, queryArray);
+		})
+	}
+
+	function subscribe(subscriptionArray){
+		var query = 'Insert into ServiceSubscription ( ServiceId, AlumnusId, Status) values ?';
+		return settings.dbConnection().then(function(connection){
+			return settings.dbCall(connection, query, [subscriptionArray]);
 		})
 	}
 
