@@ -38,22 +38,22 @@ function updateImagePath(image, email){
 }
 
 function getFile(path, url){
-	var options = { 
+	var options = {
 		method: 'POST',
 		encoding: null ,
 	  	url: 'https://content.dropboxapi.com/2/sharing/get_shared_link_file',
-	  	headers: { 
+	  	headers: {
 	     	'dropbox-api-arg': JSON.stringify({
 	     		"url":url,
 	     		"path":'/'+path
 	     }),
-	     	authorization: 'Bearer Sj7eSzKeuxAAAAAAAAAA89Eh_ojrBPlgv52XASgVjhOn2vVOijPuInUt6GzvQKz3' 
-	     } 
+	     	authorization: 'Bearer Sj7eSzKeuxAAAAAAAAAA89Eh_ojrBPlgv52XASgVjhOn2vVOijPuInUt6GzvQKz3'
+	     }
 	 };
 	return new Promise(function(fulfill, reject){
 		request(options, function (err, response, body) {
 		  if(err){
-				cprint(err,1);
+				
 				reject(err);
 			}
 			if(response.statusCode==200){
@@ -81,25 +81,25 @@ function uploadFile(fileStream){
 	})
 }
 function listFiles(url){
-	var options = { 
+	var options = {
 		method: 'POST',
 	  	url: 'https://api.dropboxapi.com/2/files/list_folder',
-	  	headers: { 
+	  	headers: {
 	  		'content-type': 'application/json',
-	     	authorization: 'Bearer Sj7eSzKeuxAAAAAAAAAA9BaAKm6EpneDkztIvIA2k8UA7-xbTPXBFid2R1_kvbty' 
+	     	authorization: 'Bearer Sj7eSzKeuxAAAAAAAAAA9BaAKm6EpneDkztIvIA2k8UA7-xbTPXBFid2R1_kvbty'
 	     },
-	  	body: { 
+	  	body: {
 	  		path: '',
-	     	shared_link: { 
-	     		url: url 
-	    	} 
+	     	shared_link: {
+	     		url: url
+	    	}
 	 	},
-	  json: true 
+	  json: true
 	};
 	return new Promise(function(fulfill, reject){
 		request(options, function (err, response, body) {
 		  if(err){
-				cprint(err,1);
+
 				reject(err);
 			}
 			if(response.statusCode==200){

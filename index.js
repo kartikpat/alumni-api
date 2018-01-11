@@ -103,13 +103,16 @@ require(__dirname+"/workers/ingest/profession.js")(settings)
 require(__dirname+"/workers/ingest-file.js")(settings);
 
 
-
-
 /**
  * cache Api
  */
 require(__dirname+"/cache/redis/redis.js")(settings)
-require(__dirname+"/auth.js")(settings)
+require(__dirname+"/auth/auth.js")(settings)
+
+/**
+ * Verify Token Api
+ */
+require(__dirname+"/routes/auth/verifyToken.js")(settings)
 
 /**
  * Tasks Api
@@ -190,6 +193,8 @@ require(__dirname+"/routes/staging/disable.js")(settings);
 require(__dirname+"/routes/update/alumni.js")(settings);
 require(__dirname+"/routes/update/education.js")(settings);
 require(__dirname+"/routes/update/profession.js")(settings);
+require(__dirname+"/routes/update/companyLogo.js")(settings);
+
 
 require(__dirname+"/routes/register/register.js")(settings);
 require(__dirname+"/routes/dashboard/init.js")(settings);

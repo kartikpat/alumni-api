@@ -7,7 +7,7 @@ module.exports = function(settings){
 	var cprint = settings.cprint;
 
 	function validate(req, res, next){
-		if(( req.query.pageNumber && req.query.pageNumber <1 ) || ( req.query.by && ['designation', 'department', 'group'].indexOf(req.query.by) ==-1 ) || ( req.query.value && req.query.value <1) )
+		if(( req.query.pageNumber && req.query.pageNumber <1 ) || ( req.query.by && ['designation', 'department', 'group'].indexOf(req.query.by) ==-1 ) || ( req.query.value && req.query.value <1) || !req.query.userID )
 			return settings.unprocessableEntity(res);
 		return next();
 	}
@@ -18,7 +18,8 @@ module.exports = function(settings){
 		var pageNumber = req.query.pageNumber || 1,
 			pageContent = req.query.pageContent || null,
 			by = req.query.by || null,
-			value = req.query.value || null;
+			value = req.query.value || null,
+			userID = req.query.userID || null;
 
 		try{
 			var rows = await fetchAlumni(companyID, pageNumber, pageContent, by, value);
@@ -47,6 +48,13 @@ module.exports = function(settings){
 					services: []
 				}
 			});
+			// var serviceRows = await fetchServices(userID)
+			// var subscriptionArray = [];
+			// serviceRows.forEach(function(aService){
+			// 	subscriptionArray.push([
+			// 		aService['ServiceId']
+			// 		])
+			// })
 			var subscriptionRows = [];
 			if(alumniArray.length >0)
 				subscriptionRows = await fetchSubscriptions(alumniArray);
@@ -66,6 +74,7 @@ module.exports = function(settings){
 			return res.json({
 				status: 'success',
 				data: resData
+				//serviceSubscribed: subscriptionArray
 			});
 		}
 		catch(err){
@@ -76,8 +85,8 @@ module.exports = function(settings){
 	})
 
 	function fetchSubscriptions(alumniArray){
-		var query = "Select sm.Name, sm.Id, ss.AlumnusId from ServiceSubscription ss inner join ServicesMaster sm on ss.ServiceId = sm.Id where AlumnusId in (?) and ss.Status = ? and sm.Status = ?"
-		var queryArray = [alumniArray, 'active', 'active'];
+		var query = "Select sm.Name, sm.Id, ss.AlumnusId, ss.Status from ServiceSubscription ss inner join ServicesMaster sm on ss.ServiceId = sm.Id where AlumnusId in (?) and (ss.Status = ? or ss.Status = ?) and sm.Status = ?"
+		var queryArray = [alumniArray, 'active', 'unsubscribed', 'active'];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
 		})
@@ -108,6 +117,14 @@ module.exports = function(settings){
 		queryArray.push(offset);
 		queryArray.push(pageContent);
 
+		return settings.dbConnection().then(function(connection){
+			return settings.dbCall(connection, query, queryArray);
+		})
+	}
+
+	function fetchServices(userID){
+		var query = 'Select ServiceId from ServicesAccess sa inner join ServicesMaster sm on sa.ServiceId = sm.Id inner join CompanyAccess ca on ca.CompanyId = sa.CompanyId inner join CompanyMaster cm on ca.CompanyId = cm.Id where ca.Id = ? and sa.Status = ? and ca.Status = ? and cm.Status = ? ';
+		var queryArray = [userID , 'active', 'active', 'active'];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
 		})

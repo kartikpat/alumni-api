@@ -1,28 +1,37 @@
 
 
 module.exports = function(settings){
+    var cprint = settings.cprint;
 
     function isAuthenticated(req,res,next) {
         // TODO: Remove for production
-        return next()
+
         var expiresIn = 60*60;
         var token = req.get('Authorization');
-        console.log(token)
-        token = token.replace('Bearer ','');
-        settings.keyExists(token).then(function(reply){
-            if(reply) {
-                settings.setKey(token, expiresIn).then(function(reply){
-                    return next();
-                })
-            }
-            else {
-                return settings.unAuthorised(res);
-            }
-        })
+        cprint(token)
+        if(token) {
+            token = token.replace('Bearer ','');
+            settings.keyExists(token).then(function(reply){
+                if(reply) {
+                    return settings.setKey(token, expiresIn)
+                }
+                else {
+                    return settings.unAuthorised(res);
+                }
+            }).then(function(reply){
+                if(reply) {
+                    next()
+                }
+            }).catch(function(err){
+    			cprint(err,1)
+    			return settings.serviceError(res);
+    		})
+        }
+        else {
+            return settings.serviceError(res);
+        }
     }
-
     settings.isAuthenticated = isAuthenticated;
-
 }
 
 function getCookie(cname,req) {

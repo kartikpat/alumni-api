@@ -18,7 +18,7 @@
             pageNumber = req.query.pageNumber || 1,
 			pageContent = req.query.pageContent || 150;
         var data = [];
-        
+
 		fetchPersonalDetails(taskID, userID, pageNumber, pageContent)
 		.then(function(rows){
 
@@ -66,11 +66,7 @@
 		})
 	});
 
-    function findObject(obj,email) {
-        for (var i=0, iLen=obj.length; i<iLen; i++) {
-            if (obj[i].email == email) return obj[i];
-        }
-    }
+    
 
 
     function fetchPersonalDetails(taskID, userID,pageNumber,pageContent){

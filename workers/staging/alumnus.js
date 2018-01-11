@@ -134,11 +134,6 @@ module.exports = function(settings){
 			cprint(processedRows)
 			var correctRows = processedRows[0]["done"];
 			var incorrectRows = processedRows[0]["pending"];
-			// processedRows.forEach(function(aRow){
-			// 	if(aRow['field'] && aRow['field']== 'correct')
-			// 		return correctRows+=aRow['cnt'];
-			// 	return incorrectRows+=aRow['cnt'];
-			// })
 			return updateTask(taskID, correctRows, incorrectRows);
 		}
 		catch(err){
