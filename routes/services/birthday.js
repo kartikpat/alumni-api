@@ -96,9 +96,13 @@ module.exports = function(settings){
 	function populateQ(anArray){
 		anArray.forEach(async function(aRow){
 			await fetchAlumnus(aRow[0])
-					.then(function(rows){
+					.then(async function(rows){
+
+						var logoPath = rows[0]['CompanyLogo'].split('-');
+						logoPath = [logoPath[0], logoPath[1], logoPath[2]].join('/');
+						var logo =	"https://s3." + config["aws"]["credentials"]["region"] + ".amazonaws.com/" + config["aws"]["s3"]["bucket"]+'/'+logoPath+'/'+rows[0]['CompanyLogo'];
 						var message = {
-							event: (aRow[2]=='active')? 'subscribe' : ' unsubscribe' ,
+							event: aRow[2],
 							id: rows[0]["AlumnusId"],
 							email: rows[0]["Email"],
 							payload: {
@@ -107,6 +111,7 @@ module.exports = function(settings){
 							},
 							templateId: aRow[1] ,
 							groupId: rows[0]["CompanyId"],
+							companyUrl: logo,
 							dob: formatDate_yyyymmdd(rows[0]["DateOfBirth"]),
 							timestamp: aRow[3]
 						}
@@ -125,7 +130,7 @@ module.exports = function(settings){
 	}
 
 	function fetchAlumnus(entryID){
-		var query = "Select am.FirstName, am.MiddleName, am.LastName, am.Email, am.AlumnusId, am.CompanyId, am.Dob, am.DateOfBirth, cm.Name as CompanyName from AlumnusMaster am inner join CompanyMaster cm on am.companyId = cm.Id where am.AlumnusId = ?"
+		var query = "Select am.FirstName, am.MiddleName, am.LastName, am.Email, am.AlumnusId, am.CompanyId, am.Dob, am.DateOfBirth, cm.Name as CompanyName, cm.Logo as CompanyLogo from AlumnusMaster am inner join CompanyMaster cm on am.companyId = cm.Id where am.AlumnusId = ?"
 		var queryArray = [entryID];
 		return settings.dbConnection().then(function(connecting){
 			return settings.dbCall(connecting, query, queryArray);
@@ -139,12 +144,13 @@ module.exports = function(settings){
 		})
 	}
 
-	function subscribeBirthday(queryArray){
-		var query = "Insert into ServiceBirthdaySubscription ( AlumnusId, TemplateId, Status, UpdatedAt ) values ? on duplicate key update TemplateId = values(TemplateId), Status = values(Status), UpdatedAt = values(UpdatedAt)";
-		var queryArray = [ queryArray];
-		return settings.dbConnection().then(function(connection){
-			return settings.dbCall(connection, query, queryArray);
+	function fetchCompanyDetails(companyID){
+		var query = 'Select Name,Logo from CompanyMaster where Id = ? and Status= ?';
+		var queryArray = [ companyID, 'active'];
+		return settings.dbConnection().then(function(connecting){
+			return settings.dbCall(connecting, query, queryArray);
 		})
 	}
+
 	settings.formatDate_yyyymmdd = formatDate_yyyymmdd;
 }

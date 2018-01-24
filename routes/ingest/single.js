@@ -1,5 +1,6 @@
 var moment = require('moment');
 var uploader = require('../../lib/upload.js');
+var sendMessage = require('../../Q/sqs/q.js');
 function checkDate(aString){
 	var d = moment(aString, 'DD-MM-YYYY');
 	if(!d.isValid())
@@ -117,23 +118,58 @@ module.exports = function(settings){
 			const insertAlumni = await addAlumni(firstName, middleName, lastName, email, phone, companyEmail, dob, dateOfBirth, doj, dol, departmentID, designationID, linkedInURL, code, salary, companyID, sex, imageName);
 			const alumnusID = insertAlumni.insertId;
 
-
 			await mapAlumniGroup(alumnusID, department, companyID)
 			var serviceRows = await fetchServices(userID)
 			var subscriptionArray = [];
+			var serviceObj = {};
 			serviceRows.forEach(function(aService){
+				if(dateOfBirth == "Invalid date" && aService["ServiceId"] == 1) {
+					subscriptionArray.push([
+						aService['ServiceId'],
+						alumnusID,
+						'unsubscribe'
+						])
+					serviceObj[aService['ServiceId']] = aService['ServiceId'];
+					return
+				}
 				subscriptionArray.push([
 					aService['ServiceId'],
 					alumnusID,
 					'active'
 					])
+				serviceObj[aService['ServiceId']] = aService['ServiceId'];
 			})
 			await subscribe(subscriptionArray);
-			return res.json({
+			res.json({
 				data: alumnusID,
 				status : 'success',
 				message: 'record inserted successfully'
 			});
+
+			if(serviceObj[1] && !(dateOfBirth == "Invalid date")) {
+				var companyRows = await fetchCompanyDetails(companyID)
+				var companyName = companyRows[0]["Name"];
+				var companyUrl = companyRows[0]["WebsiteUrl"]
+				var logoPath = companyRows[0]['Logo'].split('-');
+				logoPath = [logoPath[0], logoPath[1], logoPath[2]].join('/');
+				var logo =	"https://s3." + config["aws"]["credentials"]["region"] + ".amazonaws.com/" + config["aws"]["s3"]["bucket"]+'/'+logoPath+'/'+companyRows[0]['Logo'];
+				var qObject = {
+					alumnusId: alumnusID,
+					templateId: 1,
+					timestamp: Date.now(),
+					firstName: firstName,
+					middleName: middleName,
+					lastName: lastName,
+					dob: settings.formatDate_yyyymmdd(dateOfBirth),
+					companyId: companyID,
+					companyUrl: companyUrl,
+					companyLogo: logo,
+					email: email,
+					companyName: companyName
+				};
+				populateQ(qObject);
+			}
+			return
 		}
 		catch(err){
 			cprint(err,1);
@@ -144,6 +180,32 @@ module.exports = function(settings){
 
 	});
 
+	function fetchCompanyDetails(companyID){
+		var query = 'Select Name,Logo,WebsiteUrl from CompanyMaster where Id = ? and Status= ?';
+		var queryArray = [ companyID, 'active'];
+		return settings.dbConnection().then(function(connecting){
+			return settings.dbCall(connecting, query, queryArray);
+		})
+	}
+
+	function populateQ(anObj){
+		var message = {
+			event: 'active',
+			id: anObj["alumnusId"],
+			email: anObj["email"],
+			payload: {
+				name: [ anObj["firstName"], anObj["middleName"], anObj["lastName"] ].join(" "),
+				company: anObj["companyName"]
+			},
+			templateId: anObj["templateId"] ,
+			groupId: anObj["companyId"],
+			companyUrl: anObj["companyUrl"],
+			companyLogo: anObj["companyLogo"],
+			dob: anObj["dob"],
+			timestamp: anObj["timestamp"]
+		}
+		sendMessage(message);
+	}
 
 	function uploadFile(fileName, fileStream, storagePath){
 		return new Promise(function(resolve, reject){

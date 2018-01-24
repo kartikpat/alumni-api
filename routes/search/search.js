@@ -28,7 +28,8 @@ module.exports = function(settings){
 				if(aRow['Image']){
 					var image = aRow['Image'].split('-');
 					image = [image[0], image[1], image[2]].join('/')
-					profileImage = getSignedUrl.getObjectSignedUrl(config["aws"]["s3"]["bucket"],'profileImages/'+image+'/'+aRow['Image'], 120)
+					//profileImage = getSignedUrl.getObjectSignedUrl(config["aws"]["s3"]["bucket"],'profileImages/'+image+'/'+aRow['Image'], 120)
+					profileImage = 'https://s3.' + config["aws"]["credentials"]["region"] + '.amazonaws.com/' + config["aws"]["s3"]["bucket"] + '/' + 'profileImages/'+image+'/'+aRow['Image'];
 				}
 				data[aRow["AlumnusId"]] = {
 					id: aRow["AlumnusId"],
@@ -50,7 +51,8 @@ module.exports = function(settings){
 				if(data[aSubscription['AlumnusId']]){
 					data[aSubscription['AlumnusId']]['services'].push({
 						id: aSubscription['Id'],
-						name: aSubscription['Name']
+						name: aSubscription['Name'],
+						status: aSubscription['Status']
 					})
 				}
 			});
@@ -70,8 +72,8 @@ module.exports = function(settings){
 	});
 
 	function fetchSubscriptions(alumniArray){
-		var query = "Select sm.Name, sm.Id, ss.AlumnusId from ServiceSubscription ss inner join ServicesMaster sm on ss.ServiceId = sm.Id where AlumnusId in (?) and ss.Status = ? and sm.Status = ?"
-		var queryArray = [alumniArray, 'active', 'active'];
+		var query = "Select sm.Name, sm.Id, ss.AlumnusId, ss.Status from ServiceSubscription ss inner join ServicesMaster sm on ss.ServiceId = sm.Id where AlumnusId in (?) and (ss.Status = ? or ss.Status = ?) and sm.Status = ?"
+		var queryArray = [alumniArray, 'active', 'unsubscribed', 'active'];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
 		})

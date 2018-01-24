@@ -104,6 +104,11 @@ require(__dirname+"/workers/ingest-file.js")(settings);
 
 
 /**
+ * Encode Decode functions
+ */
+ require(__dirname+"/encode-decode/encdec.js")(settings)
+
+/**
  * cache Api
  */
 require(__dirname+"/cache/redis/redis.js")(settings)
@@ -179,7 +184,7 @@ require(__dirname+"/routes/image-load/image-load.js")(settings);
  */
 require(__dirname+"/routes/services/birthday.js")(settings);
 require(__dirname+"/routes/services/news.js")(settings);
-
+require(__dirname+"/routes/services/service.js")(settings);
 /**
  * Staging apis
  */

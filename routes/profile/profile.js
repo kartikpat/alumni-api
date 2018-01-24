@@ -16,7 +16,9 @@ module.exports = function(settings){
 				return settings.unAuthorised(res);
 			var logoPath = rows[0]['Logo'].split('-');
 			logoPath = [logoPath[0], logoPath[1], logoPath[2]].join('/')
-			var logo = getSignedUrl.getObjectSignedUrl(config["aws"]["s3"]["bucket"],logoPath+'/'+rows[0]['Logo'], 120)
+			//	var logo = getSignedUrl.getObjectSignedUrl(config["aws"]["s3"]["bucket"],logoPath+'/'+rows[0]['Logo'], 120)
+			var logo =	"https://s3." + config["aws"]["credentials"]["region"] + ".amazonaws.com/" + config["aws"]["s3"]["bucket"]+'/'+logoPath+'/'+rows[0]['Logo'];
+			cprint(logo)
 			var data = {
 				name :rows[0]['Name'],
 				email : rows[0]['Email'],

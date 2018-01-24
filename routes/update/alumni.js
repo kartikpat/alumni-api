@@ -1,5 +1,6 @@
 var moment = require('moment');
 var uploader = require('../../lib/upload.js');
+var sendMessage = require('../../Q/sqs/q.js');
 function checkDate(aString){
 	var d = moment(aString, 'DD-MM-YYYY');
 	if(!d.isValid())
@@ -52,7 +53,7 @@ module.exports = function(settings){
 			linkedInURL = req.body.linkedInURL || null;
 
 		var salary = req.body.salary || null;
-		
+
 		var dob = req.body.dob || null,
 			dol = req.body.dol || null,
 			doj = req.body.doj || null;
@@ -71,32 +72,7 @@ module.exports = function(settings){
 			return settings.unprocessableEntity(res, 'invalid date format');
 		if(  (dol && !checkDateUTC(dol)) || (dob && !checkDate(dob)) )
 			return settings.unprocessableEntity(res, 'invalid date format');
-		if(educationArray){
-			try{
-				educationArray = JSON.parse(educationArray);
-				for(var i =0; i < educationArray.length; i++){
-					if(!( educationArray[i]["institute"] && educationArray[i]["course"] ))
-						return settings.unprocessableEntity(res, 'missing education values');
-				}
-			}	
-			catch(err){
-				cprint(err,1)
-				return settings.unprocessableEntity(res, 'invalid format');
-			}	
-		}
-		if(professionArray){
-			try{
-				professionArray = JSON.parse(professionArray);
-				for(var i=0; i < professionArray.length; i++){
-					if(!( professionArray[i]["designation"] && professionArray[i]["company"] ))
-						return settings.unprocessableEntity(res, 'missing profession values');
-				}
-			}
-			catch(err){
-				cprint(err,1)
-				return settings.unprocessableEntity(res, 'invalid format');
-			}
-		}	
+
 
 		return next()
 	}
@@ -104,7 +80,7 @@ module.exports = function(settings){
 	app.post("/company/:companyID/alumni/:alumnusID", multer.single('image'),validate, async function(req, res){
 		var companyID = req.params.companyID,
 			alumnusID = req.params.alumnusID;
-		
+		var userID = req.query.userID;
 		var firstName = req.body.firstName || null,
 			middleName = req.body.middleName || null,
 			lastName = req.body.lastName || null,
@@ -121,7 +97,7 @@ module.exports = function(settings){
 		var salary = req.body.salary || null;
 
 		var sex = req.body.sex || null;
-		
+
 		var dob = moment(req.body.dob, 'DD/MM/YYYY').format('x'),
 
 			dol = req.body.dol || null,
@@ -145,13 +121,45 @@ module.exports = function(settings){
 			const departmentID = prepareAlumni[0].insertId;
 			const designationID = prepareAlumni[1].insertId;
 			const imageName = (prepareAlumni[2]===1) ? null: prepareAlumni[2];
-			
+
 			const insertAlumni = await updateAlumni(firstName, middleName, lastName, email, phone, companyEmail, dob, dateOfBirth, doj, dol, departmentID, designationID, linkedInURL, code, salary, companyID, sex, imageName, alumnusID, companyID);
 			await mapAlumniGroup(alumnusID, department, companyID)
-			return res.json({
+			res.json({
 				status : 'success',
 				message: 'record inserted successfully'
 			});
+			var serviceRows = await fetchServices(userID)
+			var serviceObj = {};
+			serviceRows.forEach(async function(aService){
+				if(aService['ServiceId'] == 1 && dateOfBirth != "Invalid date") {
+					await subscribe(aService['ServiceId'],alumnusID);
+				}
+				serviceObj[aService['ServiceId']] = aService['ServiceId'];
+			})
+			if(serviceObj[1] && !(dateOfBirth == "Invalid date")) {
+				var companyRows = await fetchCompanyDetails(companyID)
+				var companyName = companyRows[0]["Name"];
+				var companyUrl = companyRows[0]["WebsiteUrl"];
+				var logoPath = companyRows[0]['Logo'].split('-');
+				logoPath = [logoPath[0], logoPath[1], logoPath[2]].join('/');
+				var logo =	"https://s3." + config["aws"]["credentials"]["region"] + ".amazonaws.com/" + config["aws"]["s3"]["bucket"]+'/'+logoPath+'/'+companyRows[0]['Logo'];
+				var qObject = {
+					alumnusId: alumnusID,
+					templateId: 1,
+					timestamp: Date.now(),
+					firstName: firstName,
+					middleName: middleName,
+					lastName: lastName,
+					dob: settings.formatDate_yyyymmdd(dateOfBirth),
+					companyId: companyID,
+					companyUrl: companyUrl,
+					companyLogo: logo,
+					email: email,
+					companyName: companyName
+				};
+				populateQ(qObject);
+			}
+			return
 		}
 		catch(err){
 			cprint(err,1);
@@ -161,6 +169,41 @@ module.exports = function(settings){
 		}
 
 	});
+
+	function subscribe(serviceId,alumnusId){
+		var query = 'Update ServiceSubscription set Status = ? where ServiceId = ? and AlumnusId = ?';
+		var queryArray = ['active', serviceId, alumnusId];
+		return settings.dbConnection().then(function(connection){
+			return settings.dbCall(connection, query, queryArray);
+		})
+	}
+
+	function fetchCompanyDetails(companyID){
+		var query = 'Select Name,Logo,WebsiteUrl from CompanyMaster where Id = ? and Status= ?';
+		var queryArray = [ companyID, 'active'];
+		return settings.dbConnection().then(function(connecting){
+			return settings.dbCall(connecting, query, queryArray);
+		})
+	}
+
+	function populateQ(anObj){
+		var message = {
+			event: 'active',
+			id: anObj["alumnusId"],
+			email: anObj["email"],
+			payload: {
+				name: [ anObj["firstName"], anObj["middleName"], anObj["lastName"] ].join(" "),
+				company: anObj["companyName"]
+			},
+			templateId: anObj["templateId"],
+			groupId: anObj["companyId"],
+			companyUrl: companyUrl,
+			companyLogo: logo,
+			dob: anObj["dob"],
+			timestamp: anObj["timestamp"]
+		}
+		sendMessage(message);
+	}
 
 	function uploadFile(fileName, fileStream, storagePath){
 		return new Promise(function(resolve, reject){
@@ -196,7 +239,7 @@ module.exports = function(settings){
 		var queryArray = [designationName, companyID, designationName, companyID];
 		return settings.dbConnection().then(function(connecting){
 			return settings.dbCall(connecting, query, queryArray);
-		})	
+		})
 	}
 
 	function updateAlumni(firstName , middleName , lastName , email , phone, companyEmail , dob , dateOfBirth, doj , dol , departmentID , designationID , linkedInUrl , code , salaryLPA , companyID , sex, imageName, alumnusID, companyID){
@@ -219,14 +262,14 @@ module.exports = function(settings){
 		var queryArray = [institute]
 		return settings.dbConnection().then(function(connecting){
 			return settings.dbCall(connecting, query, queryArray);
-		})	
+		})
 	};
 	function addEducationDetails(alumnusID, courseID, instituteID, batchFrom, batchTo, courseType, companyID){
 		var query = "Insert ignore into  EducationDetails (AlumnusId, CourseID, InstituteID, BatchFrom, BatchTo, CourseType, CompanyId) values (?, ?, ?, ?, ?, ?, ?)";
 		var queryArray = [ alumnusID, courseID, instituteID, batchFrom, batchTo, courseType, companyID ];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
-		})	
+		})
 	}
 	function addOrganisation(organisation){
 
@@ -234,7 +277,7 @@ module.exports = function(settings){
 		var queryArray = [organisation]
 		return settings.dbConnection().then(function(connecting){
 			return settings.dbCall(connecting, query, queryArray);
-		})		
+		})
 	};
 
 	function addPastRole(role){
@@ -249,7 +292,7 @@ module.exports = function(settings){
 		var queryArray = [ alumnusID, designationID, organisationId, fromTimestamp, toTimestamp, companyID ];
 		return settings.dbConnection().then(function(connection){
 			return settings.dbCall(connection, query, queryArray);
-		})	
+		})
 	}
-	
+
 }

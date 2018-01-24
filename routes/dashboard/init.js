@@ -7,7 +7,7 @@ module.exports = function(settings){
 	var env = settings.env;
 	var cprint = settings.cprint;
 
-	
+
 	app.get("/company/:companyID/dashboard",settings.isAuthenticated, function(req, res){
 		var companyID = req.params.companyID;
 		var currentMonth = 1+ moment().month();
@@ -64,7 +64,8 @@ module.exports = function(settings){
 	function getNewsCount(companyID){
 		return new Promise(function(fulfill, reject){
 			request.get({
-				url: config["services"]["news"]+"/group/"+companyID+"/news/"
+				url: config["services"]["news"]+"/group/"+companyID+"/news/",
+				strictSSL: false
 			}, function(err, response, body){
 				if(err){
 					cprint(err,1);

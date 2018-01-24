@@ -42,7 +42,6 @@ module.exports = function(settings){
 			res.json({
 				status: "success"
 			});
-			// console.log('Calling request')
 			request({uri: config['worker']['baseUrl']+'/initiate/'+id+'/start', method: 'POST'}, function(err, response, body){
 				if(err)
 					return cprint(err,1);

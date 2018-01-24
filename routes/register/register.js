@@ -201,19 +201,20 @@ module.exports = function(settings){
 			var name = userRows[0]['Name'];
 			var companyName = userRows[0]['CompanyName'];
 			var link = config["app"]["web"]["domain"]+"/verify?e="+email+"&k="+password;
-			if(email.indexOf('@iimjobs.com') >-1){
-				var ob = {};
-				ob[email] = {
-					link: link,
-					email:email,
-					name: name,
-					companyName: companyName
-				}
-				var sendingMail = await settings.sendMail("Forgot password?", templateForgotPassword, email, ob)
-				return res.json({
-					status: 'success'
-				});
+
+			var ob = {};
+			ob[email] = {
+				link: link,
+				email:email,
+				name: name,
+				companyName: companyName
 			}
+
+			var sendingMail = await settings.sendMail("Forgot password?", templateForgotPassword, email, ob)
+			return res.json({
+				status: 'success'
+			});
+
 		}
 		catch(err){
 			cprint(err,1);

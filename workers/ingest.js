@@ -1,10 +1,10 @@
 var moment = require('moment');
+var sendMessage = require('../Q/sqs/q.js');
 function checkDate(aString){
 	var d = moment(aString, 'DD/MM/YYYY');
 	if(!d.isValid())
 		return null;
 	return d.valueOf();
-
 }
 
 var validateMap = {
@@ -40,7 +40,6 @@ module.exports = function(settings){
 		})
 		//TODO add a email validate function her
 
-
 		var errMessage = '';
 		if(missing.length>0)
 			errMessage+=('Missing values: '+ missing.join(', ')+'.' );
@@ -61,12 +60,15 @@ module.exports = function(settings){
 	function sanitizeSingleRecord(aRow, serviceArray){
 		var props = {};
 		var companyID = aRow["CompanyId"];
-		var email = aRow["Email"]
-		var entryID = aRow["EntryId"]
-
+		var email = aRow["Email"];
+		var entryID = aRow["EntryId"];
+		props.serviceArray = serviceArray;
+		props.serviceObj = {};
 		var alumniDetails = Promise.all([fetchAlumnus(entryID, email)])
+
 		return alumniDetails
 		.then(function(dataArray){
+			cprint(props.serviceArray)
 			var rows = dataArray[0];
 			props.firstName = rows[0]["FirstName"] || null;
 			props.middleName = rows[0]["MiddleName"];
@@ -109,16 +111,57 @@ module.exports = function(settings){
 		})
 		.then(function(rows){
 			var subscriptionArray = [];
-			if(serviceArray.length <1)
+			cprint(props.serviceArray)
+			if(props.serviceArray.length <1)
 				return Promise.resolve('1');
-			serviceArray.forEach(function(aService){
+			props.serviceArray.forEach(function(aService){
+				if(!props.dateOfBirth && aService == 1) {
+					subscriptionArray.push([
+						aService,
+						props.alumnusID,
+						'unsubscribe'
+						])
+					props.serviceObj[aService] = aService;
+					return
+				}
 				subscriptionArray.push([
 					aService,
 					props.alumnusID,
 					'active'
 					])
+				props.serviceObj[aService] = aService;
 			})
+			cprint(props.serviceObj)
 			return subscribe(subscriptionArray);
+		})
+		.then(function(rows){
+			return fetchCompanyDetails(props.companyID)
+		})
+		.then(function(rows) {
+			var companyName = rows[0]["Name"];
+			var companyUrl = rows[0]["WebsiteUrl"]
+			var logoPath = rows[0]['Logo'].split('-');
+			logoPath = [logoPath[0], logoPath[1], logoPath[2]].join('/');
+			var logo =	"https://s3." + config["aws"]["credentials"]["region"] + ".amazonaws.com/" + config["aws"]["s3"]["bucket"]+'/'+logoPath+'/'+rows[0]['Logo'];
+			if(props.serviceObj[1] && props.dateOfBirth) {
+				var qObject = {
+					alumnusId: props.alumnusID,
+					templateId: 1,
+					timestamp: Date.now(),
+					firstName: props.firstName,
+					middleName: props.middleName,
+					lastName: props.lastName,
+					dob: settings.formatDate_yyyymmdd(props.dateOfBirth),
+					companyId: props.companyID,
+					companyUrl : companyUrl,
+					companyLogo : logo,
+					email: props.email,
+					companyName: companyName
+				}
+
+				return populateQ(qObject);
+			}
+			return
 		})
 		.catch(async function(err){
 			cprint(err,1);
@@ -133,6 +176,33 @@ module.exports = function(settings){
 			}
 			return
 		})
+	}
+
+	function fetchCompanyDetails(companyID){
+		var query = 'Select Name,Logo,WebsiteUrl from CompanyMaster where Id = ? and Status= ?';
+		var queryArray = [ companyID, 'active'];
+		return settings.dbConnection().then(function(connecting){
+			return settings.dbCall(connecting, query, queryArray);
+		})
+	}
+
+	function populateQ(anObj){
+		var message = {
+			event: 'active',
+			id: anObj["alumnusId"],
+			email: anObj["email"],
+			payload: {
+				name: [ anObj["firstName"], anObj["middleName"], anObj["lastName"] ].join(" "),
+				company: anObj["companyName"]
+			},
+			templateId: anObj["templateId"] ,
+			groupId: anObj["companyId"],
+			companyUrl : anObj["companyUrl"],
+			companyLogo : companyLogo,
+			dob: anObj["dob"],
+			timestamp: anObj["timestamp"]
+		}
+		sendMessage(message);
 	}
 
 	function subscribe(subscriptionArray){

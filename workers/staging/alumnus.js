@@ -173,6 +173,7 @@ module.exports = function(settings){
 		for(var i=0; i < len; i++){
 			try {
 				if(rows[i]["FirstName"]) {
+					
 					await settings.sanitizeSingleRecord(rows[i],serviceArray);
 				}
 				if(rows[i]["Institute"] || rows[i]["Course"]) {
@@ -194,8 +195,10 @@ module.exports = function(settings){
 	function fetchAllRecords(taskID, userID){
 		return fetchServices(userID)
 		.then(function(rows){
+			serviceArray = []
 			rows.forEach(function(aService){
 				serviceArray.push(aService['ServiceId'])
+
 			});
 			return fetchRecords(taskID, userID)
 		})

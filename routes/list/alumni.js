@@ -31,7 +31,8 @@ module.exports = function(settings){
 				if(anItem['Image']){
 					var image = anItem['Image'].split('-');
 					image = [image[0], image[1], image[2]].join('/')
-					profileImage = getSignedUrl.getObjectSignedUrl(config["aws"]["s3"]["bucket"],'profileImages/'+image+'/'+anItem['Image'], 120)
+					// profileImage = getSignedUrl.getObjectSignedUrl(config["aws"]["s3"]["bucket"],'profileImages/'+image+'/'+anItem['Image'], 120)
+					profileImage = 'https://s3.' + config["aws"]["credentials"]["region"] + '.amazonaws.com/' + config["aws"]["s3"]["bucket"] + '/' + 'profileImages/'+image+'/'+anItem['Image'];
 				}
 				data[anItem["AlumnusId"]] = {
 					id: anItem["AlumnusId"],
@@ -62,7 +63,8 @@ module.exports = function(settings){
 				if(data[aSubscription['AlumnusId']]){
 					data[aSubscription['AlumnusId']]['services'].push({
 						id: aSubscription['Id'],
-						name: aSubscription['Name']
+						name: aSubscription['Name'],
+						status: aSubscription['Status']
 					})
 				}
 			});

@@ -31,14 +31,14 @@ module.exports = function(settings){
 			data.profession = [];
 			data.services = [];
 			var profileImage = null;
-			if(alumniRows[0]['Image']){
-				console.log(alumniRows[0]['Image'])
-				var image = alumniRows[0]['Image'].split('-');
-				console.log(image)
-				image = [image[0], image[1], image[2]].join('/')
-				profileImage = getSignedUrl.getObjectSignedUrl(config["aws"]["s3"]["bucket"],'profileImages/'+image+'/'+alumniRows[0]['Image'], 120)
-				data.image = profileImage;
-			}
+			// if(alumniRows[0]['Image']){
+			// 	console.log(alumniRows[0]['Image'])
+			// 	var image = alumniRows[0]['Image'].split('-');
+			// 	console.log(image)
+			// 	image = [image[0], image[1], image[2]].join('/')
+			// 	profileImage = getSignedUrl.getObjectSignedUrl(config["aws"]["s3"]["bucket"],'profileImages/'+image+'/'+alumniRows[0]['Image'], 120)
+			// 	data.image = profileImage;
+			// }
 
 			var otherDetails = await  Promise.all([ fetchEducation(companyID, alumnusID), fetchProfession(companyID, alumnusID), fetchSubscriptions(alumnusID) ]);
 			var educationRows = otherDetails[0];

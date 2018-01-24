@@ -66,7 +66,6 @@ module.exports = function(settings){
 			cprint(err,1);
 			return settings.serviceError(res);
 		}
-
 	});
 
 	function fetchAlumniList(companyID, groupArray){
@@ -93,11 +92,8 @@ module.exports = function(settings){
 	function fetchNews(companyID, newsID){
 		return new Promise(function(fulfill, reject){
 			request.get({
-				url: config["services"]["news"]+"/group/"+companyID+"/news/"+newsID
-				// qs: {
-				// 	q: searchString,
-				// 	id: userIDArray.join(",")
-				// }
+				url: config["services"]["news"]+"/group/"+companyID+"/news/"+newsID,
+				strictSSL: false
 			}, function(err, response, body){
 				if(err){
 					cprint(err,1);
