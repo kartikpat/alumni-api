@@ -124,7 +124,7 @@ module.exports = function(settings){
 		return settings.badRequest(res)
 	}
 
-	app.post("/company/add",isRegisterAccess, multer.single('logo'), function(req, res){
+	app.post("/company/add", multer.single('logo'), function(req, res){
 		var name = req.body.name || null,
 			logo = req.body.logo || null,
 			logoBase64 =req.body.logoBase64 || null,

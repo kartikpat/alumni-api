@@ -3,7 +3,7 @@ var Papa = require('papaparse');
 
 //var fileStream = fs.createReadStream(__dirname+'/test-data.csv', 'utf8')
 //var data= [];
-           
+
 // fileStream.on('open', function(){
 // 	console.log("opened")
 // })
@@ -44,14 +44,14 @@ var mapper = {
 	"Batch to": 'batchTo',
 	"Batch from": "batchFrom",
 	"Course Type": 'type',
-	"": 	 "companyId"
+	"": "companyId"
 }
 
 function csvToJSON(inputStream, stepCallback, doneCallback){
 	inputStream = inputStream || fileStream;
 	if(typeof(stepCallback)!=="function"){
 		console.log("Please pass a callback")
-		return 
+		return
 	}
 	Papa.parse(inputStream ,{
 		header: true,
@@ -76,4 +76,3 @@ function csvToJSON(inputStream, stepCallback, doneCallback){
 }
 
 exports.csvToJSON = csvToJSON;
-

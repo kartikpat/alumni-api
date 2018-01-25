@@ -20,6 +20,7 @@ var validateMap = {
 
 module.exports = function(settings){
 	var cprint = settings.cprint;
+	var config = settings.config;
 
 	function validateUserFields(anObject){
 		var requiredFields = ['firstName', 'email', 'companyEmail', 'doj','dol', 'department', 'designation', 'salaryLPA'];
