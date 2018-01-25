@@ -199,7 +199,7 @@ module.exports = function(settings){
 			templateId: anObj["templateId"] ,
 			groupId: anObj["companyId"],
 			companyUrl : anObj["companyUrl"],
-			companyLogo : companyLogo,
+			companyLogo : anObj["companyLogo"],
 			dob: anObj["dob"],
 			timestamp: anObj["timestamp"]
 		}
