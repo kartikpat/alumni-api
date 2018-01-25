@@ -204,7 +204,7 @@ module.exports = function(settings){
 		}
 		sendMessage(message);
 	}
-
+	
 	function uploadFile(fileName, fileStream, storagePath){
 		return new Promise(function(resolve, reject){
 				if(!fileStream)

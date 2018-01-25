@@ -6,12 +6,12 @@ module.exports = function(settings){
 	var env = settings.env;
 	var cprint = settings.cprint;
 
-	app.get("/image/load",settings.isAuthenticated, function(req, res){
+	app.get("/image/load", function(req, res){
 		var url =  req.query.url || null;
 		if(!url)
 			return unprocessableEntity(res);
 		var options = { method: 'GET',
-  			url: url,
+  			url: url
   		}
 		request(options).pipe(res);
 	})
