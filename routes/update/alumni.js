@@ -131,11 +131,14 @@ module.exports = function(settings){
 			var serviceRows = await fetchServices(userID)
 			var serviceObj = {};
 			serviceRows.forEach(async function(aService){
+				serviceObj[aService['ServiceId']] = aService['ServiceId'];
 				if(aService['ServiceId'] == 1 && dateOfBirth != "Invalid date") {
 					await subscribe(aService['ServiceId'],alumnusID);
 				}
-				serviceObj[aService['ServiceId']] = aService['ServiceId'];
+
 			})
+			console.log(serviceObj)
+			console.log(dateOfBirth)
 			if(serviceObj[1] && !(dateOfBirth == "Invalid date")) {
 				var companyRows = await fetchCompanyDetails(companyID)
 				var companyName = companyRows[0]["Name"];
@@ -186,6 +189,14 @@ module.exports = function(settings){
 		})
 	}
 
+	function fetchServices(userID){
+		var query = 'Select ServiceId from ServicesAccess sa inner join ServicesMaster sm on sa.ServiceId = sm.Id inner join CompanyAccess ca on ca.CompanyId = sa.CompanyId inner join CompanyMaster cm on ca.CompanyId = cm.Id where ca.Id = ? and sa.Status = ? and ca.Status = ? and cm.Status = ? ';
+		var queryArray = [userID , 'active', 'active', 'active'];
+		return settings.dbConnection().then(function(connection){
+			return settings.dbCall(connection, query, queryArray);
+		})
+	}
+
 	function populateQ(anObj){
 		var message = {
 			event: 'active',
@@ -197,14 +208,14 @@ module.exports = function(settings){
 			},
 			templateId: anObj["templateId"],
 			groupId: anObj["companyId"],
-			companyUrl: companyUrl,
-			companyLogo: logo,
+			companyUrl: anObj["companyUrl"],
+			companyLogo: anObj["companyLogo"],
 			dob: anObj["dob"],
 			timestamp: anObj["timestamp"]
 		}
 		sendMessage(message);
 	}
-	
+
 	function uploadFile(fileName, fileStream, storagePath){
 		return new Promise(function(resolve, reject){
 				if(!fileStream)
